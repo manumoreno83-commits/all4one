@@ -154,7 +154,22 @@ window.loginSimulation = function (role) {
       state.currentStudentId = student.id;
       state.currentTrainerId = student.trainerId; // Student linked to their trainer
     } else {
-      alert('No se ha encontrado ningún alumno con ese email. Asegúrate de que tu entrenador te haya registrado.');
+      if (confirm(`No existe cuenta para ${email}. ¿Quieres registrarte ahora?`)) {
+        // Close auth overlay temporarily or just open modal on top?
+        // The auth overlay has z-index 2000. Modal has z-index 2001 usually (or defined in CSS).
+        // Let's check css. .modal-overlay usually high.
+        // But auth overlay is `display: flex`.
+        // Let's just run the modal opener.
+        if (typeof window.openCreateStudentModal === 'function') {
+          window.openCreateStudentModal();
+          setTimeout(() => {
+            const emailInput = document.querySelector('#new-student-form input[name="email"]');
+            if (emailInput) emailInput.value = email;
+          }, 200);
+        } else {
+          alert('Error: Función de registro no disponible.');
+        }
+      }
       return;
     }
   }
