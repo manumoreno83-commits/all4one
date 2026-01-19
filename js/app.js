@@ -5,10 +5,12 @@ const defaultState = {
   libMode: 'exercises', // 'exercises' or 'routines'
   exerciseFilter: 'all',
   clients: [
-    { id: 101, name: 'Mario Garcia', plan: 'Hipertrofia Pro', status: 'active', lastActive: 'hace 2h', routines: [1], weeklySchedule: { Monday: 1, Wednesday: 1, Friday: 1 }, joinedDate: '2023-05-12', progress: 75, goal: 'Subir 5kg músculo' },
-    { id: 102, name: 'Ana Lopez', plan: 'Pérdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], weeklySchedule: {}, joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa' },
-    { id: 103, name: 'Carlos Ruiz', plan: 'Fuerza Funcional', status: 'pending', lastActive: 'hace 1d', routines: [], weeklySchedule: {}, joinedDate: '2024-01-05', progress: 10, goal: 'Mejorar movilidad' },
+    { id: 101, name: 'Mario Garcia', plan: 'Hipertrofia Pro', status: 'active', lastActive: 'hace 2h', routines: [1], weeklySchedule: { Monday: 1, Wednesday: 1, Friday: 1 }, joinedDate: '2023-05-12', progress: 75, goal: 'Subir 5kg músculo', monthlyFee: 60 },
+    { id: 102, name: 'Ana Lopez', plan: 'Pérdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], weeklySchedule: {}, joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa', monthlyFee: 50 },
+    { id: 103, name: 'Carlos Ruiz', plan: 'Fuerza Funcional', status: 'pending', lastActive: 'hace 1d', routines: [], weeklySchedule: {}, joinedDate: '2024-01-05', progress: 10, goal: 'Mejorar movilidad', monthlyFee: 45 },
   ],
+  userRole: null, // 'admin' or 'student'
+  currentStudentId: null,
   agenda: [
     { id: 1, time: '09:00', title: 'Sesión EP: Mario Garcia', type: 'Fuerza Funcional' },
     { id: 2, time: '11:30', title: 'Revisión: Ana L.', type: 'Bloque Pérdida Peso' },
@@ -74,6 +76,38 @@ function switchView(targetId) {
 
   // Scroll Top
   $('#main-content').scrollTop = 0;
+}
+
+// --- AUTH LOGIC ---
+window.loginSimulation = function (role) {
+  state.userRole = role;
+  if (role === 'student') {
+    // Mocking student login (selecting Maria Garcia as example)
+    state.currentStudentId = 101;
+  }
+
+  $('#auth-overlay').style.display = 'none';
+  $('#app').style.display = 'flex';
+
+  saveState();
+  if (role === 'student') renderStudentPortal();
+  else renderAll();
+}
+
+window.logout = function () {
+  state.userRole = null;
+  state.currentStudentId = null;
+  saveState();
+  location.reload();
+}
+
+// Check session on load
+if (state.userRole) {
+  document.addEventListener('DOMContentLoaded', () => {
+    $('#auth-overlay').style.display = 'none';
+    $('#app').style.display = 'flex';
+    if (state.userRole === 'student') renderStudentPortal();
+  });
 }
 
 // Global Context-Aware Action Handler
@@ -486,14 +520,92 @@ if (studentForm) {
 }
 
 
-// Init
+// Init & Rendering
 function renderAll() {
+  if (state.userRole === 'student') {
+    renderStudentPortal();
+    return;
+  }
+
   renderClients();
   renderAgenda();
+  calculateStats();
   if (window.renderLibrarySplit) renderLibrarySplit();
-  // Update stats logic could go here
 }
 
+function calculateStats() {
+  const activeClients = state.clients.filter(c => c.status === 'active');
+  const totalRevenue = activeClients.reduce((sum, c) => sum + (c.monthlyFee || 0), 0);
+  const totalClients = state.clients.filter(c => c.status !== 'inactive').length;
+
+  // Simple retention: active / total historically
+  const retentionRate = totalClients > 0 ? Math.round((activeClients.length / totalClients) * 100) : 0;
+
+  // Update UI
+  const revenueBoxes = $$('.stat-box .num');
+  if (revenueBoxes.length >= 3) {
+    revenueBoxes[0].innerText = activeClients.length;
+    revenueBoxes[2].innerText = `€${totalRevenue.toLocaleString()}`;
+    revenueBoxes[3].innerText = `${retentionRate}%`;
+  }
+}
+
+function renderStudentPortal() {
+  const student = state.clients.find(c => c.id === state.currentStudentId);
+  if (!student || student.status === 'inactive') {
+    alert('Acceso denegado o cuenta inactiva');
+    logout();
+    return;
+  }
+
+  // Hide admin navigation
+  $('.bottom-nav').style.display = 'none';
+  $('.top-bar').innerHTML = `
+        <div class="user-profile">
+            <div class="avatar">${student.name.charAt(0)}</div>
+            <div class="greeting">
+                <span class="sub-text">Mis Entrenamientos</span>
+                <span class="username">${student.name}</span>
+            </div>
+        </div>
+        <button class="icon-btn" onclick="logout()" title="Salir">🚪</button>
+    `;
+
+  // Show student view in main content
+  const container = $('#main-content');
+
+  const daysMap = { Monday: 'Lunes', Tuesday: 'Martes', Wednesday: 'Miércoles', Thursday: 'Jueves', Friday: 'Viernes', Saturday: 'Sábado', Sunday: 'Domingo' };
+  const scheduleHtml = Object.keys(daysMap).map(dayKey => {
+    const routineId = student.weeklySchedule ? student.weeklySchedule[dayKey] : null;
+    const routine = routineId ? state.routines.find(r => r.id === routineId) : null;
+    return `
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:700; width:100px;">${daysMap[dayKey]}</span>
+                <span style="color:var(--accent-color)">${routine ? routine.name : 'Descanso'}</span>
+                ${routine ? `<button class="btn-ghost" onclick="viewRoutine(${routine.id})">Ver</button>` : ''}
+            </div>
+        `;
+  }).join('');
+
+  container.innerHTML = `
+        <section class="view active">
+            <div class="section-header">
+                <h2>Tu Planificación</h2>
+            </div>
+            ${scheduleHtml}
+        </section>
+    `;
+}
+
+window.viewRoutine = function (id) {
+  const r = state.routines.find(rt => rt.id === id);
+  const exercises = r.exercises.map(eid => {
+    const ex = state.library.find(e => e.id === eid);
+    return `<div class="exercise-item"><h4>${ex.name}</h4><button class="icon-btn" onclick="openVideo('${ex.video}')">📺</button></div>`;
+  }).join('');
+
+  alert(`Rutina: ${r.name}\n\nEjercicios:\n${r.exercises.map(eid => state.library.find(e => e.id === eid).name).join(', ')}`);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   renderAll();
