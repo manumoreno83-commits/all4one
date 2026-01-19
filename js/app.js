@@ -1649,15 +1649,7 @@ $('#agenda-form').addEventListener('submit', function (e) {
 });
 
 
-window.openContextItem = function (id, type) {
-  if (type === 'clients') {
-    openClientDetail(id);
-  } else if (type === 'library') {
-    editExercise(id);
-  } else {
-    alert('Este elemento es de solo lectura en esta versión.');
-  }
-}
+
 
 // --- SETTINGS LOGIC ---
 window.saveSettings = function () {
