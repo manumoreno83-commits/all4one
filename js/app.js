@@ -1655,26 +1655,15 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-state.settings.theme = colorName;
 
-// Update active class on selector
-$$('.theme-option').forEach(el => el.classList.remove('active'));
-// Re-find based on onclick attribute for simplicity
-const clicked = [...$$('.theme-option')].find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(colorName));
-if (clicked) clicked.classList.add('active');
+if (state.settings) {
+  if (state.settings.theme) setAppTheme(state.settings.theme);
+  const nameInput = $('#conf-name');
+  if (nameInput) nameInput.value = state.settings.name || '';
+  const roleInput = $('#conf-role');
+  if (roleInput) roleInput.value = state.settings.role || '';
 }
-}
-
-// Hook into state loading for settings
-const _initSettings = function () {
-  if (state.settings) {
-    if (state.settings.theme) setAppTheme(state.settings.theme);
-    const nameInput = $('#conf-name');
-    if (nameInput) nameInput.value = state.settings.name || '';
-    const roleInput = $('#conf-role');
-    if (roleInput) roleInput.value = state.settings.role || '';
-  }
-  updateDashboardStats(); // Ensure stats run on load
+updateDashboardStats(); // Ensure stats run on load
 };
 // Run once
 setTimeout(_initSettings, 500);
