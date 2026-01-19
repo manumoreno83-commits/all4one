@@ -1663,12 +1663,8 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-tableBody.innerHTML = rows.map(row => `
-  < tr style = "border-bottom:1px solid var(--bg-tertiary);" >
-            <td style="padding:12px 10px; color:white; font-weight:500;">${row.name}</td>
-            <td style="padding:12px 10px; text-align:right;">€${row.fee}</td>
-            <td style="padding:12px 10px; text-align:right;">${row.months}</td>
-            <td style="padding:12px 10px; text-align:right; color:var(--success);">€${row.total.toLocaleString()}</td>
+
+<td style="padding:12px 10px; text-align:right; color:var(--success);">€${row.total.toLocaleString()}</td>
         </tr >
   `).join('');
 
