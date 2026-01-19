@@ -1666,69 +1666,64 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-$('#new-student-form').addEventListener('submit', function (e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const id = formData.get('id'); // Check for hidden ID
 
-  // Helper to get manual fields
-  const targetDateEl = document.querySelector('input[name="targetDate"]');
-  const targetDate = targetDateEl ? targetDateEl.value : null;
+const targetDateEl = document.querySelector('input[name="targetDate"]');
+const targetDate = targetDateEl ? targetDateEl.value : null;
 
-  if (id) {
-    // Edit Mode
-    const client = state.clients.find(c => c.id === parseInt(id));
-    if (client) {
-      client.name = formData.get('name');
-      client.email = formData.get('email');
-      client.phone = formData.get('phone');
-      client.plan = formData.get('plan');
-      client.monthlyFee = parseFloat(formData.get('monthlyFee')) || 0;
-      client.status = formData.get('status'); // Status might be missing if select disabled?
-      client.goal = formData.get('goal');
-      client.age = formData.get('dob');
-      client.weight = formData.get('weight');
-      client.height = formData.get('height');
-      if (targetDate) client.targetDate = targetDate;
+if (id) {
+  // Edit Mode
+  const client = state.clients.find(c => c.id === parseInt(id));
+  if (client) {
+    client.name = formData.get('name');
+    client.email = formData.get('email');
+    client.phone = formData.get('phone');
+    client.plan = formData.get('plan');
+    client.monthlyFee = parseFloat(formData.get('monthlyFee')) || 0;
+    client.status = formData.get('status'); // Status might be missing if select disabled?
+    client.goal = formData.get('goal');
+    client.age = formData.get('dob');
+    client.weight = formData.get('weight');
+    client.height = formData.get('height');
+    if (targetDate) client.targetDate = targetDate;
 
-      saveState();
-      closeModal('new-student-modal');
-      alert('Alumno actualizado correctamente');
-      renderAll();
-      // Refresh detail view if open
-      if (state.currentView === 'view-client-detail') openClientDetail(client.id);
-      return;
-    }
+    saveState();
+    closeModal('new-student-modal');
+    alert('Alumno actualizado correctamente');
+    renderAll();
+    // Refresh detail view if open
+    if (state.currentView === 'view-client-detail') openClientDetail(client.id);
+    return;
   }
+}
 
-  // Create Mode
-  const newClient = {
-    id: Date.now(),
-    name: formData.get('name'),
-    email: formData.get('email'),
-    phone: formData.get('phone'),
-    trainerId: state.currentTrainerId,
-    plan: formData.get('plan'),
-    status: 'active',
-    lastActive: 'Ahora',
-    routines: [],
-    weeklySchedule: {},
-    joinedDate: new Date().toISOString().split('T')[0], // Default to today
-    progress: 0,
-    goal: formData.get('goal'),
-    monthlyFee: parseFloat(formData.get('monthlyFee')) || 0,
-    age: formData.get('dob'),
-    weight: formData.get('weight'),
-    height: formData.get('height'),
-  };
+// Create Mode
+const newClient = {
+  id: Date.now(),
+  name: formData.get('name'),
+  email: formData.get('email'),
+  phone: formData.get('phone'),
+  trainerId: state.currentTrainerId,
+  plan: formData.get('plan'),
+  status: 'active',
+  lastActive: 'Ahora',
+  routines: [],
+  weeklySchedule: {},
+  joinedDate: new Date().toISOString().split('T')[0], // Default to today
+  progress: 0,
+  goal: formData.get('goal'),
+  monthlyFee: parseFloat(formData.get('monthlyFee')) || 0,
+  age: formData.get('dob'),
+  weight: formData.get('weight'),
+  height: formData.get('height'),
+};
 
-  if (targetDate) newClient.targetDate = targetDate;
+if (targetDate) newClient.targetDate = targetDate;
 
-  state.clients.push(newClient);
-  saveState();
-  closeModal('new-student-modal');
-  alert('Alumno creado con éxito');
-  renderAll();
+state.clients.push(newClient);
+saveState();
+closeModal('new-student-modal');
+alert('Alumno creado con éxito');
+renderAll();
 });
 
 
