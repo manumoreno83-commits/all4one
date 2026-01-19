@@ -427,78 +427,90 @@ $('#agenda-form').addEventListener('submit', (e) => {
 });
 */
 
+
 function renderAgenda() {
   const container = $('#agenda-list');
   if (!container) return;
 
-  function renderAgenda() {
-    const container = $('#agenda-list');
-    if (!container) return;
-    container.innerHTML = state.agenda.map(item => `
-        <div class="schedule-item">
-            <div class="time">${item.time}</div>
-            <div class="event-info">
-                <span class="event-title">${item.title}</span>
-                <span class="event-type">${item.type}</span>
+  const sessions = state.scheduledSessions || [];
+  // Show upcoming 5 items
+  // Simple verification of date valid
+  const upcoming = sessions.filter(s => s.date && s.time).sort((a, b) => {
+    return new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time);
+  }).slice(0, 5);
+
+  if (upcoming.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">No hay eventos próximos</p>';
+    return;
+  }
+
+  container.innerHTML = upcoming.map(item => `
+        <div class="agenda-item" style="padding:10px; border-bottom:1px solid var(--bg-tertiary); display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-weight:600; font-size:14px; color:white; width:60px;">${item.time}</div>
+            <div style="flex:1; margin-left:10px;">
+                <h4 style="margin:0; font-size:14px; color:white;">${item.clientName || 'Evento'}</h4>
+                <p style="margin:0; font-size:12px; color:var(--text-secondary);">${item.routineName || item.notes || ''}</p>
             </div>
+            <div style="font-size:18px;">${item.status === 'completed' ? '✅' : '📅'}</div>
         </div>
     `).join('');
+}
+
+
+// --- LIBRARY LOGIC ---
+
+// --- LIBRARY & BUILDER LOGIC ---
+
+// Builder State
+state.builder = state.builder || [];
+
+window.setLibMode = function (mode) {
+  // Legacy support or switch tabs if we kept them
+  state.libMode = mode;
+  renderLibrarySplit();
+}
+
+function renderLibrarySplit() {
+  const sourceList = $('#library-source-list');
+  const builderList = $('#routine-builder-dropzone');
+  const chipContainer = $('#lib-filter-chips');
+
+  if (!sourceList || !builderList) return;
+
+  // 0. Render Chips (if container exists)
+  if (chipContainer) {
+    const categories = ['Todos', 'Piernas', 'Espalda', 'Pecho', 'Brazos', 'Torso', 'Cardio', 'Deka', 'Hyrox', 'Funcional', 'Calentamiento'];
+    chipContainer.innerHTML = categories.map(cat => {
+      const val = cat === 'Todos' ? 'all' : cat;
+      const isActive = state.exerciseFilter === val;
+      return `<div class="filter-chip ${isActive ? 'active' : ''}" onclick="setExerciseFilter('${val}')">${cat}</div>`;
+    }).join('');
   }
 
-  // --- LIBRARY LOGIC ---
+  // 1. Render Source List (Left Pane)
+  const filterText = ($('#lib-search')?.value || '').toLowerCase();
+  const filterCat = state.exerciseFilter || 'all';
 
-  // --- LIBRARY & BUILDER LOGIC ---
+  const filtered = state.library.filter(ex => {
+    const matchesText = ex.name.toLowerCase().includes(filterText) || ex.muscle.toLowerCase().includes(filterText);
+    const matchesCat = filterCat === 'all' || ex.muscle === filterCat || ex.type === filterCat;
+    return matchesText && matchesCat;
+  });
 
-  // Builder State
-  state.builder = state.builder || [];
+  sourceList.innerHTML = filtered.map(ex => {
+    // Smart Image Selection
+    let keywords = 'gym,fitness';
+    if (ex.muscle === 'Hyrox' || ex.type === 'Hyrox') keywords = 'crossfit,sled,running';
+    else if (ex.muscle === 'Deka' || ex.type === 'Deka') keywords = 'functional,training,workout';
+    else if (ex.muscle === 'Cardio') keywords = 'cardio,running,rowing';
+    else if (ex.muscle === 'Piernas') keywords = 'legs,squat,gym';
+    else if (ex.muscle === 'Espalda') keywords = 'back,pullup,gym';
+    else if (ex.muscle === 'Pecho') keywords = 'chest,benchpress,gym';
 
-  window.setLibMode = function (mode) {
-    // Legacy support or switch tabs if we kept them
-    state.libMode = mode;
-    renderLibrarySplit();
-  }
+    // Use specific images if available (mocked for now as we don't have a real google scraper)
+    const imgUrl = ex.image || `https://loremflickr.com/320/240/${keywords}/all?lock=${ex.id}`;
 
-  function renderLibrarySplit() {
-    const sourceList = $('#library-source-list');
-    const builderList = $('#routine-builder-dropzone');
-    const chipContainer = $('#lib-filter-chips');
-
-    if (!sourceList || !builderList) return;
-
-    // 0. Render Chips (if container exists)
-    if (chipContainer) {
-      const categories = ['Todos', 'Piernas', 'Espalda', 'Pecho', 'Brazos', 'Torso', 'Cardio', 'Deka', 'Hyrox', 'Funcional', 'Calentamiento'];
-      chipContainer.innerHTML = categories.map(cat => {
-        const val = cat === 'Todos' ? 'all' : cat;
-        const isActive = state.exerciseFilter === val;
-        return `<div class="filter-chip ${isActive ? 'active' : ''}" onclick="setExerciseFilter('${val}')">${cat}</div>`;
-      }).join('');
-    }
-
-    // 1. Render Source List (Left Pane)
-    const filterText = ($('#lib-search')?.value || '').toLowerCase();
-    const filterCat = state.exerciseFilter || 'all';
-
-    const filtered = state.library.filter(ex => {
-      const matchesText = ex.name.toLowerCase().includes(filterText) || ex.muscle.toLowerCase().includes(filterText);
-      const matchesCat = filterCat === 'all' || ex.muscle === filterCat || ex.type === filterCat;
-      return matchesText && matchesCat;
-    });
-
-    sourceList.innerHTML = filtered.map(ex => {
-      // Smart Image Selection
-      let keywords = 'gym,fitness';
-      if (ex.muscle === 'Hyrox' || ex.type === 'Hyrox') keywords = 'crossfit,sled,running';
-      else if (ex.muscle === 'Deka' || ex.type === 'Deka') keywords = 'functional,training,workout';
-      else if (ex.muscle === 'Cardio') keywords = 'cardio,running,rowing';
-      else if (ex.muscle === 'Piernas') keywords = 'legs,squat,gym';
-      else if (ex.muscle === 'Espalda') keywords = 'back,pullup,gym';
-      else if (ex.muscle === 'Pecho') keywords = 'chest,benchpress,gym';
-
-      // Use specific images if available (mocked for now as we don't have a real google scraper)
-      const imgUrl = ex.image || `https://loremflickr.com/320/240/${keywords}/all?lock=${ex.id}`;
-
-      return `
+    return `
         <div class="exercise-item" data-id="${ex.id}" onclick="addToBuilder(${ex.id})">
             <div class="exercise-thumb">
                 <img src="${imgUrl}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
@@ -515,21 +527,21 @@ function renderAgenda() {
             </div>
         </div>
     `;
-    }).join('');
+  }).join('');
 
-    // 2. Render Builder List (Right Pane)
-    if (state.builder.length === 0) {
-      builderList.innerHTML = `
+  // 2. Render Builder List (Right Pane)
+  if (state.builder.length === 0) {
+    builderList.innerHTML = `
            <div class="drop-zone no-sort">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px; opacity:0.5"><path d="M12 5v14M5 12h14"/></svg>
               <p>Arrastra ejercicios o haz clic para añadir.</p>
            </div>
         `;
-    } else {
-      builderList.innerHTML = state.builder.map((exId, idx) => {
-        const ex = state.library.find(e => e.id === exId);
-        if (!ex) return '';
-        return `
+  } else {
+    builderList.innerHTML = state.builder.map((exId, idx) => {
+      const ex = state.library.find(e => e.id === exId);
+      if (!ex) return '';
+      return `
                <div class="builder-item" data-id="${ex.id}">
                   <div style="display:flex; align-items:center; gap:10px;">
                     <span class="drag-handle" style="cursor:grab; opacity:0.3; font-size:12px;">☰</span>
@@ -538,201 +550,201 @@ function renderAgenda() {
                   <button class="icon-btn" onclick="removeFromBuilder(${idx})" style="color:var(--danger); padding:8px;">✕</button>
                </div>
             `;
-      }).join('');
-    }
-
-    // 3. Initialize/Update SortableJS
-    initSortables();
+    }).join('');
   }
 
-  function initSortables() {
-    const sourceEl = $('#library-source-list');
-    const builderEl = $('#routine-builder-dropzone');
+  // 3. Initialize/Update SortableJS
+  initSortables();
+}
 
-    if (!sourceEl || !builderEl) return;
+function initSortables() {
+  const sourceEl = $('#library-source-list');
+  const builderEl = $('#routine-builder-dropzone');
 
-    // Source List (Clone from here)
-    if (!sourceEl.sortable) {
-      sourceEl.sortable = new Sortable(sourceEl, {
-        group: {
-          name: 'exercises',
-          pull: 'clone',
-          put: false
-        },
-        sort: false,
-        animation: 150,
-        draggable: '.exercise-item',
-        onEnd: function (evt) {
-          if (evt.from !== evt.to) {
-            // Update state.builder based on the new order in builderEl
-            syncBuilderFromDOM();
-          }
-        }
-      });
-    }
+  if (!sourceEl || !builderEl) return;
 
-    // Builder List (Drop here)
-    if (builderEl.sortable) builderEl.sortable.destroy();
-
-    builderEl.sortable = new Sortable(builderEl, {
-      group: 'exercises',
-      animation: 150,
-      draggable: '.builder-item',
-      filter: '.no-sort',
-      handle: '.drag-handle',
-      onAdd: function (evt) {
-        syncBuilderFromDOM();
+  // Source List (Clone from here)
+  if (!sourceEl.sortable) {
+    sourceEl.sortable = new Sortable(sourceEl, {
+      group: {
+        name: 'exercises',
+        pull: 'clone',
+        put: false
       },
-      onUpdate: function (evt) {
-        syncBuilderFromDOM();
+      sort: false,
+      animation: 150,
+      draggable: '.exercise-item',
+      onEnd: function (evt) {
+        if (evt.from !== evt.to) {
+          // Update state.builder based on the new order in builderEl
+          syncBuilderFromDOM();
+        }
       }
     });
   }
 
-  function syncBuilderFromDOM() {
-    const builderEl = $('#routine-builder-dropzone');
-    const items = builderEl.querySelectorAll('.builder-item');
-    const newBuilder = [];
-    items.forEach(item => {
-      newBuilder.push(parseInt(item.dataset.id));
-    });
-    state.builder = newBuilder;
-    renderLibrarySplit(); // Re-render to update indexes and count
+  // Builder List (Drop here)
+  if (builderEl.sortable) builderEl.sortable.destroy();
+
+  builderEl.sortable = new Sortable(builderEl, {
+    group: 'exercises',
+    animation: 150,
+    draggable: '.builder-item',
+    filter: '.no-sort',
+    handle: '.drag-handle',
+    onAdd: function (evt) {
+      syncBuilderFromDOM();
+    },
+    onUpdate: function (evt) {
+      syncBuilderFromDOM();
+    }
+  });
+}
+
+function syncBuilderFromDOM() {
+  const builderEl = $('#routine-builder-dropzone');
+  const items = builderEl.querySelectorAll('.builder-item');
+  const newBuilder = [];
+  items.forEach(item => {
+    newBuilder.push(parseInt(item.dataset.id));
+  });
+  state.builder = newBuilder;
+  renderLibrarySplit(); // Re-render to update indexes and count
+}
+
+// Builder Actions
+window.addToBuilder = function (exId) {
+  state.builder.push(exId);
+  renderLibrarySplit();
+}
+
+window.removeFromBuilder = function (index) {
+  state.builder.splice(index, 1);
+  renderLibrarySplit();
+}
+
+window.setExerciseFilter = function (filter) {
+  state.exerciseFilter = filter;
+  renderLibrarySplit();
+}
+
+window.filterLibrary = function () {
+  renderLibrarySplit();
+}
+
+window.saveBuiltRoutine = function () {
+  if (state.builder.length === 0) return alert('Añade ejercicios primero');
+  const name = prompt('Nombre de la Rutina:', 'Nueva Rutina');
+  if (!name) return;
+
+  const newRoutine = {
+    id: Date.now(),
+    name,
+    exercises: [...state.builder],
+    createdAt: new Date().toISOString()
+  };
+
+  state.routines.push(newRoutine);
+  state.builder = []; // Clear current builder
+  saveState(); // This will trigger renderAll()
+
+  // Switch to a view where they can see their routines or just notify
+  alert(`Rutina "${name}" guardada con éxito.`);
+  renderLibrarySplit();
+}
+
+// Update `openExerciseModal`
+window.openExerciseModal = function (id = null) {
+  const modal = $('#exercise-modal');
+  const form = $('#exercise-form');
+  const title = $('#ex-modal-title');
+
+  form.reset();
+  if (id) {
+    const ex = state.library.find(e => e.id === parseInt(id));
+    if (ex) {
+      $('#ex-edit-id').value = ex.id;
+      $('#ex-name').value = ex.name;
+      $('#ex-muscle').value = ex.muscle;
+      if ($('#ex-type')) $('#ex-type').value = ex.type || 'Personalizado';
+      $('#ex-video').value = ex.video;
+      $('#ex-description').value = ex.description || '';
+      title.innerText = 'Editar Ejercicio';
+    }
+  } else {
+    $('#ex-edit-id').value = '';
+    title.innerText = 'Nuevo Ejercicio';
   }
 
-  // Builder Actions
-  window.addToBuilder = function (exId) {
-    state.builder.push(exId);
-    renderLibrarySplit();
-  }
+  modal.classList.add('open');
+}
 
-  window.removeFromBuilder = function (index) {
-    state.builder.splice(index, 1);
-    renderLibrarySplit();
-  }
+$('#exercise-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const id = $('#ex-edit-id').value;
+  const name = $('#ex-name').value;
+  const muscle = $('#ex-muscle').value;
+  const type = $('#ex-type') ? $('#ex-type').value : 'Personalizado';
+  const video = $('#ex-video').value;
+  const description = $('#ex-description').value;
 
-  window.setExerciseFilter = function (filter) {
-    state.exerciseFilter = filter;
-    renderLibrarySplit();
-  }
-
-  window.filterLibrary = function () {
-    renderLibrarySplit();
-  }
-
-  window.saveBuiltRoutine = function () {
-    if (state.builder.length === 0) return alert('Añade ejercicios primero');
-    const name = prompt('Nombre de la Rutina:', 'Nueva Rutina');
-    if (!name) return;
-
-    const newRoutine = {
+  if (id) {
+    // Edit
+    const exIdx = state.library.findIndex(e => e.id === parseInt(id));
+    if (exIdx > -1) {
+      state.library[exIdx] = { ...state.library[exIdx], name, muscle, type, video, description };
+    }
+  } else {
+    // New
+    const newEx = {
       id: Date.now(),
       name,
-      exercises: [...state.builder],
-      createdAt: new Date().toISOString()
+      muscle,
+      type,
+      video,
+      description
     };
-
-    state.routines.push(newRoutine);
-    state.builder = []; // Clear current builder
-    saveState(); // This will trigger renderAll()
-
-    // Switch to a view where they can see their routines or just notify
-    alert(`Rutina "${name}" guardada con éxito.`);
-    renderLibrarySplit();
+    state.library.push(newEx);
   }
 
-  // Update `openExerciseModal`
-  window.openExerciseModal = function (id = null) {
-    const modal = $('#exercise-modal');
-    const form = $('#exercise-form');
-    const title = $('#ex-modal-title');
-
-    form.reset();
-    if (id) {
-      const ex = state.library.find(e => e.id === parseInt(id));
-      if (ex) {
-        $('#ex-edit-id').value = ex.id;
-        $('#ex-name').value = ex.name;
-        $('#ex-muscle').value = ex.muscle;
-        if ($('#ex-type')) $('#ex-type').value = ex.type || 'Personalizado';
-        $('#ex-video').value = ex.video;
-        $('#ex-description').value = ex.description || '';
-        title.innerText = 'Editar Ejercicio';
-      }
-    } else {
-      $('#ex-edit-id').value = '';
-      title.innerText = 'Nuevo Ejercicio';
-    }
-
-    modal.classList.add('open');
-  }
-
-  $('#exercise-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const id = $('#ex-edit-id').value;
-    const name = $('#ex-name').value;
-    const muscle = $('#ex-muscle').value;
-    const type = $('#ex-type') ? $('#ex-type').value : 'Personalizado';
-    const video = $('#ex-video').value;
-    const description = $('#ex-description').value;
-
-    if (id) {
-      // Edit
-      const exIdx = state.library.findIndex(e => e.id === parseInt(id));
-      if (exIdx > -1) {
-        state.library[exIdx] = { ...state.library[exIdx], name, muscle, type, video, description };
-      }
-    } else {
-      // New
-      const newEx = {
-        id: Date.now(),
-        name,
-        muscle,
-        type,
-        video,
-        description
-      };
-      state.library.push(newEx);
-    }
-
-    saveState();
-    closeModal('exercise-modal');
-    renderLibrarySplit();
-    alert('Ejercicio guardado correctamente');
-  });
+  saveState();
+  closeModal('exercise-modal');
+  renderLibrarySplit();
+  alert('Ejercicio guardado correctamente');
+});
 
 
-  // Update `openClientDetail` to show Target Date
+// Update `openClientDetail` to show Target Date
 
-  // --- Clients & Detail View ---
-  window.openClientDetail = function (id) {
-    const client = state.clients.find(c => c.id === id);
-    if (!client) return;
+// --- Clients & Detail View ---
+window.openClientDetail = function (id) {
+  const client = state.clients.find(c => c.id === id);
+  if (!client) return;
 
-    const detailContent = $('#client-detail-content');
+  const detailContent = $('#client-detail-content');
 
-    // 1. Calculate Real Weekly Progress (Last 7 days)
-    const today = new Date();
-    const progressBarsHtml = [];
-    const sessions = state.scheduledSessions || [];
+  // 1. Calculate Real Weekly Progress (Last 7 days)
+  const today = new Date();
+  const progressBarsHtml = [];
+  const sessions = state.scheduledSessions || [];
 
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(today.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
-      const dayLabel = d.toLocaleDateString('es-ES', { weekday: 'narrow' }).toUpperCase();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(today.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const dayLabel = d.toLocaleDateString('es-ES', { weekday: 'narrow' }).toUpperCase();
 
-      const completedCount = sessions.filter(s =>
-        s.clientId === client.id &&
-        s.date === dateStr &&
-        s.status === 'completed'
-      ).length;
+    const completedCount = sessions.filter(s =>
+      s.clientId === client.id &&
+      s.date === dateStr &&
+      s.status === 'completed'
+    ).length;
 
-      // partial bar logic: 1 session = 100%. 
-      // If we want more granularity, we could say (completed / scheduled) * 100
-      const val = completedCount > 0 ? 100 : 0;
+    // partial bar logic: 1 session = 100%. 
+    // If we want more granularity, we could say (completed / scheduled) * 100
+    const val = completedCount > 0 ? 100 : 0;
 
-      progressBarsHtml.push(`
+    progressBarsHtml.push(`
          <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1;">
             <div style="width:8px; height:60px; background:rgba(255,255,255,0.1); border-radius:4px; position:relative; overflow:hidden;">
                 <div style="position:absolute; bottom:0; left:0; right:0; height:${val}%; background:var(--accent-color);"></div>
@@ -740,29 +752,29 @@ function renderAgenda() {
             <span style="font-size:9px; color:var(--text-secondary);">${dayLabel}</span>
          </div>
       `);
-    }
+  }
 
-    // 2. Real Weekly Schedule (Next 7 Days starting today or this week?)
-    // User said "empezando desde semana actual". Let's show this week's schedule.
-    // We'll iterate from Monday of this week to Sunday.
-    const currentDay = new Date();
-    const dayOfWeek = currentDay.getDay();
-    const diff = currentDay.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    const monday = new Date(currentDay.setDate(diff));
+  // 2. Real Weekly Schedule (Next 7 Days starting today or this week?)
+  // User said "empezando desde semana actual". Let's show this week's schedule.
+  // We'll iterate from Monday of this week to Sunday.
+  const currentDay = new Date();
+  const dayOfWeek = currentDay.getDay();
+  const diff = currentDay.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+  const monday = new Date(currentDay.setDate(diff));
 
-    let scheduleHtml = '';
+  let scheduleHtml = '';
 
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i); // Correctly increment from Monday copy
-      const dateStr = d.toISOString().split('T')[0];
-      const dayName = d.toLocaleDateString('es-ES', { weekday: 'long' });
-      const dayNum = d.getDate();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i); // Correctly increment from Monday copy
+    const dateStr = d.toISOString().split('T')[0];
+    const dayName = d.toLocaleDateString('es-ES', { weekday: 'long' });
+    const dayNum = d.getDate();
 
-      // Find session
-      const sess = sessions.find(s => s.clientId === client.id && s.date === dateStr);
+    // Find session
+    const sess = sessions.find(s => s.clientId === client.id && s.date === dateStr);
 
-      scheduleHtml += `
+    scheduleHtml += `
       <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid var(--bg-tertiary);">
         <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-weight:600; font-size:13px; color:var(--text-secondary); width:20px;">${dayNum}</span>
@@ -770,24 +782,24 @@ function renderAgenda() {
         </div>
         <div style="flex:1; text-align:right;">
           ${sess ? `<span style="color:var(--accent-color); font-weight:500; cursor:pointer;" onclick="alert('Detalle: ${sess.routineName}')">${sess.routineName} ${sess.status === 'completed' ? '✅' : ''}</span>` :
-          `<span style="color:var(--text-secondary); opacity:0.3; font-size:12px;">Descanso</span>`}
+        `<span style="color:var(--text-secondary); opacity:0.3; font-size:12px;">Descanso</span>`}
         </div>
       </div>`;
-    }
+  }
 
-    // General Routines (Templates)
-    const routinesHtml = client.routines.map(rid => {
-      const r = state.routines.find(rt => rt.id === rid);
-      if (!r) return '';
-      return `
+  // General Routines (Templates)
+  const routinesHtml = client.routines.map(rid => {
+    const r = state.routines.find(rt => rt.id === rid);
+    if (!r) return '';
+    return `
             <div class="routine-card">
                <div><h4>${r.name}</h4><p>${r.exercises.length} Ejercicios</p></div>
                <span class="routine-badge">General</span>
             </div>
         `;
-    }).join('');
+  }).join('');
 
-    detailContent.innerHTML = `
+  detailContent.innerHTML = `
         <div class="client-hero">
            <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px;">
               <button class="icon-btn" onclick="editClient(${client.id})">✏️ Editar</button>
@@ -843,127 +855,127 @@ function renderAgenda() {
         </div>
     `;
 
-    switchView('view-client-detail');
+  switchView('view-client-detail');
+}
+
+// Add editClient stub
+window.editClient = function (id) {
+  alert("Función de editar perfil de alumno " + id + " en desarrollo.");
+}
+
+// --- ASSIGNMENT ---
+
+// --- Menu Actions ---
+window.menuAction = function (action) {
+  closeFullscreenMenu();
+  if (action === 'new-student') {
+    openCreateStudentModal();
+  } else if (action === 'new-routine') {
+    // Clear builder and go to library
+    state.builder = [];
+    switchView('view-library');
+    alert('Modo: Nueva Rutina. Selecciona ejercicios de la izquierda.');
+  } else if (action === 'new-activity') {
+    openAddAgendaModal();
+  }
+}
+
+window.closeFullscreenMenu = function () {
+  $('#fullscreen-menu').classList.remove('open');
+}
+
+window.handleGlobalAction = function () {
+  $('#fullscreen-menu').classList.add('open');
+}
+
+// --- ASSIGNMENT & SESSIONS ---
+
+window.openAssignModal = function (clientId) {
+  const client = state.clients.find(c => c.id === clientId);
+  $('#assign-target-name').innerText = `Asignando a ${client.name}`;
+  $('#assign-client-id').value = clientId;
+
+  const select = $('#assign-routine-select');
+  select.innerHTML = state.routines.map(r => `<option value="${r.id}">${r.name} (${r.exercises.length} ex)</option>`).join('');
+
+  // Default date to today
+  $('#assign-date').value = new Date().toISOString().split('T')[0];
+
+  $('#assign-modal').classList.add('open');
+}
+
+$('#assign-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const clientId = parseInt($('#assign-client-id').value);
+  const routineId = parseInt($('#assign-routine-select').value);
+  const date = $('#assign-date').value;
+  const time = $('#assign-time').value;
+  const notes = $('#assign-notes').value;
+
+  if (!state.scheduledSessions) state.scheduledSessions = [];
+
+  const client = state.clients.find(c => c.id === clientId);
+  const routine = state.routines.find(r => r.id === routineId);
+
+  const newSession = {
+    id: Date.now(),
+    clientId,
+    clientName: client.name,
+    routineId,
+    routineName: routine.name,
+    date,
+    time,
+    notes,
+    status: 'pending',
+    trainerId: state.currentTrainerId
+  };
+
+  state.scheduledSessions.push(newSession);
+
+  // Also update client's template schedule if they want (simplification: just add to 'General' list for now)
+  if (!client.routines.includes(routineId)) {
+    client.routines.push(routineId);
   }
 
-  // Add editClient stub
-  window.editClient = function (id) {
-    alert("Función de editar perfil de alumno " + id + " en desarrollo.");
+  saveState();
+  closeModal('assign-modal');
+  alert(`Sesión programada para el ${date} a las ${time}`);
+  renderCalendar(); // ensure calendar catches it if we switch
+});
+
+window.renderCalendar = function () {
+  const grid = $('#calendar-grid');
+  if (!grid) return; // Not in calendar view
+
+  // Get current week (7 days from today) or maybe allow navigation.
+  // For now: 7 days static as requested "fechas reales".
+  const days = [];
+  const today = new Date();
+
+  // Start from Monday of current week? Or Today? User said "empezando desde semana actual".
+  // Let's start from Monday of this week.
+  const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
+  const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust when day is Sunday
+  const monday = new Date(today.setDate(diff));
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    days.push(d);
   }
 
-  // --- ASSIGNMENT ---
+  const sessions = state.scheduledSessions || [];
 
-  // --- Menu Actions ---
-  window.menuAction = function (action) {
-    closeFullscreenMenu();
-    if (action === 'new-student') {
-      openCreateStudentModal();
-    } else if (action === 'new-routine') {
-      // Clear builder and go to library
-      state.builder = [];
-      switchView('view-library');
-      alert('Modo: Nueva Rutina. Selecciona ejercicios de la izquierda.');
-    } else if (action === 'new-activity') {
-      openAddAgendaModal();
-    }
-  }
+  grid.innerHTML = days.map(day => {
+    const dateStr = day.toISOString().split('T')[0];
+    const dayName = day.toLocaleDateString('es-ES', { weekday: 'short' });
+    const dayNum = day.getDate();
+    const isToday = new Date().toISOString().split('T')[0] === dateStr;
 
-  window.closeFullscreenMenu = function () {
-    $('#fullscreen-menu').classList.remove('open');
-  }
+    // Filter events for this day
+    const daySessions = sessions.filter(s => s.date === dateStr && s.trainerId === state.currentTrainerId);
 
-  window.handleGlobalAction = function () {
-    $('#fullscreen-menu').classList.add('open');
-  }
-
-  // --- ASSIGNMENT & SESSIONS ---
-
-  window.openAssignModal = function (clientId) {
-    const client = state.clients.find(c => c.id === clientId);
-    $('#assign-target-name').innerText = `Asignando a ${client.name}`;
-    $('#assign-client-id').value = clientId;
-
-    const select = $('#assign-routine-select');
-    select.innerHTML = state.routines.map(r => `<option value="${r.id}">${r.name} (${r.exercises.length} ex)</option>`).join('');
-
-    // Default date to today
-    $('#assign-date').value = new Date().toISOString().split('T')[0];
-
-    $('#assign-modal').classList.add('open');
-  }
-
-  $('#assign-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const clientId = parseInt($('#assign-client-id').value);
-    const routineId = parseInt($('#assign-routine-select').value);
-    const date = $('#assign-date').value;
-    const time = $('#assign-time').value;
-    const notes = $('#assign-notes').value;
-
-    if (!state.scheduledSessions) state.scheduledSessions = [];
-
-    const client = state.clients.find(c => c.id === clientId);
-    const routine = state.routines.find(r => r.id === routineId);
-
-    const newSession = {
-      id: Date.now(),
-      clientId,
-      clientName: client.name,
-      routineId,
-      routineName: routine.name,
-      date,
-      time,
-      notes,
-      status: 'pending',
-      trainerId: state.currentTrainerId
-    };
-
-    state.scheduledSessions.push(newSession);
-
-    // Also update client's template schedule if they want (simplification: just add to 'General' list for now)
-    if (!client.routines.includes(routineId)) {
-      client.routines.push(routineId);
-    }
-
-    saveState();
-    closeModal('assign-modal');
-    alert(`Sesión programada para el ${date} a las ${time}`);
-    renderCalendar(); // ensure calendar catches it if we switch
-  });
-
-  window.renderCalendar = function () {
-    const grid = $('#calendar-grid');
-    if (!grid) return; // Not in calendar view
-
-    // Get current week (7 days from today) or maybe allow navigation.
-    // For now: 7 days static as requested "fechas reales".
-    const days = [];
-    const today = new Date();
-
-    // Start from Monday of current week? Or Today? User said "empezando desde semana actual".
-    // Let's start from Monday of this week.
-    const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
-    const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust when day is Sunday
-    const monday = new Date(today.setDate(diff));
-
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
-      days.push(d);
-    }
-
-    const sessions = state.scheduledSessions || [];
-
-    grid.innerHTML = days.map(day => {
-      const dateStr = day.toISOString().split('T')[0];
-      const dayName = day.toLocaleDateString('es-ES', { weekday: 'short' });
-      const dayNum = day.getDate();
-      const isToday = new Date().toISOString().split('T')[0] === dateStr;
-
-      // Filter events for this day
-      const daySessions = sessions.filter(s => s.date === dateStr && s.trainerId === state.currentTrainerId);
-
-      return `
+    return `
             <div class="calendar-day-col ${isToday ? 'today' : ''}">
                 <div class="calendar-day-header">
                     <span class="day-name">${dayName}</span>
@@ -982,37 +994,37 @@ function renderAgenda() {
                 </div>
             </div>
     `;
-    }).join('');
+  }).join('');
+}
+
+
+function renderCalendar() {
+  const grid = $('#calendar-grid');
+  if (!grid) return;
+
+  // Get current week (7 days from today)
+  const days = [];
+  const today = new Date();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    days.push(d);
   }
 
+  const sessions = state.scheduledSessions || [];
+  const agenda = state.agenda || [];
 
-  function renderCalendar() {
-    const grid = $('#calendar-grid');
-    if (!grid) return;
+  grid.innerHTML = days.map(day => {
+    const dateStr = day.toISOString().split('T')[0];
+    const dayName = day.toLocaleDateString('es-ES', { weekday: 'short' });
+    const dayNum = day.getDate();
 
-    // Get current week (7 days from today)
-    const days = [];
-    const today = new Date();
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      days.push(d);
-    }
+    // Filter events for this day
+    const daySessions = sessions.filter(s => s.date === dateStr && s.trainerId === state.currentTrainerId);
+    // Agenda events don't have dates in current simple state, let's assume they are for "today"
+    const dayAgenda = i === 0 ? agenda : []; // Mock: only show agenda for today
 
-    const sessions = state.scheduledSessions || [];
-    const agenda = state.agenda || [];
-
-    grid.innerHTML = days.map(day => {
-      const dateStr = day.toISOString().split('T')[0];
-      const dayName = day.toLocaleDateString('es-ES', { weekday: 'short' });
-      const dayNum = day.getDate();
-
-      // Filter events for this day
-      const daySessions = sessions.filter(s => s.date === dateStr && s.trainerId === state.currentTrainerId);
-      // Agenda events don't have dates in current simple state, let's assume they are for "today"
-      const dayAgenda = i === 0 ? agenda : []; // Mock: only show agenda for today
-
-      return `
+    return `
             <div class="calendar-day-col">
                 <div class="calendar-day-header">
                     <span class="day-name">${dayName}</span>
@@ -1037,78 +1049,78 @@ function renderAgenda() {
                 </div>
             </div>
         `;
-    }).join('');
-  }
+  }).join('');
+}
 
 
-  // Helpers
-  function closeModal() { $$('.modal-overlay').forEach(el => el.classList.remove('open')); }
-  $$('.cancel-btn').forEach(btn => btn.addEventListener('click', closeModal));
+// Helpers
+function closeModal() { $$('.modal-overlay').forEach(el => el.classList.remove('open')); }
+$$('.cancel-btn').forEach(btn => btn.addEventListener('click', closeModal));
 
-  // Close on ESC
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeModal();
+// Close on ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// --- NEW STUDENT LOGIC ---
+
+window.openCreateStudentModal = function () {
+  $('#new-student-modal').classList.add('open');
+}
+
+window.closeModal = function (id) {
+  if (id) $(`#${id}`).classList.remove('open');
+  else $$('.modal-overlay').forEach(m => m.classList.remove('open'));
+}
+
+// Handle New Student Form
+const studentForm = $('#new-student-form');
+if (studentForm) {
+  studentForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    // Basic Validation
+    if (!data.name) return alert('Nombre requerido');
+
+    const newClient = {
+      id: Date.now(),
+      name: data.name,
+      email: data.email || '', // Ensure email is saved
+      trainerId: state.currentTrainerId, // Assign to current trainer
+      plan: data.plan,
+      status: data.status || 'active',
+      monthlyFee: parseFloat(data.monthlyFee) || 50,
+      targetDate: data.targetDate || null,
+      details: { ...data }, // Store all detailed fields
+      routines: [],
+      weeklySchedule: {}
+    };
+
+    state.clients.unshift(newClient);
+    saveState();
+    closeModal('new-student-modal');
+    renderClients();
+    alert('Alumno registrado correctamente');
+    e.target.reset(); // Clear form
+    switchView('view-clients');
   });
+}
 
-  // --- NEW STUDENT LOGIC ---
 
-  window.openCreateStudentModal = function () {
-    $('#new-student-modal').classList.add('open');
+// Init & Rendering
+function renderAll() {
+  if (state.userRole === 'student') {
+    renderStudentPortal();
+    return;
   }
 
-  window.closeModal = function (id) {
-    if (id) $(`#${id}`).classList.remove('open');
-    else $$('.modal-overlay').forEach(m => m.classList.remove('open'));
-  }
-
-  // Handle New Student Form
-  const studentForm = $('#new-student-form');
-  if (studentForm) {
-    studentForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
-
-      // Basic Validation
-      if (!data.name) return alert('Nombre requerido');
-
-      const newClient = {
-        id: Date.now(),
-        name: data.name,
-        email: data.email || '', // Ensure email is saved
-        trainerId: state.currentTrainerId, // Assign to current trainer
-        plan: data.plan,
-        status: data.status || 'active',
-        monthlyFee: parseFloat(data.monthlyFee) || 50,
-        targetDate: data.targetDate || null,
-        details: { ...data }, // Store all detailed fields
-        routines: [],
-        weeklySchedule: {}
-      };
-
-      state.clients.unshift(newClient);
-      saveState();
-      closeModal('new-student-modal');
-      renderClients();
-      alert('Alumno registrado correctamente');
-      e.target.reset(); // Clear form
-      switchView('view-clients');
-    });
-  }
-
-
-  // Init & Rendering
-  function renderAll() {
-    if (state.userRole === 'student') {
-      renderStudentPortal();
-      return;
-    }
-
-    // Update Top Bar for current trainer
-    const trainer = state.trainers.find(t => t.id === state.currentTrainerId);
-    if (trainer) {
-      // Top bar update with photo and role
-      $('.top-bar .user-profile').innerHTML = `
+  // Update Top Bar for current trainer
+  const trainer = state.trainers.find(t => t.id === state.currentTrainerId);
+  if (trainer) {
+    // Top bar update with photo and role
+    $('.top-bar .user-profile').innerHTML = `
         <div class="avatar" style="background-image: url('${trainer.photo}'); background-size: cover; background-position: center; border: 2px solid var(--accent-color); width: 40px; height: 40px; border-radius: 50%;"></div>
         <div class="greeting">
             <span class="sub-text" style="font-size:10px; opacity:0.8;">${trainer.role}</span>
@@ -1116,71 +1128,71 @@ function renderAgenda() {
         </div>
     `;
 
-      // Profile page update
-      const largeAvatar = $('.profile-avatar-large');
-      if (largeAvatar) {
-        largeAvatar.innerHTML = '';
-        largeAvatar.style.backgroundImage = `url('${trainer.photo}')`;
-        largeAvatar.style.backgroundSize = 'cover';
-        largeAvatar.style.backgroundPosition = 'center';
-        largeAvatar.style.border = '3px solid var(--accent-color)';
-      }
-
-      const h2Header = $('.profile-header h2');
-      if (h2Header) h2Header.innerText = trainer.name;
-
-      const pHeader = $('.profile-header p');
-      if (pHeader) pHeader.innerText = trainer.role;
+    // Profile page update
+    const largeAvatar = $('.profile-avatar-large');
+    if (largeAvatar) {
+      largeAvatar.innerHTML = '';
+      largeAvatar.style.backgroundImage = `url('${trainer.photo}')`;
+      largeAvatar.style.backgroundSize = 'cover';
+      largeAvatar.style.backgroundPosition = 'center';
+      largeAvatar.style.border = '3px solid var(--accent-color)';
     }
 
-    renderClients();
-    renderAgenda();
-    calculateStats();
-    if (window.renderLibrarySplit) renderLibrarySplit();
+    const h2Header = $('.profile-header h2');
+    if (h2Header) h2Header.innerText = trainer.name;
+
+    const pHeader = $('.profile-header p');
+    if (pHeader) pHeader.innerText = trainer.role;
   }
 
-  function calculateStats() {
-    // Stats filtered by trainer
-    const myClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
-    const activeClients = myClients.filter(c => c.status === 'active');
+  renderClients();
+  renderAgenda();
+  calculateStats();
+  if (window.renderLibrarySplit) renderLibrarySplit();
+}
 
-    // Real Calculations
-    const totalRevenue = activeClients.reduce((sum, c) => sum + (c.monthlyFee || 0), 0);
-    const totalClients = myClients.filter(c => c.status !== 'inactive').length;
+function calculateStats() {
+  // Stats filtered by trainer
+  const myClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
+  const activeClients = myClients.filter(c => c.status === 'active');
 
-    // Retention: Active vs Total (Simplified)
-    const retentionRate = totalClients > 0 ? Math.round((activeClients.length / totalClients) * 100) : 0;
+  // Real Calculations
+  const totalRevenue = activeClients.reduce((sum, c) => sum + (c.monthlyFee || 0), 0);
+  const totalClients = myClients.filter(c => c.status !== 'inactive').length;
 
-    // Reviews: Count "Revisión" in upcoming sessions or Agenda
-    // Looking at scheduledSessions for future dates + agenda
-    const reviewsCount = (state.agenda || []).filter(a => a.type && a.type.includes('Revisión')).length;
+  // Retention: Active vs Total (Simplified)
+  const retentionRate = totalClients > 0 ? Math.round((activeClients.length / totalClients) * 100) : 0;
 
-    // Sessions this week (Mocking current week check for simplicity, or just total scheduled)
-    const sessionsCount = (state.scheduledSessions || []).length;
+  // Reviews: Count "Revisión" in upcoming sessions or Agenda
+  // Looking at scheduledSessions for future dates + agenda
+  const reviewsCount = (state.agenda || []).filter(a => a.type && a.type.includes('Revisión')).length;
 
-    // Update UI with specific IDs
-    if ($('#stat-active-students')) $('#stat-active-students').innerText = activeClients.length;
-    if ($('#stat-reviews')) $('#stat-reviews').innerText = reviewsCount;
-    if ($('#stat-income')) $('#stat-income').innerText = '€' + totalRevenue;
-    if ($('#stat-retention')) $('#stat-retention').innerText = retentionRate + '%';
-    if ($('#stat-sessions')) $('#stat-sessions').innerText = sessionsCount;
+  // Sessions this week (Mocking current week check for simplicity, or just total scheduled)
+  const sessionsCount = (state.scheduledSessions || []).length;
+
+  // Update UI with specific IDs
+  if ($('#stat-active-students')) $('#stat-active-students').innerText = activeClients.length;
+  if ($('#stat-reviews')) $('#stat-reviews').innerText = reviewsCount;
+  if ($('#stat-income')) $('#stat-income').innerText = '€' + totalRevenue;
+  if ($('#stat-retention')) $('#stat-retention').innerText = retentionRate + '%';
+  if ($('#stat-sessions')) $('#stat-sessions').innerText = sessionsCount;
+}
+
+// Global Update Helper
+window.updateDashboardStats = calculateStats;
+
+
+function renderStudentPortal() {
+  const student = state.clients.find(c => c.id === state.currentStudentId);
+  if (!student || student.status === 'inactive') {
+    alert('Acceso denegado o cuenta inactiva');
+    logout();
+    return;
   }
 
-  // Global Update Helper
-  window.updateDashboardStats = calculateStats;
-
-
-  function renderStudentPortal() {
-    const student = state.clients.find(c => c.id === state.currentStudentId);
-    if (!student || student.status === 'inactive') {
-      alert('Acceso denegado o cuenta inactiva');
-      logout();
-      return;
-    }
-
-    // Hide admin navigation
-    $('.bottom-nav').style.display = 'none';
-    $('.top-bar').innerHTML = `
+  // Hide admin navigation
+  $('.bottom-nav').style.display = 'none';
+  $('.top-bar').innerHTML = `
         <div class="user-profile">
             <div class="avatar">${student.name.charAt(0)}</div>
             <div class="greeting">
@@ -1191,23 +1203,23 @@ function renderAgenda() {
         <button class="icon-btn" onclick="logout()" title="Salir">🚪</button>
     `;
 
-    // Show student view in main content
-    const container = $('#main-content');
+  // Show student view in main content
+  const container = $('#main-content');
 
-    const daysMap = { Monday: 'Lunes', Tuesday: 'Martes', Wednesday: 'Miércoles', Thursday: 'Jueves', Friday: 'Viernes', Saturday: 'Sábado', Sunday: 'Domingo' };
-    const scheduleHtml = Object.keys(daysMap).map(dayKey => {
-      const routineId = student.weeklySchedule ? student.weeklySchedule[dayKey] : null;
-      const routine = routineId ? state.routines.find(r => r.id === routineId) : null;
-      return `
+  const daysMap = { Monday: 'Lunes', Tuesday: 'Martes', Wednesday: 'Miércoles', Thursday: 'Jueves', Friday: 'Viernes', Saturday: 'Sábado', Sunday: 'Domingo' };
+  const scheduleHtml = Object.keys(daysMap).map(dayKey => {
+    const routineId = student.weeklySchedule ? student.weeklySchedule[dayKey] : null;
+    const routine = routineId ? state.routines.find(r => r.id === routineId) : null;
+    return `
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-weight:700; width:100px;">${daysMap[dayKey]}</span>
                 <span style="color:var(--accent-color)">${routine ? routine.name : 'Descanso'}</span>
                 ${routine ? `<button class="btn-ghost" onclick="viewRoutine(${routine.id})">Ver</button>` : ''}
             </div>
         `;
-    }).join('');
+  }).join('');
 
-    container.innerHTML = `
+  container.innerHTML = `
         <section class="view active">
             <div class="section-header">
                 <h2>Tu Planificación</h2>
@@ -1215,16 +1227,16 @@ function renderAgenda() {
             ${scheduleHtml}
         </section>
     `;
-  }
+}
 
-  window.viewRoutine = function (id) {
-    const r = state.routines.find(rt => rt.id === id);
-    if (!r) return;
+window.viewRoutine = function (id) {
+  const r = state.routines.find(rt => rt.id === id);
+  if (!r) return;
 
-    const exercisesHtml = r.exercises.map(eid => {
-      const ex = state.library.find(e => e.id === eid);
-      if (!ex) return '';
-      return `
+  const exercisesHtml = r.exercises.map(eid => {
+    const ex = state.library.find(e => e.id === eid);
+    if (!ex) return '';
+    return `
       <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:12px; margin-bottom:8px;">
         <div style="display:flex; align-items:center; gap:12px;">
           <div style="width:40px; height:40px; background:var(--bg-tertiary); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:20px;">
@@ -1238,9 +1250,9 @@ function renderAgenda() {
         <button class="icon-btn-large" onclick="openVideo(${ex.id})">📺</button>
       </div>
     `;
-    }).join('');
+  }).join('');
 
-    const detailViewHTML = `
+  const detailViewHTML = `
     <section id="view-routine-detail" class="view active">
       <div class="section-header">
          <button class="icon-btn" onclick="renderStudentPortal()">← Volver</button>
@@ -1252,141 +1264,141 @@ function renderAgenda() {
     </section>
   `;
 
-    $('#main-content').innerHTML = detailViewHTML;
-  }
+  $('#main-content').innerHTML = detailViewHTML;
+}
 
-  document.addEventListener('DOMContentLoaded', () => {
-    renderAll();
+document.addEventListener('DOMContentLoaded', () => {
+  renderAll();
 
-    // Custom click listener for nav items to update global action
-    $$('.nav-item').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = item.dataset.target;
-        if (target) switchView(target);
-      });
+  // Custom click listener for nav items to update global action
+  $$('.nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = item.dataset.target;
+      if (target) switchView(target);
     });
-
-    console.log('App Director v5 Loaded');
   });
 
-  // --- APPENDED LOGIC START ---
+  console.log('App Director v5 Loaded');
+});
 
-  // --- FULLSCREEN MENU LOGIC ---
-  window.handleGlobalAction = function () {
-    const menu = $('#fullscreen-menu');
-    if (menu) menu.classList.add('open');
-  }
+// --- APPENDED LOGIC START ---
 
-  window.closeFullscreenMenu = function () {
-    const menu = $('#fullscreen-menu');
-    if (menu) menu.classList.remove('open');
-  }
+// --- FULLSCREEN MENU LOGIC ---
+window.handleGlobalAction = function () {
+  const menu = $('#fullscreen-menu');
+  if (menu) menu.classList.add('open');
+}
 
-  window.menuAction = function (action) {
-    closeFullscreenMenu();
-    setTimeout(() => {
-      if (action === 'new-student') {
-        openCreateStudentModal();
-      } else if (action === 'new-routine') {
-        switchView('view-library');
-      } else if (action === 'new-activity') {
-        openAddAgendaModal();
-      }
-    }, 300);
-  }
+window.closeFullscreenMenu = function () {
+  const menu = $('#fullscreen-menu');
+  if (menu) menu.classList.remove('open');
+}
 
-  // --- DATABASE VIEW LOGIC ---
-  let dbState = {
-    tab: 'clients',
-    sort: 'newest',
-    search: ''
-  };
-
-  window.switchDbTab = function (tab) {
-    dbState.tab = tab;
-    $$('.db-tab').forEach(t => {
-      const txt = t.innerText.toLowerCase();
-      let match = false;
-      if (tab === 'clients' && txt.includes('alumnos')) match = true;
-      if (tab === 'sessions' && txt.includes('sesiones')) match = true;
-      if (tab === 'routines' && txt.includes('rutinas')) match = true;
-      if (tab === 'library' && txt.includes('ejercicios')) match = true;
-      t.classList.toggle('active', match);
-    });
-    renderDbTable();
-  }
-
-  window.renderDbTable = function () {
-    const table = $('#db-table');
-    const searchInput = $('#db-search');
-    const sortInput = $('#db-sort');
-
-    if (!table) return;
-
-    const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
-    const sortVal = sortInput ? sortInput.value : 'newest';
-
-    let data = [];
-    let columns = [];
-
-    // Select Data
-    if (dbState.tab === 'clients') {
-      data = state.clients.map(c => ({
-        id: c.id,
-        col1: c.name,
-        col2: c.plan,
-        col3: c.status,
-        date: c.joinedDate
-      }));
-      columns = ['Nombre', 'Plan', 'Estado', 'Fecha Alta'];
-    } else if (dbState.tab === 'sessions') {
-      const history = state.scheduledSessions || [];
-      data = history.map(s => ({
-        id: s.id,
-        col1: s.clientName,
-        col2: s.routineName,
-        col3: s.date + ' ' + s.time,
-        date: s.date
-      }));
-      columns = ['Alumno', 'Rutina', 'Fecha/Hora', 'Fecha'];
-    } else if (dbState.tab === 'routines') {
-      data = state.routines.map(r => ({
-        id: r.id,
-        col1: r.name,
-        col2: (r.exercises || []).length + ' Ejercicios',
-        col3: '-',
-        date: r.createdAt || new Date().toISOString()
-      }));
-      columns = ['Nombre', 'Detalles', '-', 'Creada'];
-    } else if (dbState.tab === 'library') {
-      data = state.library.map(e => ({
-        id: e.id,
-        col1: e.name,
-        col2: e.muscle,
-        col3: e.type,
-        date: 0
-      }));
-      columns = ['Ejercicio', 'Músculo', 'Tipo', '-'];
+window.menuAction = function (action) {
+  closeFullscreenMenu();
+  setTimeout(() => {
+    if (action === 'new-student') {
+      openCreateStudentModal();
+    } else if (action === 'new-routine') {
+      switchView('view-library');
+    } else if (action === 'new-activity') {
+      openAddAgendaModal();
     }
+  }, 300);
+}
 
-    // Filter
-    data = data.filter(item =>
-      (item.col1 && item.col1.toLowerCase().includes(searchVal)) ||
-      (item.col2 && item.col2.toLowerCase().includes(searchVal))
-    );
+// --- DATABASE VIEW LOGIC ---
+let dbState = {
+  tab: 'clients',
+  sort: 'newest',
+  search: ''
+};
 
-    // Sort
-    data.sort((a, b) => {
-      if (sortVal === 'newest') return new Date(b.date || 0) - new Date(a.date || 0);
-      if (sortVal === 'oldest') return new Date(a.date || 0) - new Date(b.date || 0);
-      if (sortVal === 'name') return (a.col1 || '').localeCompare(b.col1 || '');
-      return 0;
-    });
+window.switchDbTab = function (tab) {
+  dbState.tab = tab;
+  $$('.db-tab').forEach(t => {
+    const txt = t.innerText.toLowerCase();
+    let match = false;
+    if (tab === 'clients' && txt.includes('alumnos')) match = true;
+    if (tab === 'sessions' && txt.includes('sesiones')) match = true;
+    if (tab === 'routines' && txt.includes('rutinas')) match = true;
+    if (tab === 'library' && txt.includes('ejercicios')) match = true;
+    t.classList.toggle('active', match);
+  });
+  renderDbTable();
+}
 
-    // Render
-    const thead = `<thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}<th>Acción</th></tr></thead>`;
-    const tbody = `<tbody>
+window.renderDbTable = function () {
+  const table = $('#db-table');
+  const searchInput = $('#db-search');
+  const sortInput = $('#db-sort');
+
+  if (!table) return;
+
+  const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
+  const sortVal = sortInput ? sortInput.value : 'newest';
+
+  let data = [];
+  let columns = [];
+
+  // Select Data
+  if (dbState.tab === 'clients') {
+    data = state.clients.map(c => ({
+      id: c.id,
+      col1: c.name,
+      col2: c.plan,
+      col3: c.status,
+      date: c.joinedDate
+    }));
+    columns = ['Nombre', 'Plan', 'Estado', 'Fecha Alta'];
+  } else if (dbState.tab === 'sessions') {
+    const history = state.scheduledSessions || [];
+    data = history.map(s => ({
+      id: s.id,
+      col1: s.clientName,
+      col2: s.routineName,
+      col3: s.date + ' ' + s.time,
+      date: s.date
+    }));
+    columns = ['Alumno', 'Rutina', 'Fecha/Hora', 'Fecha'];
+  } else if (dbState.tab === 'routines') {
+    data = state.routines.map(r => ({
+      id: r.id,
+      col1: r.name,
+      col2: (r.exercises || []).length + ' Ejercicios',
+      col3: '-',
+      date: r.createdAt || new Date().toISOString()
+    }));
+    columns = ['Nombre', 'Detalles', '-', 'Creada'];
+  } else if (dbState.tab === 'library') {
+    data = state.library.map(e => ({
+      id: e.id,
+      col1: e.name,
+      col2: e.muscle,
+      col3: e.type,
+      date: 0
+    }));
+    columns = ['Ejercicio', 'Músculo', 'Tipo', '-'];
+  }
+
+  // Filter
+  data = data.filter(item =>
+    (item.col1 && item.col1.toLowerCase().includes(searchVal)) ||
+    (item.col2 && item.col2.toLowerCase().includes(searchVal))
+  );
+
+  // Sort
+  data.sort((a, b) => {
+    if (sortVal === 'newest') return new Date(b.date || 0) - new Date(a.date || 0);
+    if (sortVal === 'oldest') return new Date(a.date || 0) - new Date(b.date || 0);
+    if (sortVal === 'name') return (a.col1 || '').localeCompare(b.col1 || '');
+    return 0;
+  });
+
+  // Render
+  const thead = `<thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}<th>Acción</th></tr></thead>`;
+  const tbody = `<tbody>
         ${data.map(row => `
             <tr>
                 <td style="font-weight:600; color:white;">${row.col1}</td>
@@ -1398,134 +1410,134 @@ function renderAgenda() {
         `).join('')}
     </tbody>`;
 
-    table.innerHTML = thead + tbody;
+  table.innerHTML = thead + tbody;
+}
+
+window.openContextItem = function (id, type) {
+  if (type === 'clients') {
+    openClientDetail(id);
+  } else if (type === 'library') {
+    editExercise(id);
+  } else {
+    alert('Este elemento es de solo lectura en esta versión.');
   }
+}
 
-  window.openContextItem = function (id, type) {
-    if (type === 'clients') {
-      openClientDetail(id);
-    } else if (type === 'library') {
-      editExercise(id);
-    } else {
-      alert('Este elemento es de solo lectura en esta versión.');
-    }
-  }
-
-  // --- SETTINGS LOGIC ---
-  window.saveSettings = function () {
-    const config = {
-      name: $('#conf-name').value,
-      role: $('#conf-role').value,
-      email: $('#conf-email').value,
-      darkMode: $('#conf-darkmode').checked,
-      theme: state.settings?.theme || 'gold'
-    };
-
-    // Update State
-    state.settings = config;
-    saveState();
-
-    // Update Headers
-    const h2 = $('.profile-header h2');
-    if (h2) h2.innerText = config.name;
-    const p = $('.profile-header p');
-    if (p) p.innerText = config.role;
-
-    alert('Configuración guardada.');
-  }
-
-  window.setAppTheme = function (colorName) {
-    const colors = {
-      'gold': '#F59E0B',
-      'blue': '#3B82F6',
-      'green': '#10B981',
-      'purple': '#8B5CF6',
-      'red': '#EF4444'
-    };
-    const c = colors[colorName];
-    if (c) {
-      document.documentElement.style.setProperty('--accent-color', c);
-      document.documentElement.style.setProperty('--accent-glow', c + '66');
-
-      if (!state.settings) state.settings = {};
-      state.settings.theme = colorName;
-
-      // Update active class on selector
-      $$('.theme-option').forEach(el => el.classList.remove('active'));
-      // Re-find based on onclick attribute for simplicity
-      const clicked = [...$$('.theme-option')].find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(colorName));
-      if (clicked) clicked.classList.add('active');
-    }
-  }
-
-  // Hook into state loading for settings
-  const _initSettings = function () {
-    if (state.settings) {
-      if (state.settings.theme) setAppTheme(state.settings.theme);
-      const nameInput = $('#conf-name');
-      if (nameInput) nameInput.value = state.settings.name || '';
-      const roleInput = $('#conf-role');
-      if (roleInput) roleInput.value = state.settings.role || '';
-    }
-    updateDashboardStats(); // Ensure stats run on load
+// --- SETTINGS LOGIC ---
+window.saveSettings = function () {
+  const config = {
+    name: $('#conf-name').value,
+    role: $('#conf-role').value,
+    email: $('#conf-email').value,
+    darkMode: $('#conf-darkmode').checked,
+    theme: state.settings?.theme || 'gold'
   };
-  // Run once
-  setTimeout(_initSettings, 500);
 
-  // --- APPENDED LOGIC END ---
+  // Update State
+  state.settings = config;
+  saveState();
 
-  // --- ACCOUNTING MODULE ---
-  window.openAccountingModal = function () {
-    $('#accounting-modal').classList.add('open');
-    renderAccountingTable();
+  // Update Headers
+  const h2 = $('.profile-header h2');
+  if (h2) h2.innerText = config.name;
+  const p = $('.profile-header p');
+  if (p) p.innerText = config.role;
+
+  alert('Configuración guardada.');
+}
+
+window.setAppTheme = function (colorName) {
+  const colors = {
+    'gold': '#F59E0B',
+    'blue': '#3B82F6',
+    'green': '#10B981',
+    'purple': '#8B5CF6',
+    'red': '#EF4444'
+  };
+  const c = colors[colorName];
+  if (c) {
+    document.documentElement.style.setProperty('--accent-color', c);
+    document.documentElement.style.setProperty('--accent-glow', c + '66');
+
+    if (!state.settings) state.settings = {};
+    state.settings.theme = colorName;
+
+    // Update active class on selector
+    $$('.theme-option').forEach(el => el.classList.remove('active'));
+    // Re-find based on onclick attribute for simplicity
+    const clicked = [...$$('.theme-option')].find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(colorName));
+    if (clicked) clicked.classList.add('active');
   }
+}
 
-  window.renderAccountingTable = function () {
-    const tableBody = $('#acc-table-body');
-    const totalRevEl = $('#acc-total-revenue');
-    const searchVal = $('#acc-search').value.toLowerCase();
+// Hook into state loading for settings
+const _initSettings = function () {
+  if (state.settings) {
+    if (state.settings.theme) setAppTheme(state.settings.theme);
+    const nameInput = $('#conf-name');
+    if (nameInput) nameInput.value = state.settings.name || '';
+    const roleInput = $('#conf-role');
+    if (roleInput) roleInput.value = state.settings.role || '';
+  }
+  updateDashboardStats(); // Ensure stats run on load
+};
+// Run once
+setTimeout(_initSettings, 500);
 
-    if (!tableBody) return;
+// --- APPENDED LOGIC END ---
 
-    // Filter clients by current trainer
-    const myClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
+// --- ACCOUNTING MODULE ---
+window.openAccountingModal = function () {
+  $('#accounting-modal').classList.add('open');
+  renderAccountingTable();
+}
 
-    let totalRevenue = 0;
+window.renderAccountingTable = function () {
+  const tableBody = $('#acc-table-body');
+  const totalRevEl = $('#acc-total-revenue');
+  const searchVal = $('#acc-search').value.toLowerCase();
 
-    const rows = myClients.map(client => {
-      // Calculate months active
-      const start = new Date(client.joinedDate);
-      const now = new Date();
+  if (!tableBody) return;
 
-      let months = (now.getFullYear() - start.getFullYear()) * 12;
-      months -= start.getMonth();
-      months += now.getMonth();
-      if (months <= 0) months = 0; // Joined this month = 0 previous months? Or 1? Let's say 1 if active.
+  // Filter clients by current trainer
+  const myClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
 
-      // If joined this month, let's count as 1 month if active
-      if (months === 0 && client.status === 'active') months = 1;
+  let totalRevenue = 0;
 
-      // If inactive, we should ideally have a 'leftDate', but for now use 'months' as if they paid until now or make a simplified assumption.
-      // User request: "historico mensual pagado". 
-      // Let's assume active clients pay every month. Inactive stopped.
-      // Simplified: months * fee.
+  const rows = myClients.map(client => {
+    // Calculate months active
+    const start = new Date(client.joinedDate);
+    const now = new Date();
 
-      const totalPaid = months * (client.monthlyFee || 0);
-      totalRevenue += totalPaid;
+    let months = (now.getFullYear() - start.getFullYear()) * 12;
+    months -= start.getMonth();
+    months += now.getMonth();
+    if (months <= 0) months = 0; // Joined this month = 0 previous months? Or 1? Let's say 1 if active.
 
-      return {
-        name: client.name,
-        fee: client.monthlyFee,
-        months: months,
-        total: totalPaid,
-        matches: client.name.toLowerCase().includes(searchVal)
-      };
-    }).filter(row => row.matches);
+    // If joined this month, let's count as 1 month if active
+    if (months === 0 && client.status === 'active') months = 1;
 
-    // Sort by total paid descending
-    rows.sort((a, b) => b.total - a.total);
+    // If inactive, we should ideally have a 'leftDate', but for now use 'months' as if they paid until now or make a simplified assumption.
+    // User request: "historico mensual pagado". 
+    // Let's assume active clients pay every month. Inactive stopped.
+    // Simplified: months * fee.
 
-    tableBody.innerHTML = rows.map(row => `
+    const totalPaid = months * (client.monthlyFee || 0);
+    totalRevenue += totalPaid;
+
+    return {
+      name: client.name,
+      fee: client.monthlyFee,
+      months: months,
+      total: totalPaid,
+      matches: client.name.toLowerCase().includes(searchVal)
+    };
+  }).filter(row => row.matches);
+
+  // Sort by total paid descending
+  rows.sort((a, b) => b.total - a.total);
+
+  tableBody.innerHTML = rows.map(row => `
         <tr style="border-bottom:1px solid var(--bg-tertiary);">
             <td style="padding:12px 10px; color:white; font-weight:500;">${row.name}</td>
             <td style="padding:12px 10px; text-align:right;">€${row.fee}</td>
@@ -1534,113 +1546,113 @@ function renderAgenda() {
         </tr>
     `).join('');
 
-    if (totalRevEl) totalRevEl.innerText = '€' + totalRevenue.toLocaleString();
-  }
+  if (totalRevEl) totalRevEl.innerText = '€' + totalRevenue.toLocaleString();
+}
 
-  // --- NEW MODAL LOGIC (Appended) ---
+// --- NEW MODAL LOGIC (Appended) ---
 
-  window.openCreateStudentModal = function () {
-    $('#new-student-form').reset();
-    $('#new-student-modal').classList.add('open');
-  }
+window.openCreateStudentModal = function () {
+  $('#new-student-form').reset();
+  $('#new-student-modal').classList.add('open');
+}
 
-  $('#new-student-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const id = formData.get('id'); // Check for hidden ID
+$('#new-student-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const id = formData.get('id'); // Check for hidden ID
 
-    // Helper to get manual fields
-    const targetDateEl = document.querySelector('input[name="targetDate"]');
-    const targetDate = targetDateEl ? targetDateEl.value : null;
+  // Helper to get manual fields
+  const targetDateEl = document.querySelector('input[name="targetDate"]');
+  const targetDate = targetDateEl ? targetDateEl.value : null;
 
-    if (id) {
-      // Edit Mode
-      const client = state.clients.find(c => c.id === parseInt(id));
-      if (client) {
-        client.name = formData.get('name');
-        client.email = formData.get('email');
-        client.phone = formData.get('phone');
-        client.plan = formData.get('plan');
-        client.monthlyFee = parseFloat(formData.get('monthlyFee')) || 0;
-        client.status = formData.get('status'); // Status might be missing if select disabled?
-        client.goal = formData.get('goal');
-        client.age = formData.get('dob');
-        client.weight = formData.get('weight');
-        client.height = formData.get('height');
-        if (targetDate) client.targetDate = targetDate;
+  if (id) {
+    // Edit Mode
+    const client = state.clients.find(c => c.id === parseInt(id));
+    if (client) {
+      client.name = formData.get('name');
+      client.email = formData.get('email');
+      client.phone = formData.get('phone');
+      client.plan = formData.get('plan');
+      client.monthlyFee = parseFloat(formData.get('monthlyFee')) || 0;
+      client.status = formData.get('status'); // Status might be missing if select disabled?
+      client.goal = formData.get('goal');
+      client.age = formData.get('dob');
+      client.weight = formData.get('weight');
+      client.height = formData.get('height');
+      if (targetDate) client.targetDate = targetDate;
 
-        saveState();
-        closeModal('new-student-modal');
-        alert('Alumno actualizado correctamente');
-        renderAll();
-        // Refresh detail view if open
-        if (state.currentView === 'view-client-detail') openClientDetail(client.id);
-        return;
-      }
+      saveState();
+      closeModal('new-student-modal');
+      alert('Alumno actualizado correctamente');
+      renderAll();
+      // Refresh detail view if open
+      if (state.currentView === 'view-client-detail') openClientDetail(client.id);
+      return;
     }
-
-    // Create Mode
-    const newClient = {
-      id: Date.now(),
-      name: formData.get('name'),
-      email: formData.get('email'),
-      phone: formData.get('phone'),
-      trainerId: state.currentTrainerId,
-      plan: formData.get('plan'),
-      status: 'active',
-      lastActive: 'Ahora',
-      routines: [],
-      weeklySchedule: {},
-      joinedDate: new Date().toISOString().split('T')[0], // Default to today
-      progress: 0,
-      goal: formData.get('goal'),
-      monthlyFee: parseFloat(formData.get('monthlyFee')) || 0,
-      age: formData.get('dob'),
-      weight: formData.get('weight'),
-      height: formData.get('height'),
-    };
-
-    if (targetDate) newClient.targetDate = targetDate;
-
-    state.clients.push(newClient);
-    saveState();
-    closeModal('new-student-modal');
-    alert('Alumno creado con éxito');
-    renderAll();
-  });
-
-
-  window.openAddAgendaModal = function () {
-    $('#agenda-form').reset();
-    $('#agenda-date').value = new Date().toISOString().split('T')[0];
-    $('#agenda-modal').classList.add('open');
   }
 
-  $('#agenda-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const title = $('#agenda-title').value;
-    const type = $('#agenda-type').value;
-    const date = $('#agenda-date').value;
-    const time = $('#agenda-time').value || '09:00';
+  // Create Mode
+  const newClient = {
+    id: Date.now(),
+    name: formData.get('name'),
+    email: formData.get('email'),
+    phone: formData.get('phone'),
+    trainerId: state.currentTrainerId,
+    plan: formData.get('plan'),
+    status: 'active',
+    lastActive: 'Ahora',
+    routines: [],
+    weeklySchedule: {},
+    joinedDate: new Date().toISOString().split('T')[0], // Default to today
+    progress: 0,
+    goal: formData.get('goal'),
+    monthlyFee: parseFloat(formData.get('monthlyFee')) || 0,
+    age: formData.get('dob'),
+    weight: formData.get('weight'),
+    height: formData.get('height'),
+  };
 
-    const newItem = {
-      id: Date.now(),
-      clientId: null,
-      clientName: title, // Use title as client name for calendar display
-      routineId: null,
-      routineName: type, // Use type as routine name for calendar display
-      date,
-      time,
-      notes: 'Evento de Agenda',
-      status: 'pending',
-      trainerId: state.currentTrainerId
-    };
+  if (targetDate) newClient.targetDate = targetDate;
 
-    if (!state.scheduledSessions) state.scheduledSessions = [];
-    state.scheduledSessions.push(newItem);
+  state.clients.push(newClient);
+  saveState();
+  closeModal('new-student-modal');
+  alert('Alumno creado con éxito');
+  renderAll();
+});
 
-    saveState();
-    closeModal('agenda-modal');
-    alert('Actividad agendada');
-    renderAll();
-  });
+
+window.openAddAgendaModal = function () {
+  $('#agenda-form').reset();
+  $('#agenda-date').value = new Date().toISOString().split('T')[0];
+  $('#agenda-modal').classList.add('open');
+}
+
+$('#agenda-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const title = $('#agenda-title').value;
+  const type = $('#agenda-type').value;
+  const date = $('#agenda-date').value;
+  const time = $('#agenda-time').value || '09:00';
+
+  const newItem = {
+    id: Date.now(),
+    clientId: null,
+    clientName: title, // Use title as client name for calendar display
+    routineId: null,
+    routineName: type, // Use type as routine name for calendar display
+    date,
+    time,
+    notes: 'Evento de Agenda',
+    status: 'pending',
+    trainerId: state.currentTrainerId
+  };
+
+  if (!state.scheduledSessions) state.scheduledSessions = [];
+  state.scheduledSessions.push(newItem);
+
+  saveState();
+  closeModal('agenda-modal');
+  alert('Actividad agendada');
+  renderAll();
+});
