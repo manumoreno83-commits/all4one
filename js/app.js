@@ -4,10 +4,16 @@ const defaultState = {
   currentView: 'view-dashboard',
   libMode: 'exercises', // 'exercises' or 'routines'
   exerciseFilter: 'all',
+  trainers: [
+    { id: 'miguel', name: 'Miguel', role: 'Director Deportivo', avatar: 'M' },
+    { id: 'marta', name: 'Marta', role: 'Entrenadora Senior', avatar: 'Ma' }
+  ],
+  currentTrainerId: 'miguel',
   clients: [
-    { id: 101, name: 'Mario Garcia', plan: 'Hipertrofia Pro', status: 'active', lastActive: 'hace 2h', routines: [1], weeklySchedule: { Monday: 1, Wednesday: 1, Friday: 1 }, joinedDate: '2023-05-12', progress: 75, goal: 'Subir 5kg músculo', monthlyFee: 60 },
-    { id: 102, name: 'Ana Lopez', plan: 'Pérdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], weeklySchedule: {}, joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa', monthlyFee: 50 },
-    { id: 103, name: 'Carlos Ruiz', plan: 'Fuerza Funcional', status: 'pending', lastActive: 'hace 1d', routines: [], weeklySchedule: {}, joinedDate: '2024-01-05', progress: 10, goal: 'Mejorar movilidad', monthlyFee: 45 },
+    { id: 101, name: 'Mario Garcia', email: 'mario@gmail.com', trainerId: 'miguel', plan: 'Hipertrofia Pro', status: 'active', lastActive: 'hace 2h', routines: [1], weeklySchedule: { Monday: 1, Wednesday: 1, Friday: 1 }, joinedDate: '2023-05-12', progress: 75, goal: 'Subir 5kg músculo', monthlyFee: 60 },
+    { id: 102, name: 'Ana Lopez', email: 'ana@gmail.com', trainerId: 'marta', plan: 'Pérdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], weeklySchedule: {}, joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa', monthlyFee: 50 },
+    { id: 200, name: 'Manuel Moreno', email: 'manuel.moreno@gmail.com', trainerId: 'miguel', plan: 'Personalizado', status: 'active', lastActive: 'Ahora', routines: [], weeklySchedule: {}, joinedDate: '2024-01-19', progress: 0, goal: 'Definición', monthlyFee: 70 },
+    { id: 103, name: 'Carlos Ruiz', email: 'carlos@gmail.com', trainerId: 'miguel', plan: 'Fuerza Funcional', status: 'pending', lastActive: 'hace 1d', routines: [], weeklySchedule: {}, joinedDate: '2024-01-05', progress: 10, goal: 'Mejorar movilidad', monthlyFee: 45 },
   ],
   userRole: null, // 'admin' or 'student'
   currentStudentId: null,
@@ -80,17 +86,44 @@ function switchView(targetId) {
 
 // --- AUTH LOGIC ---
 window.loginSimulation = function (role) {
-  state.userRole = role;
-  if (role === 'student') {
-    // Mocking student login (selecting Maria Garcia as example)
-    state.currentStudentId = 101;
+  if (role === 'admin') {
+    const trainerName = prompt("¿Quién eres? (miguel / marta):", "miguel").toLowerCase();
+    const trainer = state.trainers.find(t => t.id === trainerName);
+
+    if (trainer) {
+      state.userRole = 'admin';
+      state.currentTrainerId = trainer.id;
+      state.currentStudentId = null;
+    } else {
+      alert('Entrenador no encontrado.');
+      return;
+    }
+  } else {
+    // Simulating Google Auth by asking for email
+    const email = prompt("Introduce tu email de Google (Simulación):", "manuel.moreno@gmail.com");
+    if (!email) return;
+
+    const student = state.clients.find(c => c.email && c.email.toLowerCase() === email.toLowerCase());
+
+    if (student) {
+      if (student.status === 'inactive') {
+        alert('Tu cuenta está inactiva. Contacta con tu entrenador.');
+        return;
+      }
+      state.userRole = 'student';
+      state.currentStudentId = student.id;
+      state.currentTrainerId = student.trainerId; // Student linked to their trainer
+    } else {
+      alert('No se ha encontrado ningún alumno con ese email. Asegúrate de que tu entrenador te haya registrado.');
+      return;
+    }
   }
 
   $('#auth-overlay').style.display = 'none';
   $('#app').style.display = 'flex';
 
   saveState();
-  if (role === 'student') renderStudentPortal();
+  if (state.userRole === 'student') renderStudentPortal();
   else renderAll();
 }
 
@@ -299,7 +332,11 @@ if (state.currentView === 'view-library') {
 function renderClients() {
   const container = $('.client-list');
   if (!container) return;
-  container.innerHTML = state.clients.map(client => `
+
+  // Filter by current trainer
+  const trainerClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
+
+  container.innerHTML = trainerClients.map(client => `
     <div class="client-card" onclick="openClientDetail(${client.id})">
       <div class="client-status status-${client.status}"></div>
       <div class="client-avatar">${client.name.charAt(0)}</div>
@@ -503,10 +540,14 @@ if (studentForm) {
     const newClient = {
       id: Date.now(),
       name: data.name,
+      email: data.email || '', // Ensure email is saved
+      trainerId: state.currentTrainerId, // Assign to current trainer
       plan: data.plan,
-      status: 'active',
+      status: data.status || 'active',
+      monthlyFee: parseFloat(data.monthlyFee) || 50,
       details: { ...data }, // Store all detailed fields
-      routines: []
+      routines: [],
+      weeklySchedule: {}
     };
 
     state.clients.unshift(newClient);
@@ -527,6 +568,20 @@ function renderAll() {
     return;
   }
 
+  // Update Top Bar for current trainer
+  const trainer = state.trainers.find(t => t.id === state.currentTrainerId);
+  if (trainer) {
+    $$('.username').forEach(el => el.innerText = `Ent. ${trainer.name}`);
+    const largeAvatar = $('.profile-avatar-large');
+    if (largeAvatar) largeAvatar.innerText = trainer.avatar;
+
+    const h2Header = $('.profile-header h2');
+    if (h2Header) h2Header.innerText = `Ent. ${trainer.name}`;
+
+    const pHeader = $('.profile-header p');
+    if (pHeader) pHeader.innerText = trainer.role;
+  }
+
   renderClients();
   renderAgenda();
   calculateStats();
@@ -534,9 +589,11 @@ function renderAll() {
 }
 
 function calculateStats() {
-  const activeClients = state.clients.filter(c => c.status === 'active');
+  // Stats filtered by trainer
+  const myClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
+  const activeClients = myClients.filter(c => c.status === 'active');
   const totalRevenue = activeClients.reduce((sum, c) => sum + (c.monthlyFee || 0), 0);
-  const totalClients = state.clients.filter(c => c.status !== 'inactive').length;
+  const totalClients = myClients.filter(c => c.status !== 'inactive').length;
 
   // Simple retention: active / total historically
   const retentionRate = totalClients > 0 ? Math.round((activeClients.length / totalClients) * 100) : 0;
