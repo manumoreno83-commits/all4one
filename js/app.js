@@ -1653,28 +1653,20 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-window.setAppTheme = function (colorName) {
-  const colors = {
-    'gold': '#F59E0B',
-    'blue': '#3B82F6',
-    'green': '#10B981',
-    'purple': '#8B5CF6',
-    'red': '#EF4444'
-  };
-  const c = colors[colorName];
-  if (c) {
-    document.documentElement.style.setProperty('--accent-color', c);
-    document.documentElement.style.setProperty('--accent-glow', c + '66');
 
-    if (!state.settings) state.settings = {};
-    state.settings.theme = colorName;
+if (c) {
+  document.documentElement.style.setProperty('--accent-color', c);
+  document.documentElement.style.setProperty('--accent-glow', c + '66');
 
-    // Update active class on selector
-    $$('.theme-option').forEach(el => el.classList.remove('active'));
-    // Re-find based on onclick attribute for simplicity
-    const clicked = [...$$('.theme-option')].find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(colorName));
-    if (clicked) clicked.classList.add('active');
-  }
+  if (!state.settings) state.settings = {};
+  state.settings.theme = colorName;
+
+  // Update active class on selector
+  $$('.theme-option').forEach(el => el.classList.remove('active'));
+  // Re-find based on onclick attribute for simplicity
+  const clicked = [...$$('.theme-option')].find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(colorName));
+  if (clicked) clicked.classList.add('active');
+}
 }
 
 // Hook into state loading for settings
