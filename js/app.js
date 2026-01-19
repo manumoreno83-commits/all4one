@@ -1664,19 +1664,7 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-<td style="padding:12px 10px; text-align:right; color:var(--success);">€${row.total.toLocaleString()}</td>
-        </tr >
-  `).join('');
 
-if (totalRevEl) totalRevEl.innerText = '€' + totalRevenue.toLocaleString();
-}
-
-// --- NEW MODAL LOGIC (Appended) ---
-
-window.openCreateStudentModal = function () {
-  $('#new-student-form').reset();
-  $('#new-student-modal').classList.add('open');
-}
 
 $('#new-student-form').addEventListener('submit', function (e) {
   e.preventDefault();
