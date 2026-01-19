@@ -1,4 +1,4 @@
-﻿# All4one - Entrenador Miguel
+﻿# All4one
 
 Clon de aplicación de entrenamiento para el club All4one.
 
