@@ -167,6 +167,153 @@ window.loginSimulation = function (role) {
   else renderAll();
 }
 
+window.renderStudentPortal = function () {
+  // 1. Adjust Navigation
+  document.querySelectorAll('.nav-item').forEach(el => el.style.display = 'none');
+  document.querySelector('.nav-item-center-wrapper').style.display = 'none'; // distinct from Admin FAB
+
+  // We need student specific nav items. 
+  // For now, let's repurpose the existing "Settings" as "Profile" and "Dashboard" as "My Plan".
+  // Or dynamically allow specific ones.
+  // Let's just show Dashboard (Home) and Settings (Profile).
+
+  // Find Nav Links by matching text or icon or data-target if possible.
+  // Dashboard is usually the first one?
+  // Let's create specific student nav if it doesn't exist, or just use `innerHTML` on nav.
+  const bottomNav = document.querySelector('.bottom-nav');
+  if (bottomNav) {
+    bottomNav.innerHTML = `
+            <a href="#" class="nav-item active" onclick="switchView('view-dashboard')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                Inicio
+            </a>
+            <a href="#" class="nav-item" onclick="switchView('view-student-profile')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Perfil
+            </a>
+        `;
+  }
+
+  // 2. Render Student Dashboard (Current Plan)
+  // We can reuse the main dashboard but filter for the student.
+  // Or switchView to 'view-student-dashboard' if we had one. 
+  // Let's reuse 'view-dashboard' but customize content in `renderAll`? 
+  // `renderAll` updates dashboard stats.
+  // Let's just switchView('view-dashboard') and let renderAll handle the content diffs based on role.
+
+  // 3. Render Profile View
+  // We need to inject the Profile View HTML if it doesn't exist.
+  let profileView = document.getElementById('view-student-profile');
+  if (!profileView) {
+    profileView = document.createElement('section');
+    profileView.id = 'view-student-profile';
+    profileView.className = 'view';
+    document.getElementById('app').appendChild(profileView);
+  }
+
+  renderStudentProfile();
+  switchView('view-dashboard');
+}
+
+window.renderStudentProfile = function () {
+  const student = state.clients.find(c => c.id === state.currentStudentId);
+  if (!student) return;
+
+  const profileView = document.getElementById('view-student-profile');
+  profileView.innerHTML = `
+        <div class="section-header">
+            <h2>Mi Perfil</h2>
+            <button class="icon-btn" onclick="logout()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </button>
+        </div>
+        
+        <div class="scroll-area" style="padding-bottom:80px;">
+            <div class="client-hero" style="position:relative;">
+                <div class="avatar-large" style="background-image:url('${student.photo || ''}'); background-size:cover; background-position:center;">
+                    ${student.photo ? '' : student.name.charAt(0)}
+                </div>
+                <!-- Photo Upload simulation -->
+                <button class="icon-btn" onclick="updateStudentPhoto()" style="position:absolute; bottom:20px; right:calc(50% - 50px); background:var(--accent-color); color:white; border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.5);">
+                    📷
+                </button>
+
+                <h2 style="margin-top:10px;">${student.name}</h2>
+                <p style="color:var(--text-secondary)">${student.plan}</p>
+            </div>
+
+            <form id="student-bio-form" onsubmit="saveStudentBio(event)" style="padding:20px;">
+                <div class="form-section">
+                    <h4>Datos Biométricos</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Edad</label>
+                            <input type="number" name="age" value="${student.age || ''}" placeholder="Ej. 30">
+                        </div>
+                        <div class="form-group">
+                            <label>Peso (kg)</label>
+                            <input type="number" name="weight" value="${student.weight || ''}" placeholder="Ej. 75">
+                        </div>
+                        <div class="form-group">
+                            <label>Altura (cm)</label>
+                            <input type="number" name="height" value="${student.height || ''}" placeholder="Ej. 180">
+                        </div>
+                        <div class="form-group">
+                             <label>Grasa %</label>
+                             <input type="number" name="bodyFat" value="${student.bodyFat || ''}" placeholder="Ej. 15">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Información Personal</h4>
+                    <div class="form-group full-width">
+                        <label>Lesiones o Molestias</label>
+                        <textarea name="injuries" rows="3" style="width:100%; background:var(--bg-primary); border:1px solid var(--bg-tertiary); color:white; border-radius:8px; padding:12px;">${student.injuries || ''}</textarea>
+                    </div>
+                    <div class="form-group full-width">
+                         <label>Objetivo Personal</label>
+                         <input type="text" name="goal" value="${student.goal || ''}">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width:100%; margin-top:10px;">Guardar Cambios</button>
+            </form>
+        </div>
+    `;
+}
+
+window.updateStudentPhoto = function () {
+  const url = prompt("Introduce la URL de tu nueva foto de perfil:");
+  if (url) {
+    const student = state.clients.find(c => c.id === state.currentStudentId);
+    if (student) {
+      student.photo = url;
+      saveState();
+      renderStudentProfile();
+    }
+  }
+}
+
+window.saveStudentBio = function (e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const student = state.clients.find(c => c.id === state.currentStudentId);
+
+  if (student) {
+    student.age = formData.get('age');
+    student.weight = formData.get('weight');
+    student.height = formData.get('height');
+    student.bodyFat = formData.get('bodyFat');
+    student.injuries = formData.get('injuries');
+    student.goal = formData.get('goal');
+
+    saveState();
+    alert('Perfil actualizado correctamente');
+  }
+}
+
+
 window.logout = function () {
   state.userRole = null;
   state.currentStudentId = null;
