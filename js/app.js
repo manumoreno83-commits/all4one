@@ -295,7 +295,8 @@ function renderLibrarySplit() {
                 <button class="icon-btn-large" onclick="event.stopPropagation(); openVideo(${ex.id})" title="Ver vídeo" style="font-size:14px;">📺</button>
             </div>
         </div>
-    `).join('');
+    `;
+  }).join('');
 
   // 2. Render Builder List (Right Pane)
   if (state.builder.length === 0) {
@@ -483,38 +484,80 @@ $('#exercise-form').addEventListener('submit', (e) => {
 
 
 // Update `openClientDetail` to show Target Date
+
+// --- Clients & Detail View ---
 window.openClientDetail = function (id) {
   const client = state.clients.find(c => c.id === id);
   if (!client) return;
 
   const detailContent = $('#client-detail-content');
 
-  // Weekly Schedule HTML
-  const daysMap = {
-    Monday: 'Lunes', Tuesday: 'Martes', Wednesday: 'Miércoles', Thursday: 'Jueves', Friday: 'Viernes', Saturday: 'Sábado', Sunday: 'Domingo'
-  };
+  // 1. Calculate Real Weekly Progress (Last 7 days)
+  const today = new Date();
+  const progressBarsHtml = [];
+  const sessions = state.scheduledSessions || [];
 
-  const scheduleHtml = Object.keys(daysMap).map(dayKey => {
-    const routineId = client.weeklySchedule ? client.weeklySchedule[dayKey] : null;
-    const routine = routineId ? state.routines.find(r => r.id === routineId) : null;
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(today.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const dayLabel = d.toLocaleDateString('es-ES', { weekday: 'narrow' }).toUpperCase();
 
-    return `
+    const completedCount = sessions.filter(s =>
+      s.clientId === client.id &&
+      s.date === dateStr &&
+      s.status === 'completed'
+    ).length;
+
+    // partial bar logic: 1 session = 100%. 
+    // If we want more granularity, we could say (completed / scheduled) * 100
+    const val = completedCount > 0 ? 100 : 0;
+
+    progressBarsHtml.push(`
+         <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1;">
+            <div style="width:8px; height:60px; background:rgba(255,255,255,0.1); border-radius:4px; position:relative; overflow:hidden;">
+                <div style="position:absolute; bottom:0; left:0; right:0; height:${val}%; background:var(--accent-color);"></div>
+            </div>
+            <span style="font-size:9px; color:var(--text-secondary);">${dayLabel}</span>
+         </div>
+      `);
+  }
+
+  // 2. Real Weekly Schedule (Next 7 Days starting today or this week?)
+  // User said "empezando desde semana actual". Let's show this week's schedule.
+  // We'll iterate from Monday of this week to Sunday.
+  const currentDay = new Date();
+  const dayOfWeek = currentDay.getDay();
+  const diff = currentDay.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+  const monday = new Date(currentDay.setDate(diff));
+
+  let scheduleHtml = '';
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i); // Correctly increment from Monday copy
+    const dateStr = d.toISOString().split('T')[0];
+    const dayName = d.toLocaleDateString('es-ES', { weekday: 'long' });
+    const dayNum = d.getDate();
+
+    // Find session
+    const sess = sessions.find(s => s.clientId === client.id && s.date === dateStr);
+
+    scheduleHtml += `
       <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid var(--bg-tertiary);">
-        <span style="font-weight:600; font-size:13px; color:var(--text-secondary); width:80px;">${daysMap[dayKey]}</span>
-        <div style="flex:1; text-align:right;">
-          ${routine ? `<span style="color:var(--accent-color); font-weight:500;">${routine.name}</span>` : '<span style="color:var(--text-secondary); opacity:0.5; font-size:12px;">Descanso</span>'}
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-weight:600; font-size:13px; color:var(--text-secondary); width:20px;">${dayNum}</span>
+            <span style="font-weight:500; font-size:13px; color:white; text-transform:capitalize;">${dayName}</span>
         </div>
-      </div>
-    `;
-  }).join('');
+        <div style="flex:1; text-align:right;">
+          ${sess ? `<span style="color:var(--accent-color); font-weight:500; cursor:pointer;" onclick="alert('Detalle: ${sess.routineName}')">${sess.routineName} ${sess.status === 'completed' ? '✅' : ''}</span>` :
+        `<span style="color:var(--text-secondary); opacity:0.3; font-size:12px;">Descanso</span>`}
+        </div>
+      </div>`;
+  }
 
-  // General Routines (Already assigned but not to a specific day)
-  const generalRoutines = client.routines.filter(rid => {
-    // Check if it's NOT in any day of the weekly schedule
-    return !Object.values(client.weeklySchedule || {}).includes(rid);
-  });
-
-  const routinesHtml = generalRoutines.length > 0 ? generalRoutines.map(rid => {
+  // General Routines (Templates)
+  const routinesHtml = client.routines.map(rid => {
     const r = state.routines.find(rt => rt.id === rid);
     if (!r) return '';
     return `
@@ -523,22 +566,13 @@ window.openClientDetail = function (id) {
                <span class="routine-badge">General</span>
             </div>
         `;
-  }).join('') : '';
-
-  // Weekly Progress Chart Mockup (Rest of the code remains same)
-  const progressBars = [
-    { day: 'L', val: 80 }, { day: 'M', val: 40 }, { day: 'X', val: 100 }, { day: 'J', val: 0 }, { day: 'V', val: 60 }, { day: 'S', val: 90 }, { day: 'D', val: 20 }
-  ].map(d => `
-     <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1;">
-        <div style="width:8px; height:60px; background:rgba(255,255,255,0.1); border-radius:4px; position:relative; overflow:hidden;">
-            <div style="position:absolute; bottom:0; left:0; right:0; height:${d.val}%; background:var(--accent-color);"></div>
-        </div>
-        <span style="font-size:9px; color:var(--text-secondary);">${d.day}</span>
-     </div>
-  `).join('');
+  }).join('');
 
   detailContent.innerHTML = `
         <div class="client-hero">
+           <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px;">
+              <button class="icon-btn" onclick="editClient(${client.id})">✏️ Editar</button>
+           </div>
            <div class="avatar-large">${client.name.charAt(0)}</div>
            <h2>${client.name}</h2>
            <p style="color:var(--accent-color)">${client.plan}</p>
@@ -567,34 +601,63 @@ window.openClientDetail = function (id) {
 
            <!-- Progress Chart -->
            <div style="background:rgba(0,0,0,0.2); border-radius:12px; padding:12px; margin:16px 20px 0 20px;">
-              <h4 style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; margin-bottom:8px; text-align:left;">Actividad Semanal</h4>
+              <h4 style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; margin-bottom:8px; text-align:left;">Actividad (7 días)</h4>
               <div style="display:flex; justify-content:space-between; align-items:flex-end; height:60px;">
-                  ${progressBars}
+                  ${progressBarsHtml.join('')}
               </div>
            </div>
         </div>
 
         <div class="section-header" style="padding:0 20px; margin-top:20px;">
-           <h3 style="margin:0;">Planificación Semanal</h3>
-           <button class="icon-btn text-link" onclick="openAssignModal(${client.id})">Asignar Rutina</button>
+           <h3 style="margin:0;">Agenda Semanal</h3>
+           <button class="icon-btn text-link" onclick="openAssignModal(${client.id})">+ Asignar</button>
         </div>
         <div style="padding:0 20px; background:var(--bg-secondary); border-radius:12px; margin:0 20px;">
            ${scheduleHtml}
         </div>
 
-        ${routinesHtml ? `
         <div class="section-header" style="padding:0 20px; margin-top:20px;">
-           <h3 style="margin:0;">Otras Rutinas</h3>
+           <h3 style="margin:0;">Rutinas Asignadas</h3>
         </div>
         <div style="padding:0 20px;">
-           ${routinesHtml}
-        </div>` : ''}
+           ${routinesHtml || '<p style="color:var(--text-secondary); font-size:13px;">No hay rutinas generales.</p>'}
+        </div>
     `;
 
   switchView('view-client-detail');
 }
 
+// Add editClient stub
+window.editClient = function (id) {
+  alert("Función de editar perfil de alumno " + id + " en desarrollo.");
+}
+
 // --- ASSIGNMENT ---
+
+// --- Menu Actions ---
+window.menuAction = function (action) {
+  closeFullscreenMenu();
+  if (action === 'new-student') {
+    openCreateStudentModal();
+  } else if (action === 'new-routine') {
+    // Clear builder and go to library
+    state.builder = [];
+    switchView('view-library');
+    alert('Modo: Nueva Rutina. Selecciona ejercicios de la izquierda.');
+  } else if (action === 'new-activity') {
+    openAddAgendaModal();
+  }
+}
+
+window.closeFullscreenMenu = function () {
+  $('#fullscreen-menu').classList.remove('open');
+}
+
+window.handleGlobalAction = function () {
+  $('#fullscreen-menu').classList.add('open');
+}
+
+// --- ASSIGNMENT & SESSIONS ---
 
 window.openAssignModal = function (clientId) {
   const client = state.clients.find(c => c.id === clientId);
@@ -632,21 +695,77 @@ $('#assign-form').addEventListener('submit', (e) => {
     date,
     time,
     notes,
+    status: 'pending',
     trainerId: state.currentTrainerId
   };
 
   state.scheduledSessions.push(newSession);
 
-  // Still keep weeklySchedule for backward compatibility/quick view in profile if desired
-  if (!client.weeklySchedule) client.weeklySchedule = {};
-  const dayName = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
-  client.weeklySchedule[dayName] = routineId;
+  // Also update client's template schedule if they want (simplification: just add to 'General' list for now)
+  if (!client.routines.includes(routineId)) {
+    client.routines.push(routineId);
+  }
 
   saveState();
-  openClientDetail(clientId); // Refresh view
-  closeModal();
-  alert(`Entrenamiento "${routine.name}" programado para el ${date} a las ${time}.`);
+  closeModal('assign-modal');
+  alert(`Sesión programada para el ${date} a las ${time}`);
+  renderCalendar(); // ensure calendar catches it if we switch
 });
+
+window.renderCalendar = function () {
+  const grid = $('#calendar-grid');
+  if (!grid) return; // Not in calendar view
+
+  // Get current week (7 days from today) or maybe allow navigation.
+  // For now: 7 days static as requested "fechas reales".
+  const days = [];
+  const today = new Date();
+
+  // Start from Monday of current week? Or Today? User said "empezando desde semana actual".
+  // Let's start from Monday of this week.
+  const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
+  const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust when day is Sunday
+  const monday = new Date(today.setDate(diff));
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    days.push(d);
+  }
+
+  const sessions = state.scheduledSessions || [];
+
+  grid.innerHTML = days.map(day => {
+    const dateStr = day.toISOString().split('T')[0];
+    const dayName = day.toLocaleDateString('es-ES', { weekday: 'short' });
+    const dayNum = day.getDate();
+    const isToday = new Date().toISOString().split('T')[0] === dateStr;
+
+    // Filter events for this day
+    const daySessions = sessions.filter(s => s.date === dateStr && s.trainerId === state.currentTrainerId);
+
+    return `
+            <div class="calendar-day-col ${isToday ? 'today' : ''}">
+                <div class="calendar-day-header">
+                    <span class="day-name">${dayName}</span>
+                    <span class="day-date">${dayNum}</span>
+                </div>
+                <div class="calendar-events">
+                    ${daySessions.map(s => `
+                        <div class="cal-event-card ${s.status === 'completed' ? 'completed' : 'routine'}" 
+                             onclick="alert('Detalle: ${s.notes || 'Sin notas'}')" style="cursor:pointer">
+                            <div class="time">${s.time}</div>
+                            <span class="title">${s.clientName}</span>
+                            <span class="sub">${s.routineName}</span>
+                            ${s.status === 'completed' ? '✅' : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+    `;
+  }).join('');
+}
+
 
 function renderCalendar() {
   const grid = $('#calendar-grid');
@@ -1198,3 +1317,81 @@ window.renderAccountingTable = function () {
 
   if (totalRevEl) totalRevEl.innerText = '€' + totalRevenue.toLocaleString();
 }
+
+// --- NEW MODAL LOGIC (Appended) ---
+
+window.openCreateStudentModal = function () {
+  $('#new-student-form').reset();
+  $('#new-student-modal').classList.add('open');
+}
+
+$('#new-student-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const newClient = {
+    id: Date.now(),
+    name: formData.get('name'),
+    email: formData.get('email'),
+    phone: formData.get('phone'),
+    trainerId: state.currentTrainerId,
+    plan: formData.get('plan'),
+    status: 'active',
+    lastActive: 'Ahora',
+    routines: [],
+    weeklySchedule: {},
+    joinedDate: new Date().toISOString().split('T')[0], // Default to today
+    progress: 0,
+    goal: formData.get('goal'),
+    monthlyFee: parseFloat(formData.get('monthlyFee')) || 0,
+    age: formData.get('dob'), // Using DOB as age proxy/storage for now or need age calc
+    weight: formData.get('weight'),
+    height: formData.get('height'),
+    // injuries: formData.get('notes') // Mapped to notes
+  };
+
+  // Manual mapping for fields that might differ in ID vs Name
+  const targetDateEl = document.querySelector('input[name="targetDate"]');
+  if (targetDateEl && targetDateEl.value) newClient.targetDate = targetDateEl.value;
+
+  state.clients.push(newClient);
+  saveState();
+  closeModal('new-student-modal');
+  alert('Alumno creado con éxito');
+  renderAll();
+});
+
+
+window.openAddAgendaModal = function () {
+  $('#agenda-form').reset();
+  $('#agenda-date').value = new Date().toISOString().split('T')[0];
+  $('#agenda-modal').classList.add('open');
+}
+
+$('#agenda-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const title = $('#agenda-title').value;
+  const type = $('#agenda-type').value;
+  const date = $('#agenda-date').value;
+  const time = $('#agenda-time').value || '09:00';
+
+  const newItem = {
+    id: Date.now(),
+    clientId: null,
+    clientName: title, // Use title as client name for calendar display
+    routineId: null,
+    routineName: type, // Use type as routine name for calendar display
+    date,
+    time,
+    notes: 'Evento de Agenda',
+    status: 'pending',
+    trainerId: state.currentTrainerId
+  };
+
+  if (!state.scheduledSessions) state.scheduledSessions = [];
+  state.scheduledSessions.push(newItem);
+
+  saveState();
+  closeModal('agenda-modal');
+  alert('Actividad agendada');
+  renderAll();
+});
