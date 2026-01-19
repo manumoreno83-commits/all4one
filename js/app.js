@@ -1659,52 +1659,47 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-window.renderAccountingTable = function () {
-  const tableBody = $('#acc-table-body');
-  const totalRevEl = $('#acc-total-revenue');
-  const searchVal = $('#acc-search').value.toLowerCase();
 
-  if (!tableBody) return;
 
-  // Filter clients by current trainer
-  const myClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
+// Filter clients by current trainer
+const myClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
 
-  let totalRevenue = 0;
+let totalRevenue = 0;
 
-  const rows = myClients.map(client => {
-    // Calculate months active
-    const start = new Date(client.joinedDate);
-    const now = new Date();
+const rows = myClients.map(client => {
+  // Calculate months active
+  const start = new Date(client.joinedDate);
+  const now = new Date();
 
-    let months = (now.getFullYear() - start.getFullYear()) * 12;
-    months -= start.getMonth();
-    months += now.getMonth();
-    if (months <= 0) months = 0; // Joined this month = 0 previous months? Or 1? Let's say 1 if active.
+  let months = (now.getFullYear() - start.getFullYear()) * 12;
+  months -= start.getMonth();
+  months += now.getMonth();
+  if (months <= 0) months = 0; // Joined this month = 0 previous months? Or 1? Let's say 1 if active.
 
-    // If joined this month, let's count as 1 month if active
-    if (months === 0 && client.status === 'active') months = 1;
+  // If joined this month, let's count as 1 month if active
+  if (months === 0 && client.status === 'active') months = 1;
 
-    // If inactive, we should ideally have a 'leftDate', but for now use 'months' as if they paid until now or make a simplified assumption.
-    // User request: "historico mensual pagado". 
-    // Let's assume active clients pay every month. Inactive stopped.
-    // Simplified: months * fee.
+  // If inactive, we should ideally have a 'leftDate', but for now use 'months' as if they paid until now or make a simplified assumption.
+  // User request: "historico mensual pagado". 
+  // Let's assume active clients pay every month. Inactive stopped.
+  // Simplified: months * fee.
 
-    const totalPaid = months * (client.monthlyFee || 0);
-    totalRevenue += totalPaid;
+  const totalPaid = months * (client.monthlyFee || 0);
+  totalRevenue += totalPaid;
 
-    return {
-      name: client.name,
-      fee: client.monthlyFee,
-      months: months,
-      total: totalPaid,
-      matches: client.name.toLowerCase().includes(searchVal)
-    };
-  }).filter(row => row.matches);
+  return {
+    name: client.name,
+    fee: client.monthlyFee,
+    months: months,
+    total: totalPaid,
+    matches: client.name.toLowerCase().includes(searchVal)
+  };
+}).filter(row => row.matches);
 
-  // Sort by total paid descending
-  rows.sort((a, b) => b.total - a.total);
+// Sort by total paid descending
+rows.sort((a, b) => b.total - a.total);
 
-  tableBody.innerHTML = rows.map(row => `
+tableBody.innerHTML = rows.map(row => `
   < tr style = "border-bottom:1px solid var(--bg-tertiary);" >
             <td style="padding:12px 10px; color:white; font-weight:500;">${row.name}</td>
             <td style="padding:12px 10px; text-align:right;">€${row.fee}</td>
@@ -1713,7 +1708,7 @@ window.renderAccountingTable = function () {
         </tr >
   `).join('');
 
-  if (totalRevEl) totalRevEl.innerText = '€' + totalRevenue.toLocaleString();
+if (totalRevEl) totalRevEl.innerText = '€' + totalRevenue.toLocaleString();
 }
 
 // --- NEW MODAL LOGIC (Appended) ---
