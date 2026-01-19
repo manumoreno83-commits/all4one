@@ -1647,10 +1647,7 @@ $('#agenda-form').addEventListener('submit', function (e) {
   alert('Actividad agendada');
   renderAll();
 });
-    </tbody > `;
 
-  table.innerHTML = thead + tbody;
-}
 
 window.openContextItem = function (id, type) {
   if (type === 'clients') {
