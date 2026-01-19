@@ -21,10 +21,17 @@
             <h2 style="margin-bottom:8px;">Bienvenido</h2>
             <p style="margin-bottom:30px; font-size:14px;">Entra para gestionar tus entrenamientos o tu club</p>
 
-            <button class="btn-primary" onclick="loginSimulation('admin')"
-                style="width:100%; margin-bottom:12px; display:flex; align-items:center; justify-content:center; gap:10px;">
-                Panel Director
-            </button>
+            <div id="trainer-login-area" style="margin-bottom:12px;">
+                <select id="trainer-login-select"
+                    style="width:100%; padding:14px; border-radius:12px; background:var(--bg-primary); border:1px solid var(--bg-tertiary); color:white; margin-bottom:10px; font-family:inherit;">
+                    <option value="Miguel">Miguel Angel Díaz - Director Deportivo</option>
+                    <option value="Marta">Marta Caparrós - Directora Deportiva</option>
+                </select>
+                <button class="btn-primary" onclick="loginSimulation('admin')"
+                    style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    Entrar como Director
+                </button>
+            </div>
 
             <div
                 style="margin:20px 0; display:flex; align-items:center; gap:10px; color:var(--text-secondary); font-size:12px;">

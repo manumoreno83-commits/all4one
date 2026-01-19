@@ -5,8 +5,8 @@ const defaultState = {
   libMode: 'exercises', // 'exercises' or 'routines'
   exerciseFilter: 'all',
   trainers: [
-    { id: 'Miguel', name: 'Miguel', role: 'Director Deportivo', avatar: 'M' },
-    { id: 'Marta', name: 'Marta', role: 'Entrenadora Senior', avatar: 'Ma' }
+    { id: 'Miguel', name: 'Miguel Angel Díaz', role: 'Director Deportivo', avatar: 'MAD', photo: './assets/miguel.png' },
+    { id: 'Marta', name: 'Marta Caparrós', role: 'Directora Deportiva', avatar: 'MC', photo: './assets/marta.png' }
   ],
   currentTrainerId: 'Miguel',
   clients: [
@@ -103,19 +103,15 @@ function switchView(targetId) {
 // --- AUTH LOGIC ---
 window.loginSimulation = function (role) {
   if (role === 'admin') {
-    const trainerNameRaw = prompt("¿Quién eres? (Miguel / Marta):", "Miguel");
-    if (!trainerNameRaw) return;
-
-    // Normalize to first letter uppercase
-    const trainerName = trainerNameRaw.charAt(0).toUpperCase() + trainerNameRaw.slice(1).toLowerCase();
-    const trainer = state.trainers.find(t => t.id === trainerName);
+    const trainerId = $('#trainer-login-select').value;
+    const trainer = state.trainers.find(t => t.id === trainerId);
 
     if (trainer) {
       state.userRole = 'admin';
       state.currentTrainerId = trainer.id;
       state.currentStudentId = null;
     } else {
-      alert('Entrenador no encontrado. Por favor, especifica Miguel o Marta.');
+      alert('Entrenador no encontrado.');
       return;
     }
   } else {
@@ -669,12 +665,27 @@ function renderAll() {
   // Update Top Bar for current trainer
   const trainer = state.trainers.find(t => t.id === state.currentTrainerId);
   if (trainer) {
-    $$('.username').forEach(el => el.innerText = `Ent. ${trainer.name}`);
+    // Top bar update with photo and role
+    $('.top-bar .user-profile').innerHTML = `
+        <div class="avatar" style="background-image: url('${trainer.photo}'); background-size: cover; background-position: center; border: 2px solid var(--accent-color); width: 40px; height: 40px; border-radius: 50%;"></div>
+        <div class="greeting">
+            <span class="sub-text" style="font-size:10px; opacity:0.8;">${trainer.role}</span>
+            <span class="username" style="font-weight:700;">${trainer.name}</span>
+        </div>
+    `;
+
+    // Profile page update
     const largeAvatar = $('.profile-avatar-large');
-    if (largeAvatar) largeAvatar.innerText = trainer.avatar;
+    if (largeAvatar) {
+      largeAvatar.innerHTML = '';
+      largeAvatar.style.backgroundImage = `url('${trainer.photo}')`;
+      largeAvatar.style.backgroundSize = 'cover';
+      largeAvatar.style.backgroundPosition = 'center';
+      largeAvatar.style.border = '3px solid var(--accent-color)';
+    }
 
     const h2Header = $('.profile-header h2');
-    if (h2Header) h2Header.innerText = `Ent. ${trainer.name}`;
+    if (h2Header) h2Header.innerText = trainer.name;
 
     const pHeader = $('.profile-header p');
     if (pHeader) pHeader.innerText = trainer.role;
