@@ -1668,26 +1668,22 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-if (client) {
-  client.name = formData.get('name');
-  client.email = formData.get('email');
-  client.phone = formData.get('phone');
-  client.plan = formData.get('plan');
-  client.monthlyFee = parseFloat(formData.get('monthlyFee')) || 0;
-  client.status = formData.get('status'); // Status might be missing if select disabled?
-  client.goal = formData.get('goal');
-  client.age = formData.get('dob');
-  client.weight = formData.get('weight');
-  client.height = formData.get('height');
-  if (targetDate) client.targetDate = targetDate;
 
-  saveState();
-  closeModal('new-student-modal');
-  alert('Alumno actualizado correctamente');
-  renderAll();
-  // Refresh detail view if open
-  if (state.currentView === 'view-client-detail') openClientDetail(client.id);
-  return;
+client.monthlyFee = parseFloat(formData.get('monthlyFee')) || 0;
+client.status = formData.get('status'); // Status might be missing if select disabled?
+client.goal = formData.get('goal');
+client.age = formData.get('dob');
+client.weight = formData.get('weight');
+client.height = formData.get('height');
+if (targetDate) client.targetDate = targetDate;
+
+saveState();
+closeModal('new-student-modal');
+alert('Alumno actualizado correctamente');
+renderAll();
+// Refresh detail view if open
+if (state.currentView === 'view-client-detail') openClientDetail(client.id);
+return;
 }
 }
 
