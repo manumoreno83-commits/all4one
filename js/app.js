@@ -1654,18 +1654,14 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-if (c) {
-  document.documentElement.style.setProperty('--accent-color', c);
-  document.documentElement.style.setProperty('--accent-glow', c + '66');
 
-  if (!state.settings) state.settings = {};
-  state.settings.theme = colorName;
+state.settings.theme = colorName;
 
-  // Update active class on selector
-  $$('.theme-option').forEach(el => el.classList.remove('active'));
-  // Re-find based on onclick attribute for simplicity
-  const clicked = [...$$('.theme-option')].find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(colorName));
-  if (clicked) clicked.classList.add('active');
+// Update active class on selector
+$$('.theme-option').forEach(el => el.classList.remove('active'));
+// Re-find based on onclick attribute for simplicity
+const clicked = [...$$('.theme-option')].find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(colorName));
+if (clicked) clicked.classList.add('active');
 }
 }
 
