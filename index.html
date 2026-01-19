@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0B1120" />
+    <title>All4one - Entrenador Miguel</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="user-profile">
+                <img src="./assets/logo.png" alt="All4One Logo" style="height: 44px; width: auto; object-fit: contain;">
+                <div class="greeting">
+                    <span class="sub-text">Fitness Club</span>
+                    <span class="username">Ent. Miguel</span>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="icon-btn" id="global-top-action" aria-label="Añadir Nuevo"
+                    onclick="handleGlobalAction()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- Dashboard View (Overview) -->
+            <section id="view-dashboard" class="view active">
+                <div class="section-header">
+                    <h2>Panel de Director</h2>
+                </div>
+
+                <!-- Business Stats -->
+                <div class="stats-row mb-4">
+                    <div class="stat-box highlight">
+                        <span class="num">24</span>
+                        <span class="lbl">Alumnos Activos</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="num">5</span>
+                        <span class="lbl">Revisiones</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="num">€1.2k</span>
+                        <span class="lbl">Ingresos Mes</span>
+                    </div>
+                </div>
+
+                <div class="stats-row mb-4">
+                    <div class="stat-box">
+                        <span class="num">92%</span>
+                        <span class="lbl">Retención</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="num">12</span>
+                        <span class="lbl">Sesiones Semana</span>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <h2>Agenda de Hoy</h2>
+                    <a href="#" class="text-link">Ver Calendario</a>
+                </div>
+                <div class="card schedule-card">
+                    <div id="agenda-list">
+                        <div class="schedule-item">
+                            <div class="time">09:00</div>
+                            <div class="event-info">
+                                <span class="event-title">Sesión EP: Mario Garcia</span>
+                                <span class="event-type">Fuerza Funcional</span>
+                            </div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="time">11:30</div>
+                            <div class="event-info">
+                                <span class="event-title">Revisión: Ana L.</span>
+                                <span class="event-type">Bloque Pérdida Peso</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="agenda-actions">
+                        <button class="text-link" style="background:none; border:none; cursor:pointer;"
+                            onclick="openAddAgendaModal()">+ Añadir Evento</button>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <h2>Actividad Reciente</h2>
+                </div>
+                <div class="card activity-feed">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Clients View -->
+            <section id="view-clients" class="view">
+                <div class="search-bar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" placeholder="Buscar alumnos..." />
+                </div>
+
+                <div class="tabs-header" style="margin-bottom:16px;">
+                    <!-- Status filters could go here if needed -->
+                </div>
+
+                <div class="client-list">
+                    <!-- Populated by JS -->
+                </div>
+
+                <button class="floating-fab" aria-label="Añadir Alumno">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                </button>
+            </section>
+
+            <!-- Client Detail View (Hidden by default) -->
+            <section id="view-client-detail" class="view">
+                <div class="section-header">
+                    <button class="icon-btn" onclick="switchView('view-clients')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <h2>Perfil Alumno</h2>
+                    <button class="icon-btn" style="color:var(--accent-color)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div id="client-detail-content">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Library View (Split Layout) -->
+            <section id="view-library" class="view">
+                <div class="section-header">
+                    <h2>Biblioteca & Constructor</h2>
+                    <div style="display:flex; gap:8px;">
+                        <button class="icon-btn text-link" onclick="saveBuiltRoutine()">
+                            Guardar Rutina
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search & Filter Bar -->
+                <div style="display:flex; gap:10px; margin-bottom:12px;">
+                    <div class="search-bar" style="flex:1; margin-bottom:0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="lib-search" placeholder="Buscar ejercicios..." onkeyup="filterLibrary()">
+                    </div>
+                    <select id="lib-filter-select" onchange="filterLibrary()"
+                        style="background:var(--bg-secondary); color:white; border:1px solid var(--bg-tertiary); border-radius:12px; padding:0 12px; outline:none;">
+                        <option value="all">Todos</option>
+                        <option value="Piernas">Piernas</option>
+                        <option value="Espalda">Espalda</option>
+                        <option value="Pecho">Pecho</option>
+                        <option value="Brazos">Brazos</option>
+                        <option value="Torso">Torso</option>
+                        <option value="Cardio">Cardio</option>
+                    </select>
+                </div>
+
+                <div class="split-layout">
+                    <!-- Left Pane: Exercises -->
+                    <div class="library-pane">
+                        <div class="library-pane-header">
+                            <span>Ejercicios Disponibles</span>
+                            <small style="color:var(--text-secondary)">Arrastra para añadir</small>
+                        </div>
+                        <div class="scroll-area" id="library-source-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Right Pane: Routine Builder -->
+                    <div class="library-pane builder-pane">
+                        <div class="library-pane-header">
+                            <span>Nueva Rutina</span>
+                            <span id="builder-count" class="badge">0 items</span>
+                        </div>
+                        <div class="scroll-area" id="routine-builder-dropzone" ondragover="allowDrop(event)"
+                            ondrop="drop(event)">
+                            <div class="drop-zone">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" style="margin-bottom:8px; opacity:0.5">
+                                    <path d="M12 5v14M5 12h14" />
+                                </svg>
+                                <p>Arrastra ejercicios aquí o haz clic en ellos para añadirlos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Detail View -->
+            <section id="view-client-detail" class="view">
+                <button class="icon-btn mb-4" onclick="switchView('view-clients')">← Volver</button>
+                <div id="client-detail-content"></div>
+            </section>
+
+            <!-- Settings View -->
+            <section id="view-settings" class="view">
+                <div class="profile-header">
+                    <div class="profile-avatar-large">M</div>
+                    <h2>Ent. Miguel</h2>
+                    <p>Director Deportivo</p>
+                </div>
+                <div class="settings-list">
+                    <div class="setting-item">
+                        <span>Versión App</span>
+                        <span class="val">v3.0.1 (All4one)</span>
+                    </div>
+                    <div class="setting-item">
+                        <span>Sincronización</span>
+                        <span class="badge">Activa</span>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item" data-target="view-dashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                Inicio
+            </a>
+            <a href="#" class="nav-item" data-target="view-clients">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                Alumnos
+            </a>
+            <div class="nav-item-center-wrapper">
+                <div class="nav-item-center" onclick="handleGlobalAction()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </div>
+            </div>
+            <a href="#" class="nav-item active" data-target="view-library">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                Biblioteca
+            </a>
+            <a href="#" class="nav-item" data-target="view-settings">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+                Ajustes
+            </a>
+        </nav>
+
+        <!-- Client Modal -->
+        <div class="modal-overlay" id="client-modal">
+            <div class="modal">
+                <h2 id="modal-title">Nuevo Alumno</h2>
+                <form id="client-form">
+                    <input type="hidden" id="client-id" />
+
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="client-name" required placeholder="Ej. Juan Pérez" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Plan de Entrenamiento</label>
+                        <input type="text" id="client-plan" required placeholder="Ej. Hipertrofia 3 días" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="client-status">
+                            <option value="active">Activo</option>
+                            <option value="pending">Pendiente</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-ghost cancel-btn">Cancelar</button>
+                        <button type="submit" class="btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Create Routine Modal -->
+        <div class="modal-overlay" id="routine-modal">
+            <!-- ... existing content if any, or leave empty if builder takes over ... -->
+        </div>
+
+        <!-- Assign Routine Modal -->
+        <div class="modal-overlay" id="assign-modal">
+            <div class="modal">
+                <h2>Asignar a Alumno</h2>
+                <p class="mb-4" id="assign-target-name">Asignando a...</p>
+                <form id="assign-form">
+                    <input type="hidden" id="assign-client-id" />
+                    <div class="form-group">
+                        <label>Rutina a Asignar</label>
+                        <select id="assign-routine-select">
+                            <!-- populated by JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Notas para el alumno</label>
+                        <input type="text" placeholder="Ej. Lunes y Jueves" />
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-ghost cancel-btn">Cancelar</button>
+                        <button type="submit" class="btn-primary">Confirmar Asignación</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Detailed New Student Modal -->
+        <div class="modal-overlay" id="new-student-modal">
+            <div class="modal modal-lg">
+                <div class="section-header">
+                    <h2>Nuevo Alumno</h2>
+                    <button class="icon-btn" onclick="closeModal('new-student-modal')">✕</button>
+                </div>
+                <form id="new-student-form" class="modal-body-scroll">
+
+                    <!-- Personal Data -->
+                    <div class="form-section">
+                        <h4>Datos Personales</h4>
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label>Nombre Completo</label>
+                                <input type="text" name="name" required placeholder="Ej. Juan Pérez">
+                            </div>
+                            <div class="form-group">
+                                <label>Fecha Nac.</label>
+                                <input type="date" name="dob">
+                            </div>
+                            <div class="form-group">
+                                <label>Género</label>
+                                <select name="gender">
+                                    <option value="male">Masculino</option>
+                                    <option value="female">Femenino</option>
+                                    <option value="other">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact -->
+                    <div class="form-section">
+                        <h4>Contacto</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" name="email" placeholder="juan@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Teléfono</label>
+                                <input type="tel" name="phone" placeholder="+34 600...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Physical Data & Goals -->
+                    <div class="form-section">
+                        <h4>Ficha Técnica</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Altura (cm)</label>
+                                <input type="number" name="height" placeholder="175">
+                            </div>
+                            <div class="form-group">
+                                <label>Peso (kg)</label>
+                                <input type="number" name="weight" placeholder="70">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Objetivo Principal</label>
+                                <select name="goal">
+                                    <option value="Hypertrophy">Hipertrofia</option>
+                                    <option value="Strength">Fuerza</option>
+                                    <option value="WeightLoss">Pérdida de Peso</option>
+                                    <option value="Health">Salud General</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Lesiones / Notas</label>
+                                <input type="text" name="notes" placeholder="Ej. Dolor de rodilla izquierda...">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Plan Inicial</label>
+                                <select name="plan">
+                                    <option value="Hipertrofia 3 días">Hipertrofia 3 días</option>
+                                    <option value="Fuerza 5x5">Fuerza 5x5</option>
+                                    <option value="Full Body">Full Body</option>
+                                    <option value="Personalizado">Personalizado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-ghost"
+                            onclick="closeModal('new-student-modal')">Cancelar</button>
+                        <button type="submit" class="btn-primary">Registrar Alumno</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Video Modal -->
+        <div class="modal-overlay" id="video-modal">
+            <div class="modal modal-lg">
+                <div class="section-header">
+                    <h2 id="video-modal-title">Video de Ejercicio</h2>
+                    <button class="icon-btn" onclick="closeModal('video-modal')">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="video-container">
+                        <iframe id="exercise-video-player" width="100%" height="315" src="" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen></iframe>
+                    </div>
+                    <h3 id="video-exercise-name" class="mt-3"></h3>
+                    <p id="video-exercise-description"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Agenda Event Modal -->
+        <div class="modal-overlay" id="agenda-modal">
+            <div class="modal">
+                <h2>Añadir a la Agenda</h2>
+                <form id="agenda-form">
+                    <div class="form-group">
+                        <label>Hora</label>
+                        <input type="time" id="agenda-time" required value="09:00">
+                    </div>
+                    <div class="form-group">
+                        <label>Evento</label>
+                        <input type="text" id="agenda-title" required placeholder="Ej. Sesión Juan">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="agenda-type">
+                            <option value="Sesión EP">Sesión EP</option>
+                            <option value="Revisión">Revisión</option>
+                            <option value="Consulta">Consulta</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-ghost" onclick="closeModal('agenda-modal')">Cancelar</button>
+                        <button type="submit" class="btn-primary">Añadir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modals Scripting -->
+        <script src="js/app.js"></script>
+    </div>
+    <script src="./js/app.js" defer></script>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+[build]
+  publish = "."
+  command = "echo 'Build skipped (static site)'"
+
+[dev]
+  command = "echo 'Run locally with your preferred server'"
+  publish = "."
