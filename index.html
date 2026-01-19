@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 
 <body>
@@ -22,15 +23,21 @@
             <p style="margin-bottom:30px; font-size:14px;">Entra para gestionar tus entrenamientos o tu club</p>
 
             <div id="trainer-login-area" style="margin-bottom:12px;">
-                <select id="trainer-login-select"
-                    style="width:100%; padding:14px; border-radius:12px; background:var(--bg-primary); border:1px solid var(--bg-tertiary); color:white; margin-bottom:10px; font-family:inherit;">
-                    <option value="Miguel">Miguel Angel Díaz - Director Deportivo</option>
-                    <option value="Marta">Marta Caparrós - Directora Deportiva</option>
-                </select>
-                <button class="btn-primary" onclick="loginSimulation('admin')"
+                <button id="initial-admin-btn" class="btn-primary" onclick="toggleTrainerSelect()"
                     style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">
                     Entrar como Director
                 </button>
+                <div id="admin-selectors" style="display:none;">
+                    <select id="trainer-login-select"
+                        style="width:100%; padding:14px; border-radius:12px; background:var(--bg-primary); border:1px solid var(--bg-tertiary); color:white; margin-bottom:10px; font-family:inherit;">
+                        <option value="Miguel">Miguel Angel Díaz - Director Deportivo</option>
+                        <option value="Marta">Marta Caparrós - Directora Deportiva</option>
+                    </select>
+                    <button class="btn-primary" onclick="loginSimulation('admin')"
+                        style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">
+                        Confirmar Acceso
+                    </button>
+                </div>
             </div>
 
             <div
@@ -93,33 +100,33 @@
                 <!-- Business Stats -->
                 <div class="stats-row mb-4">
                     <div class="stat-box highlight">
-                        <span class="num">24</span>
+                        <span class="num" id="stat-active-students">--</span>
                         <span class="lbl">Alumnos Activos</span>
                     </div>
                     <div class="stat-box">
-                        <span class="num">5</span>
-                        <span class="lbl">Revisiones</span>
+                        <span class="num" id="stat-reviews">--</span>
+                        <span class="lbl">Revisiones Pendientes</span>
                     </div>
                     <div class="stat-box">
-                        <span class="num">€1.2k</span>
+                        <span class="num" id="stat-income">--</span>
                         <span class="lbl">Ingresos Mes</span>
                     </div>
                 </div>
 
                 <div class="stats-row mb-4">
                     <div class="stat-box">
-                        <span class="num">92%</span>
+                        <span class="num" id="stat-retention">--%</span>
                         <span class="lbl">Retención</span>
                     </div>
                     <div class="stat-box">
-                        <span class="num">12</span>
+                        <span class="num" id="stat-sessions">--</span>
                         <span class="lbl">Sesiones Semana</span>
                     </div>
                 </div>
 
                 <div class="section-header">
                     <h2>Agenda de Hoy</h2>
-                    <a href="#" class="text-link">Ver Calendario</a>
+                    <a href="#" class="text-link" onclick="switchView('view-calendar')">Ver Calendario</a>
                 </div>
                 <div class="card schedule-card">
                     <div id="agenda-list">
@@ -208,44 +215,27 @@
 
             <!-- Library View (Split Layout) -->
             <section id="view-library" class="view">
-                <div class="section-header">
-                    <h2>Biblioteca & Constructor</h2>
-                    <div style="display:flex; gap:8px;">
-                        <button class="icon-btn text-link" onclick="saveBuiltRoutine()">
-                            Guardar Rutina
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Search & Filter Bar -->
-                <div style="display:flex; gap:10px; margin-bottom:12px;">
-                    <div class="search-bar" style="flex:1; margin-bottom:0;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                <div class="library-filters-container">
+                    <div class="search-bar-integrated">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                        <input type="text" id="lib-search" placeholder="Buscar ejercicios..." onkeyup="filterLibrary()">
+                        <input type="text" id="lib-search" placeholder="Busca por nombre o músculo..."
+                            onkeyup="filterLibrary()">
                     </div>
-                    <select id="lib-filter-select" onchange="filterLibrary()"
-                        style="background:var(--bg-secondary); color:white; border:1px solid var(--bg-tertiary); border-radius:12px; padding:0 12px; outline:none;">
-                        <option value="all">Todos</option>
-                        <option value="Piernas">Piernas</option>
-                        <option value="Espalda">Espalda</option>
-                        <option value="Pecho">Pecho</option>
-                        <option value="Brazos">Brazos</option>
-                        <option value="Torso">Torso</option>
-                        <option value="Cardio">Cardio</option>
-                        <option value="Deka">Deka</option>
-                        <option value="Calentamiento">Calentamiento</option>
-                    </select>
+
+                    <div class="filter-chips-wrapper" id="lib-filter-chips">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
 
                 <div class="split-layout">
                     <!-- Left Pane: Exercises -->
                     <div class="library-pane">
                         <div class="library-pane-header">
-                            <span>Ejercicios</span>
+                            <span>Biblioteca de Ejercicios</span>
                             <button class="text-link" style="background:none; border:none; cursor:pointer;"
                                 onclick="openExerciseModal()">+ Nuevo</button>
                         </div>
@@ -257,8 +247,8 @@
                     <!-- Right Pane: Routine Builder -->
                     <div class="library-pane builder-pane">
                         <div class="library-pane-header">
-                            <span>Nueva Rutina</span>
-                            <span id="builder-count" class="badge">0 items</span>
+                            <span>Mi Rutina</span>
+                            <button class="btn-save-routine" onclick="saveBuiltRoutine()">Guardar</button>
                         </div>
                         <div class="scroll-area" id="routine-builder-dropzone" ondragover="allowDrop(event)"
                             ondrop="drop(event)">
@@ -268,7 +258,7 @@
                                     stroke-linejoin="round" style="margin-bottom:8px; opacity:0.5">
                                     <path d="M12 5v14M5 12h14" />
                                 </svg>
-                                <p>Arrastra ejercicios aquí o haz clic en ellos para añadirlos.</p>
+                                <p>Arrastra ejercicios aquí o haz clic para añadir.</p>
                             </div>
                         </div>
                     </div>
@@ -277,7 +267,14 @@
 
             <!-- Detail View -->
             <section id="view-client-detail" class="view">
-                <button class="icon-btn mb-4" onclick="switchView('view-clients')">← Volver</button>
+                <button class="btn-back-floating" onclick="switchView('view-clients')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    <span>Volver</span>
+                </button>
+                <div class="detail-spacer" style="height:20px;"></div>
                 <div id="client-detail-content"></div>
             </section>
 
@@ -296,6 +293,42 @@
                     <div class="setting-item">
                         <span>Sincronización</span>
                         <span class="badge">Activa</span>
+                    </div>
+                    <div class="setting-item" onclick="switchView('view-database')" style="cursor:pointer;">
+                        <span>Base de Datos</span>
+                        <svg style="color:var(--text-secondary)" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                    <div class="setting-item" onclick="openAccountingModal()" style="cursor:pointer;">
+                        <span>Contabilidad</span>
+                        <svg style="color:var(--text-secondary)" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Calendar View (Sub-app) -->
+            <section id="view-calendar" class="view">
+                <div class="section-header">
+                    <button class="icon-btn" onclick="switchView('view-dashboard')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <h2>Calendario Semanal</h2>
+                    <div style="display:flex; gap:8px;">
+                        <button class="icon-btn text-link" onclick="openAddAgendaModal()">+ Nuevo Evento</button>
+                    </div>
+                </div>
+
+                <div class="calendar-container">
+                    <div id="calendar-grid" class="calendar-grid">
+                        <!-- Populated by JS -->
                     </div>
                 </div>
             </section>
@@ -349,7 +382,7 @@
                         d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
                     </path>
                 </svg>
-                Ajustes
+                Admin
             </a>
         </nav>
 
@@ -404,37 +437,44 @@
 
         <!-- Assign Routine Modal -->
         <div class="modal-overlay" id="assign-modal">
-            <div class="modal">
-                <h2>Asignar a Alumno</h2>
-                <p class="mb-4" id="assign-target-name">Asignando a...</p>
+            <div class="modal modal-lg">
+                <h2>Programar Entrenamiento</h2>
+                <p class="mb-4" id="assign-target-name" style="color:var(--text-secondary); font-size:14px;">Asignando
+                    a...</p>
                 <form id="assign-form">
                     <input type="hidden" id="assign-client-id" />
-                    <div class="form-group">
-                        <label>Rutina a Asignar</label>
-                        <select id="assign-routine-select">
-                            <!-- populated by JS -->
-                        </select>
+
+                    <div class="form-section">
+                        <h4>Selección de Rutina</h4>
+                        <div class="form-group full-width">
+                            <label>Rutina</label>
+                            <select id="assign-routine-select">
+                                <!-- populated by JS -->
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Día de la Semana</label>
-                        <select id="assign-day-select">
-                            <option value="Monday">Lunes</option>
-                            <option value="Tuesday">Martes</option>
-                            <option value="Wednesday">Miércoles</option>
-                            <option value="Thursday">Jueves</option>
-                            <option value="Friday">Viernes</option>
-                            <option value="Saturday">Sábado</option>
-                            <option value="Sunday">Domingo</option>
-                            <option value="General">General (Sin día)</option>
-                        </select>
+
+                    <div class="form-section">
+                        <h4>Programación y Horario</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Fecha</label>
+                                <input type="date" id="assign-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Hora</label>
+                                <input type="time" id="assign-time" required value="10:00">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Nota Adicional</label>
+                                <input type="text" id="assign-notes" placeholder="Ej. Foco en técnica de sentadilla">
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Notas para el alumno</label>
-                        <input type="text" id="assign-notes" placeholder="Ej. Lunes y Jueves" />
-                    </div>
+
                     <div class="modal-actions">
-                        <button type="button" class="btn-ghost cancel-btn">Cancelar</button>
-                        <button type="submit" class="btn-primary">Confirmar Asignación</button>
+                        <button type="button" class="btn-ghost" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn-primary">Confirmar y Añadir al Calendario</button>
                     </div>
                 </form>
             </div>
@@ -506,7 +546,12 @@
                                     <option value="Strength">Fuerza</option>
                                     <option value="WeightLoss">Pérdida de Peso</option>
                                     <option value="Health">Salud General</option>
+                                    <option value="Competition">Competición</option>
                                 </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Fecha Objetivo</label>
+                                <input type="date" name="targetDate">
                             </div>
                             <div class="form-group full-width">
                                 <label>Lesiones / Notas</label>
@@ -654,9 +699,105 @@
             </div>
         </div>
 
-        <!-- Modals Scripting -->
-        <script src="js/app.js"></script>
+        <!-- Full Screen Global Menu -->
+        <div id="fullscreen-menu" class="fullscreen-menu">
+            <button class="close-menu-btn" onclick="closeFullscreenMenu()">✕</button>
+            <div class="menu-content">
+                <h2 style="color:white; text-align:center; margin-bottom:40px; font-size:28px;">¿Qué quieres hacer?</h2>
+                <div class="menu-grid">
+                    <div class="menu-card" onclick="menuAction('new-student')">
+                        <div class="menu-icon">👤</div>
+                        <h3>Nuevo Alumno</h3>
+                        <p>Registrar un nuevo socio en el club</p>
+                    </div>
+                    <div class="menu-card" onclick="menuAction('new-routine')">
+                        <div class="menu-icon">📝</div>
+                        <h3>Nueva Rutina</h3>
+                        <p>Crear un plan de entrenamiento</p>
+                    </div>
+                    <div class="menu-card" onclick="menuAction('new-activity')">
+                        <div class="menu-icon">📅</div>
+                        <h3>Nueva Actividad</h3>
+                        <p>Agendar evento o sesión</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database View -->
+        <section id="view-database" class="view">
+            <div class="section-header">
+                <button class="icon-btn" onclick="switchView('view-settings')">← Volver</button>
+                <h2>Base de Datos</h2>
+                <div></div>
+            </div>
+
+            <div class="db-tabs">
+                <button class="db-tab active" onclick="switchDbTab('clients')">Alumnos</button>
+                <button class="db-tab" onclick="switchDbTab('sessions')">Sesiones</button>
+                <button class="db-tab" onclick="switchDbTab('routines')">Rutinas</button>
+            </div>
+
+            <div class="db-table-container">
+                <div class="db-filters">
+                    <input type="text" id="db-search" placeholder="Buscar..." onkeyup="renderDbTable()">
+                    <select id="db-sort" onchange="renderDbTable()">
+                        <option value="newest">Más recientes</option>
+                        <option value="oldest">Más antiguos</option>
+                        <option value="name">Nombre</option>
+                    </select>
+                </div>
+                <div class="table-responsive">
+                    <table id="db-table">
+                        <!-- Populated by JS -->
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Accounting Modal -->
+        <div class="modal-overlay" id="accounting-modal">
+            <div class="modal modal-lg" style="max-height:85vh; overflow-y:auto;">
+                <div class="section-header">
+                    <h2>Contabilidad</h2>
+                    <button class="icon-btn" onclick="closeModal('accounting-modal')">✕</button>
+                </div>
+
+                <div class="card"
+                    style="margin-bottom:20px; background:var(--bg-secondary); border:1px solid var(--bg-tertiary);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:var(--text-secondary); font-size:13px;">Ingresos Totales (Historico)</span>
+                        <span style="font-size:24px; font-weight:700; color:var(--success);"
+                            id="acc-total-revenue">€0</span>
+                    </div>
+                </div>
+
+                <div class="db-filters" style="margin-bottom:15px;">
+                    <input type="text" id="acc-search" placeholder="Buscar alumno..." onkeyup="renderAccountingTable()">
+                </div>
+
+                <div class="table-responsive">
+                    <table id="acc-table" style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left; padding:10px; color:var(--text-secondary);">Alumno</th>
+                                <th style="text-align:right; padding:10px; color:var(--text-secondary);">Cuota</th>
+                                <th style="text-align:right; padding:10px; color:var(--text-secondary);">Meses Activo
+                                </th>
+                                <th style="text-align:right; padding:10px; color:var(--text-secondary);">Total Pagado
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="acc-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
+    <script src="./js/library_db.js"></script>
     <script src="./js/app.js" defer></script>
 </body>
 

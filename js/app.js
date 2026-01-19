@@ -67,8 +67,15 @@ const defaultState = {
 
 let state = JSON.parse(localStorage.getItem('directorAppState_v3')) || defaultState;
 
-// IMPORTANT: Refresh library logic if the stored state has fewer exercises than the default (fixes "missing exercises" issue)
-if (state.library.length < defaultState.library.length) {
+// Update Library from external file if exists
+if (typeof window !== 'undefined' && window.NEW_LIBRARY) {
+  // Simple check: if we have significantly more exercises in the new set, update.
+  // Or just force update if the user requested it.
+  if (!state.library || state.library.length < window.NEW_LIBRARY.length) {
+    state.library = window.NEW_LIBRARY;
+    saveState();
+  }
+} else if (state.library.length < defaultState.library.length) {
   state.library = defaultState.library;
   saveState();
 }
@@ -96,11 +103,22 @@ function switchView(targetId) {
     view.classList.toggle('active', view.id === targetId);
   });
 
+  if (targetId === 'view-calendar') renderCalendar();
+
   // Scroll Top
   $('#main-content').scrollTop = 0;
 }
 
 // --- AUTH LOGIC ---
+window.toggleTrainerSelect = function () {
+  const area = $('#trainer-login-area');
+  const initialBtn = $('#initial-admin-btn');
+  const selectors = $('#admin-selectors');
+
+  initialBtn.style.display = 'none';
+  selectors.style.display = 'block';
+}
+
 window.loginSimulation = function (role) {
   if (role === 'admin') {
     const trainerId = $('#trainer-login-select').value;
@@ -224,23 +242,32 @@ window.setLibMode = function (mode) {
 function renderLibrarySplit() {
   const sourceList = $('#library-source-list');
   const builderList = $('#routine-builder-dropzone');
-  const countBadge = $('#builder-count');
+  const chipContainer = $('#lib-filter-chips');
 
-  // Safety check: if we are not in the split view (e.g. mobile dashboard), handle gracefully or switch
   if (!sourceList || !builderList) return;
+
+  // 0. Render Chips (if container exists)
+  if (chipContainer) {
+    const categories = ['Todos', 'Piernas', 'Espalda', 'Pecho', 'Brazos', 'Torso', 'Cardio', 'Deka', 'Hyrox', 'Funcional', 'Calentamiento'];
+    chipContainer.innerHTML = categories.map(cat => {
+      const val = cat === 'Todos' ? 'all' : cat;
+      const isActive = state.exerciseFilter === val;
+      return `<div class="filter-chip ${isActive ? 'active' : ''}" onclick="setExerciseFilter('${val}')">${cat}</div>`;
+    }).join('');
+  }
 
   // 1. Render Source List (Left Pane)
   const filterText = ($('#lib-search')?.value || '').toLowerCase();
-  const filterCat = $('#lib-filter-select')?.value || 'all';
+  const filterCat = state.exerciseFilter || 'all';
 
   const filtered = state.library.filter(ex => {
-    const matchesText = ex.name.toLowerCase().includes(filterText);
+    const matchesText = ex.name.toLowerCase().includes(filterText) || ex.muscle.toLowerCase().includes(filterText);
     const matchesCat = filterCat === 'all' || ex.muscle === filterCat || ex.type === filterCat;
     return matchesText && matchesCat;
   });
 
   sourceList.innerHTML = filtered.map(ex => `
-        <div class="exercise-item draggable-item" draggable="true" ondragstart="drag(event)" id="ex-${ex.id}" onclick="addToBuilder(${ex.id})">
+        <div class="exercise-item" data-id="${ex.id}" onclick="addToBuilder(${ex.id})">
             <div class="exercise-thumb">
                 <img src="https://loremflickr.com/320/240/gym,fitness/all?lock=${ex.id}" style="width:100%; height:100%; object-fit:cover;">
             </div>
@@ -250,9 +277,9 @@ function renderLibrarySplit() {
                    <span class="tag">${ex.muscle}</span>
                 </div>
             </div>
-            <div style="display:flex; gap:4px;">
-                <button class="icon-btn" onclick="event.stopPropagation(); editExercise(${ex.id})" title="Editar">✏️</button>
-                <button class="icon-btn" onclick="event.stopPropagation(); openVideo(${ex.id})" title="Ver detalles">📺</button>
+            <div style="display:flex; gap:8px;">
+                <button class="icon-btn-large" onclick="event.stopPropagation(); editExercise(${ex.id})" title="Editar" style="font-size:14px;">✏️</button>
+                <button class="icon-btn-large" onclick="event.stopPropagation(); openVideo(${ex.id})" title="Ver vídeo" style="font-size:14px;">📺</button>
             </div>
         </div>
     `).join('');
@@ -260,34 +287,84 @@ function renderLibrarySplit() {
   // 2. Render Builder List (Right Pane)
   if (state.builder.length === 0) {
     builderList.innerHTML = `
-           <div class="drop-zone">
+           <div class="drop-zone no-sort">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px; opacity:0.5"><path d="M12 5v14M5 12h14"/></svg>
-              <p>Arrastra ejercicios aquí o haz clic para añadir.</p>
+              <p>Arrastra ejercicios o haz clic para añadir.</p>
            </div>
         `;
   } else {
     builderList.innerHTML = state.builder.map((exId, idx) => {
       const ex = state.library.find(e => e.id === exId);
+      if (!ex) return '';
       return `
-               <div class="builder-item">
-                  <span style="font-weight:600; font-size:14px;">${idx + 1}. ${ex.name}</span>
-                  <button class="icon-btn" onclick="removeFromBuilder(${idx})" style="color:var(--danger)">✕</button>
+               <div class="builder-item" data-id="${ex.id}">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="drag-handle" style="cursor:grab; opacity:0.3; font-size:12px;">☰</span>
+                    <span style="font-weight:600; font-size:14px;">${idx + 1}. ${ex.name}</span>
+                  </div>
+                  <button class="icon-btn" onclick="removeFromBuilder(${idx})" style="color:var(--danger); padding:8px;">✕</button>
                </div>
             `;
     }).join('');
   }
 
-  if (countBadge) countBadge.innerText = `${state.builder.length} ejercicios`;
+  // 3. Initialize/Update SortableJS
+  initSortables();
 }
 
-// Drag & Drop Handlers
-window.allowDrop = function (ev) { ev.preventDefault(); }
-window.drag = function (ev) { ev.dataTransfer.setData("text", ev.target.id); }
-window.drop = function (ev) {
-  ev.preventDefault();
-  const data = ev.dataTransfer.getData("text");
-  const exId = parseInt(data.replace('ex-', ''));
-  if (exId) addToBuilder(exId);
+function initSortables() {
+  const sourceEl = $('#library-source-list');
+  const builderEl = $('#routine-builder-dropzone');
+
+  if (!sourceEl || !builderEl) return;
+
+  // Source List (Clone from here)
+  if (!sourceEl.sortable) {
+    sourceEl.sortable = new Sortable(sourceEl, {
+      group: {
+        name: 'exercises',
+        pull: 'clone',
+        put: false
+      },
+      sort: false,
+      animation: 150,
+      draggable: '.exercise-item',
+      onEnd: function (evt) {
+        if (evt.from !== evt.to) {
+          // Update state.builder based on the new order in builderEl
+          syncBuilderFromDOM();
+        }
+      }
+    });
+  }
+
+  // Builder List (Drop here)
+  if (builderEl.sortable) builderEl.sortable.destroy();
+
+  builderEl.sortable = new Sortable(builderEl, {
+    group: 'exercises',
+    animation: 150,
+    draggable: '.builder-item',
+    filter: '.no-sort',
+    handle: '.drag-handle',
+    onAdd: function (evt) {
+      syncBuilderFromDOM();
+    },
+    onUpdate: function (evt) {
+      syncBuilderFromDOM();
+    }
+  });
+}
+
+function syncBuilderFromDOM() {
+  const builderEl = $('#routine-builder-dropzone');
+  const items = builderEl.querySelectorAll('.builder-item');
+  const newBuilder = [];
+  items.forEach(item => {
+    newBuilder.push(parseInt(item.dataset.id));
+  });
+  state.builder = newBuilder;
+  renderLibrarySplit(); // Re-render to update indexes and count
 }
 
 // Builder Actions
@@ -298,6 +375,11 @@ window.addToBuilder = function (exId) {
 
 window.removeFromBuilder = function (index) {
   state.builder.splice(index, 1);
+  renderLibrarySplit();
+}
+
+window.setExerciseFilter = function (filter) {
+  state.exerciseFilter = filter;
   renderLibrarySplit();
 }
 
@@ -326,6 +408,7 @@ window.saveBuiltRoutine = function () {
   renderLibrarySplit();
 }
 
+// Update `openExerciseModal`
 window.openExerciseModal = function (id = null) {
   const modal = $('#exercise-modal');
   const form = $('#exercise-form');
@@ -333,11 +416,12 @@ window.openExerciseModal = function (id = null) {
 
   form.reset();
   if (id) {
-    const ex = state.library.find(e => e.id === id);
+    const ex = state.library.find(e => e.id === parseInt(id));
     if (ex) {
       $('#ex-edit-id').value = ex.id;
       $('#ex-name').value = ex.name;
       $('#ex-muscle').value = ex.muscle;
+      if ($('#ex-type')) $('#ex-type').value = ex.type || 'Personalizado';
       $('#ex-video').value = ex.video;
       $('#ex-description').value = ex.description || '';
       title.innerText = 'Editar Ejercicio';
@@ -355,6 +439,7 @@ $('#exercise-form').addEventListener('submit', (e) => {
   const id = $('#ex-edit-id').value;
   const name = $('#ex-name').value;
   const muscle = $('#ex-muscle').value;
+  const type = $('#ex-type') ? $('#ex-type').value : 'Personalizado';
   const video = $('#ex-video').value;
   const description = $('#ex-description').value;
 
@@ -362,7 +447,7 @@ $('#exercise-form').addEventListener('submit', (e) => {
     // Edit
     const exIdx = state.library.findIndex(e => e.id === parseInt(id));
     if (exIdx > -1) {
-      state.library[exIdx] = { ...state.library[exIdx], name, muscle, video, description };
+      state.library[exIdx] = { ...state.library[exIdx], name, muscle, type, video, description };
     }
   } else {
     // New
@@ -370,7 +455,7 @@ $('#exercise-form').addEventListener('submit', (e) => {
       id: Date.now(),
       name,
       muscle,
-      type: 'Personalizado',
+      type,
       video,
       description
     };
@@ -383,68 +468,8 @@ $('#exercise-form').addEventListener('submit', (e) => {
   alert('Ejercicio guardado correctamente');
 });
 
-window.editExercise = function (id) {
-  openExerciseModal(id);
-}
 
-window.openVideo = function (exId) {
-  const ex = state.library.find(e => e.id === parseInt(exId));
-  if (!ex) return;
-
-  $('#video-modal-title').innerText = ex.name;
-  $('#video-exercise-name').innerText = ex.name;
-  $('#video-exercise-description').innerHTML = (ex.description || 'Sin descripción').replace(/\n/g, '<br>');
-
-  let videoId = '';
-  if (ex.video.includes('v=')) videoId = ex.video.split('v=')[1].split('&')[0];
-  else if (ex.video.includes('be/')) videoId = ex.video.split('be/')[1];
-
-  $('#exercise-video-player').src = videoId ? `https://www.youtube.com/embed/${videoId}` : '';
-  $('#video-modal').classList.add('open');
-}
-
-// Share Routine Logic
-window.shareRoutine = function (id) {
-  const routine = state.routines.find(r => r.id === id);
-  if (!routine) return;
-  const exercisesList = routine.exercises.map(eid => {
-    const ex = state.library.find(e => e.id === eid);
-    return ex ? `- ${ex.name}` : '';
-  }).join('%0A');
-  const text = `🚴 *Nueva Rutina Asignada*%0A%0A*${routine.name}*%0A${exercisesList}%0A%0A¡A entrenar! 💪`;
-  window.open(`https://wa.me/?text=${text}`, '_blank');
-}
-
-// Ensure library is initially rendered if we are on that view
-if (state.currentView === 'view-library') {
-  setTimeout(renderLibrarySplit, 100);
-}
-
-
-// --- CLIENTS & DETAIL VIEW ---
-
-function renderClients() {
-  const container = $('.client-list');
-  if (!container) return;
-
-  // Filter by current trainer
-  const trainerClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
-
-  container.innerHTML = trainerClients.map(client => `
-    <div class="client-card" onclick="openClientDetail(${client.id})">
-      <div class="client-status status-${client.status}"></div>
-      <div class="client-avatar">${client.name.charAt(0)}</div>
-      <div style="flex:1">
-        <h4 style="font-size:16px; font-weight:600; color:var(--text-primary);">${client.name}</h4>
-        <p style="font-size:13px; color:var(--text-secondary);">${client.plan}</p>
-      </div>
-       <div class="actions-cell">
-           <svg style="color:var(--text-secondary)" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-       </div>
-    </div>
-  `).join('');
-}
-
+// Update `openClientDetail` to show Target Date
 window.openClientDetail = function (id) {
   const client = state.clients.find(c => c.id === id);
   if (!client) return;
@@ -520,7 +545,7 @@ window.openClientDetail = function (id) {
            <div style="padding:0 20px; margin-top:20px;">
               <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
                   <span style="color:var(--text-secondary)">OBJETIVO: ${client.goal || 'No definido'}</span>
-                  <span>${client.progress || 0}%</span>
+                  <span style="color:var(--text-secondary)">${client.targetDate ? `📅 ${new Date(client.targetDate).toLocaleDateString()}` : ''}</span>
               </div>
               <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
                   <div style="width:${client.progress || 0}%; height:100%; background:var(--success);"></div>
@@ -566,6 +591,9 @@ window.openAssignModal = function (clientId) {
   const select = $('#assign-routine-select');
   select.innerHTML = state.routines.map(r => `<option value="${r.id}">${r.name} (${r.exercises.length} ex)</option>`).join('');
 
+  // Default date to today
+  $('#assign-date').value = new Date().toISOString().split('T')[0];
+
   $('#assign-modal').classList.add('open');
 }
 
@@ -573,41 +601,103 @@ $('#assign-form').addEventListener('submit', (e) => {
   e.preventDefault();
   const clientId = parseInt($('#assign-client-id').value);
   const routineId = parseInt($('#assign-routine-select').value);
-  const day = $('#assign-day-select').value;
+  const date = $('#assign-date').value;
+  const time = $('#assign-time').value;
   const notes = $('#assign-notes').value;
 
-  const clientIdx = state.clients.findIndex(c => c.id === clientId);
-  if (clientIdx > -1) {
-    const client = state.clients[clientIdx];
+  if (!state.scheduledSessions) state.scheduledSessions = [];
 
-    // Initialize if needed
-    if (!client.weeklySchedule) client.weeklySchedule = {};
-    if (!client.routines) client.routines = [];
+  const client = state.clients.find(c => c.id === clientId);
+  const routine = state.routines.find(r => r.id === routineId);
 
-    if (day === 'General') {
-      if (!client.routines.includes(routineId)) {
-        client.routines.push(routineId);
-      }
-    } else {
-      // Assign to specific day
-      client.weeklySchedule[day] = routineId;
-      // Also add to global routines list if not there
-      if (!client.routines.includes(routineId)) {
-        client.routines.push(routineId);
-      }
-    }
+  const newSession = {
+    id: Date.now(),
+    clientId,
+    clientName: client.name,
+    routineId,
+    routineName: routine.name,
+    date,
+    time,
+    notes,
+    trainerId: state.currentTrainerId
+  };
 
-    saveState();
-    openClientDetail(clientId); // Refresh view
-    closeModal();
-    alert('Rutina asignada correctamente.');
-  }
+  state.scheduledSessions.push(newSession);
+
+  // Still keep weeklySchedule for backward compatibility/quick view in profile if desired
+  if (!client.weeklySchedule) client.weeklySchedule = {};
+  const dayName = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
+  client.weeklySchedule[dayName] = routineId;
+
+  saveState();
+  openClientDetail(clientId); // Refresh view
+  closeModal();
+  alert(`Entrenamiento "${routine.name}" programado para el ${date} a las ${time}.`);
 });
+
+function renderCalendar() {
+  const grid = $('#calendar-grid');
+  if (!grid) return;
+
+  // Get current week (7 days from today)
+  const days = [];
+  const today = new Date();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    days.push(d);
+  }
+
+  const sessions = state.scheduledSessions || [];
+  const agenda = state.agenda || [];
+
+  grid.innerHTML = days.map(day => {
+    const dateStr = day.toISOString().split('T')[0];
+    const dayName = day.toLocaleDateString('es-ES', { weekday: 'short' });
+    const dayNum = day.getDate();
+
+    // Filter events for this day
+    const daySessions = sessions.filter(s => s.date === dateStr && s.trainerId === state.currentTrainerId);
+    // Agenda events don't have dates in current simple state, let's assume they are for "today"
+    const dayAgenda = i === 0 ? agenda : []; // Mock: only show agenda for today
+
+    return `
+            <div class="calendar-day-col">
+                <div class="calendar-day-header">
+                    <span class="day-name">${dayName}</span>
+                    <span class="day-date">${dayNum}</span>
+                </div>
+                <div class="calendar-events">
+                    ${daySessions.map(s => `
+                        <div class="cal-event-card routine">
+                            <div class="time">${s.time}</div>
+                            <span class="title">${s.clientName}</span>
+                            <span class="sub">${s.routineName}</span>
+                        </div>
+                    `).join('')}
+                    ${dayAgenda.map(a => `
+                        <div class="cal-event-card">
+                            <div class="time">${a.time}</div>
+                            <span class="title">${a.title}</span>
+                            <span class="sub">${a.type}</span>
+                        </div>
+                    `).join('')}
+                    ${daySessions.length === 0 && dayAgenda.length === 0 ? '<div style="opacity:0.2; font-size:10px; text-align:center; margin-top:20px;">Sin eventos</div>' : ''}
+                </div>
+            </div>
+        `;
+  }).join('');
+}
 
 
 // Helpers
 function closeModal() { $$('.modal-overlay').forEach(el => el.classList.remove('open')); }
 $$('.cancel-btn').forEach(btn => btn.addEventListener('click', closeModal));
+
+// Close on ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
 
 // --- NEW STUDENT LOGIC ---
 
@@ -639,6 +729,7 @@ if (studentForm) {
       plan: data.plan,
       status: data.status || 'active',
       monthlyFee: parseFloat(data.monthlyFee) || 50,
+      targetDate: data.targetDate || null,
       details: { ...data }, // Store all detailed fields
       routines: [],
       weeklySchedule: {}
@@ -701,20 +792,32 @@ function calculateStats() {
   // Stats filtered by trainer
   const myClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
   const activeClients = myClients.filter(c => c.status === 'active');
+
+  // Real Calculations
   const totalRevenue = activeClients.reduce((sum, c) => sum + (c.monthlyFee || 0), 0);
   const totalClients = myClients.filter(c => c.status !== 'inactive').length;
 
-  // Simple retention: active / total historically
+  // Retention: Active vs Total (Simplified)
   const retentionRate = totalClients > 0 ? Math.round((activeClients.length / totalClients) * 100) : 0;
 
-  // Update UI
-  const revenueBoxes = $$('.stat-box .num');
-  if (revenueBoxes.length >= 3) {
-    revenueBoxes[0].innerText = activeClients.length;
-    revenueBoxes[2].innerText = `€${totalRevenue.toLocaleString()}`;
-    revenueBoxes[3].innerText = `${retentionRate}%`;
-  }
+  // Reviews: Count "Revisión" in upcoming sessions or Agenda
+  // Looking at scheduledSessions for future dates + agenda
+  const reviewsCount = (state.agenda || []).filter(a => a.type && a.type.includes('Revisión')).length;
+
+  // Sessions this week (Mocking current week check for simplicity, or just total scheduled)
+  const sessionsCount = (state.scheduledSessions || []).length;
+
+  // Update UI with specific IDs
+  if ($('#stat-active-students')) $('#stat-active-students').innerText = activeClients.length;
+  if ($('#stat-reviews')) $('#stat-reviews').innerText = reviewsCount;
+  if ($('#stat-income')) $('#stat-income').innerText = '€' + totalRevenue;
+  if ($('#stat-retention')) $('#stat-retention').innerText = retentionRate + '%';
+  if ($('#stat-sessions')) $('#stat-sessions').innerText = sessionsCount;
 }
+
+// Global Update Helper
+window.updateDashboardStats = calculateStats;
+
 
 function renderStudentPortal() {
   const student = state.clients.find(c => c.id === state.currentStudentId);
@@ -765,12 +868,40 @@ function renderStudentPortal() {
 
 window.viewRoutine = function (id) {
   const r = state.routines.find(rt => rt.id === id);
-  const exercises = r.exercises.map(eid => {
+  if (!r) return;
+
+  const exercisesHtml = r.exercises.map(eid => {
     const ex = state.library.find(e => e.id === eid);
-    return `<div class="exercise-item"><h4>${ex.name}</h4><button class="icon-btn" onclick="openVideo('${ex.video}')">📺</button></div>`;
+    if (!ex) return '';
+    return `
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:12px; margin-bottom:8px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:40px; height:40px; background:var(--bg-tertiary); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:20px;">
+            ${ex.muscle === 'Cardio' ? '🏃' : '💪'}
+          </div>
+          <div>
+            <h4 style="font-size:14px; margin:0;">${ex.name}</h4>
+            <span style="font-size:11px; color:var(--text-secondary);">${ex.muscle}</span>
+          </div>
+        </div>
+        <button class="icon-btn-large" onclick="openVideo(${ex.id})">📺</button>
+      </div>
+    `;
   }).join('');
 
-  alert(`Rutina: ${r.name}\n\nEjercicios:\n${r.exercises.map(eid => state.library.find(e => e.id === eid).name).join(', ')}`);
+  const detailViewHTML = `
+    <section id="view-routine-detail" class="view active">
+      <div class="section-header">
+         <button class="icon-btn" onclick="renderStudentPortal()">← Volver</button>
+         <h2>${r.name}</h2>
+      </div>
+      <div style="margin-top:16px;">
+        ${exercisesHtml}
+      </div>
+    </section>
+  `;
+
+  $('#main-content').innerHTML = detailViewHTML;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -787,3 +918,270 @@ document.addEventListener('DOMContentLoaded', () => {
 
   console.log('App Director v5 Loaded');
 });
+
+// --- APPENDED LOGIC START ---
+
+// --- FULLSCREEN MENU LOGIC ---
+window.handleGlobalAction = function () {
+  const menu = $('#fullscreen-menu');
+  if (menu) menu.classList.add('open');
+}
+
+window.closeFullscreenMenu = function () {
+  const menu = $('#fullscreen-menu');
+  if (menu) menu.classList.remove('open');
+}
+
+window.menuAction = function (action) {
+  closeFullscreenMenu();
+  setTimeout(() => {
+    if (action === 'new-student') {
+      openCreateStudentModal();
+    } else if (action === 'new-routine') {
+      switchView('view-library');
+    } else if (action === 'new-activity') {
+      openAddAgendaModal();
+    }
+  }, 300);
+}
+
+// --- DATABASE VIEW LOGIC ---
+let dbState = {
+  tab: 'clients',
+  sort: 'newest',
+  search: ''
+};
+
+window.switchDbTab = function (tab) {
+  dbState.tab = tab;
+  $$('.db-tab').forEach(t => {
+    const txt = t.innerText.toLowerCase();
+    let match = false;
+    if (tab === 'clients' && txt.includes('alumnos')) match = true;
+    if (tab === 'sessions' && txt.includes('sesiones')) match = true;
+    if (tab === 'routines' && txt.includes('rutinas')) match = true;
+    if (tab === 'library' && txt.includes('ejercicios')) match = true;
+    t.classList.toggle('active', match);
+  });
+  renderDbTable();
+}
+
+window.renderDbTable = function () {
+  const table = $('#db-table');
+  const searchInput = $('#db-search');
+  const sortInput = $('#db-sort');
+
+  if (!table) return;
+
+  const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
+  const sortVal = sortInput ? sortInput.value : 'newest';
+
+  let data = [];
+  let columns = [];
+
+  // Select Data
+  if (dbState.tab === 'clients') {
+    data = state.clients.map(c => ({
+      id: c.id,
+      col1: c.name,
+      col2: c.plan,
+      col3: c.status,
+      date: c.joinedDate
+    }));
+    columns = ['Nombre', 'Plan', 'Estado', 'Fecha Alta'];
+  } else if (dbState.tab === 'sessions') {
+    const history = state.scheduledSessions || [];
+    data = history.map(s => ({
+      id: s.id,
+      col1: s.clientName,
+      col2: s.routineName,
+      col3: s.date + ' ' + s.time,
+      date: s.date
+    }));
+    columns = ['Alumno', 'Rutina', 'Fecha/Hora', 'Fecha'];
+  } else if (dbState.tab === 'routines') {
+    data = state.routines.map(r => ({
+      id: r.id,
+      col1: r.name,
+      col2: (r.exercises || []).length + ' Ejercicios',
+      col3: '-',
+      date: r.createdAt || new Date().toISOString()
+    }));
+    columns = ['Nombre', 'Detalles', '-', 'Creada'];
+  } else if (dbState.tab === 'library') {
+    data = state.library.map(e => ({
+      id: e.id,
+      col1: e.name,
+      col2: e.muscle,
+      col3: e.type,
+      date: 0
+    }));
+    columns = ['Ejercicio', 'Músculo', 'Tipo', '-'];
+  }
+
+  // Filter
+  data = data.filter(item =>
+    (item.col1 && item.col1.toLowerCase().includes(searchVal)) ||
+    (item.col2 && item.col2.toLowerCase().includes(searchVal))
+  );
+
+  // Sort
+  data.sort((a, b) => {
+    if (sortVal === 'newest') return new Date(b.date || 0) - new Date(a.date || 0);
+    if (sortVal === 'oldest') return new Date(a.date || 0) - new Date(b.date || 0);
+    if (sortVal === 'name') return (a.col1 || '').localeCompare(b.col1 || '');
+    return 0;
+  });
+
+  // Render
+  const thead = `<thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}<th>Acción</th></tr></thead>`;
+  const tbody = `<tbody>
+        ${data.map(row => `
+            <tr>
+                <td style="font-weight:600; color:white;">${row.col1}</td>
+                <td>${row.col2}</td>
+                <td>${row.col3}</td>
+                <td>${row.date ? new Date(row.date).toLocaleDateString() : '-'}</td>
+                <td><button class="icon-btn" onclick="openContextItem(${row.id}, '${dbState.tab}')">${dbState.tab === 'library' ? '✏️' : '👁️'}</button></td>
+            </tr>
+        `).join('')}
+    </tbody>`;
+
+  table.innerHTML = thead + tbody;
+}
+
+window.openContextItem = function (id, type) {
+  if (type === 'clients') {
+    openClientDetail(id);
+  } else if (type === 'library') {
+    editExercise(id);
+  } else {
+    alert('Este elemento es de solo lectura en esta versión.');
+  }
+}
+
+// --- SETTINGS LOGIC ---
+window.saveSettings = function () {
+  const config = {
+    name: $('#conf-name').value,
+    role: $('#conf-role').value,
+    email: $('#conf-email').value,
+    darkMode: $('#conf-darkmode').checked,
+    theme: state.settings?.theme || 'gold'
+  };
+
+  // Update State
+  state.settings = config;
+  saveState();
+
+  // Update Headers
+  const h2 = $('.profile-header h2');
+  if (h2) h2.innerText = config.name;
+  const p = $('.profile-header p');
+  if (p) p.innerText = config.role;
+
+  alert('Configuración guardada.');
+}
+
+window.setAppTheme = function (colorName) {
+  const colors = {
+    'gold': '#F59E0B',
+    'blue': '#3B82F6',
+    'green': '#10B981',
+    'purple': '#8B5CF6',
+    'red': '#EF4444'
+  };
+  const c = colors[colorName];
+  if (c) {
+    document.documentElement.style.setProperty('--accent-color', c);
+    document.documentElement.style.setProperty('--accent-glow', c + '66');
+
+    if (!state.settings) state.settings = {};
+    state.settings.theme = colorName;
+
+    // Update active class on selector
+    $$('.theme-option').forEach(el => el.classList.remove('active'));
+    // Re-find based on onclick attribute for simplicity
+    const clicked = [...$$('.theme-option')].find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(colorName));
+    if (clicked) clicked.classList.add('active');
+  }
+}
+
+// Hook into state loading for settings
+const _initSettings = function () {
+  if (state.settings) {
+    if (state.settings.theme) setAppTheme(state.settings.theme);
+    const nameInput = $('#conf-name');
+    if (nameInput) nameInput.value = state.settings.name || '';
+    const roleInput = $('#conf-role');
+    if (roleInput) roleInput.value = state.settings.role || '';
+  }
+  updateDashboardStats(); // Ensure stats run on load
+};
+// Run once
+setTimeout(_initSettings, 500);
+
+// --- APPENDED LOGIC END ---
+
+// --- ACCOUNTING MODULE ---
+window.openAccountingModal = function () {
+  $('#accounting-modal').classList.add('open');
+  renderAccountingTable();
+}
+
+window.renderAccountingTable = function () {
+  const tableBody = $('#acc-table-body');
+  const totalRevEl = $('#acc-total-revenue');
+  const searchVal = $('#acc-search').value.toLowerCase();
+
+  if (!tableBody) return;
+
+  // Filter clients by current trainer
+  const myClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
+
+  let totalRevenue = 0;
+
+  const rows = myClients.map(client => {
+    // Calculate months active
+    const start = new Date(client.joinedDate);
+    const now = new Date();
+
+    let months = (now.getFullYear() - start.getFullYear()) * 12;
+    months -= start.getMonth();
+    months += now.getMonth();
+    if (months <= 0) months = 0; // Joined this month = 0 previous months? Or 1? Let's say 1 if active.
+
+    // If joined this month, let's count as 1 month if active
+    if (months === 0 && client.status === 'active') months = 1;
+
+    // If inactive, we should ideally have a 'leftDate', but for now use 'months' as if they paid until now or make a simplified assumption.
+    // User request: "historico mensual pagado". 
+    // Let's assume active clients pay every month. Inactive stopped.
+    // Simplified: months * fee.
+
+    const totalPaid = months * (client.monthlyFee || 0);
+    totalRevenue += totalPaid;
+
+    return {
+      name: client.name,
+      fee: client.monthlyFee,
+      months: months,
+      total: totalPaid,
+      matches: client.name.toLowerCase().includes(searchVal)
+    };
+  }).filter(row => row.matches);
+
+  // Sort by total paid descending
+  rows.sort((a, b) => b.total - a.total);
+
+  tableBody.innerHTML = rows.map(row => `
+        <tr style="border-bottom:1px solid var(--bg-tertiary);">
+            <td style="padding:12px 10px; color:white; font-weight:500;">${row.name}</td>
+            <td style="padding:12px 10px; text-align:right;">€${row.fee}</td>
+            <td style="padding:12px 10px; text-align:right;">${row.months}</td>
+            <td style="padding:12px 10px; text-align:right; color:var(--success);">€${row.total.toLocaleString()}</td>
+        </tr>
+    `).join('');
+
+  if (totalRevEl) totalRevEl.innerText = '€' + totalRevenue.toLocaleString();
+}
