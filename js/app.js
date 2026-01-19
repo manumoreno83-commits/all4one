@@ -266,10 +266,23 @@ function renderLibrarySplit() {
     return matchesText && matchesCat;
   });
 
-  sourceList.innerHTML = filtered.map(ex => `
+  sourceList.innerHTML = filtered.map(ex => {
+    // Smart Image Selection
+    let keywords = 'gym,fitness';
+    if (ex.muscle === 'Hyrox' || ex.type === 'Hyrox') keywords = 'crossfit,sled,running';
+    else if (ex.muscle === 'Deka' || ex.type === 'Deka') keywords = 'functional,training,workout';
+    else if (ex.muscle === 'Cardio') keywords = 'cardio,running,rowing';
+    else if (ex.muscle === 'Piernas') keywords = 'legs,squat,gym';
+    else if (ex.muscle === 'Espalda') keywords = 'back,pullup,gym';
+    else if (ex.muscle === 'Pecho') keywords = 'chest,benchpress,gym';
+
+    // Use specific images if available (mocked for now as we don't have a real google scraper)
+    const imgUrl = ex.image || `https://loremflickr.com/320/240/${keywords}/all?lock=${ex.id}`;
+
+    return `
         <div class="exercise-item" data-id="${ex.id}" onclick="addToBuilder(${ex.id})">
             <div class="exercise-thumb">
-                <img src="https://loremflickr.com/320/240/gym,fitness/all?lock=${ex.id}" style="width:100%; height:100%; object-fit:cover;">
+                <img src="${imgUrl}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
             </div>
             <div class="exercise-info">
                 <h4>${ex.name}</h4>
