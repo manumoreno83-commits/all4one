@@ -1651,28 +1651,7 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-// --- SETTINGS LOGIC ---
-window.saveSettings = function () {
-  const config = {
-    name: $('#conf-name').value,
-    role: $('#conf-role').value,
-    email: $('#conf-email').value,
-    darkMode: $('#conf-darkmode').checked,
-    theme: state.settings?.theme || 'gold'
-  };
 
-  // Update State
-  state.settings = config;
-  saveState();
-
-  // Update Headers
-  const h2 = $('.profile-header h2');
-  if (h2) h2.innerText = config.name;
-  const p = $('.profile-header p');
-  if (p) p.innerText = config.role;
-
-  alert('Configuración guardada.');
-}
 
 window.setAppTheme = function (colorName) {
   const colors = {
