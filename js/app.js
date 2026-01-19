@@ -1669,10 +1669,7 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-client.monthlyFee = parseFloat(formData.get('monthlyFee')) || 0;
-client.status = formData.get('status'); // Status might be missing if select disabled?
-client.goal = formData.get('goal');
-client.age = formData.get('dob');
+
 client.weight = formData.get('weight');
 client.height = formData.get('height');
 if (targetDate) client.targetDate = targetDate;
