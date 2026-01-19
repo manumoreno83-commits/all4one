@@ -26,22 +26,33 @@ const defaultState = {
     { id: 2, name: 'Full Body A', exercises: [2, 6, 7] }
   ],
   library: [
-    { id: 1, name: 'Sentadilla Barra', type: 'Fuerza', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=gcNh17Ckjgg' },
-    { id: 2, name: 'Swing Kettlebell', type: 'Funcional', muscle: 'Cuerpo Completo', video: 'https://www.youtube.com/watch?v=sV50J2S0xns' },
-    { id: 3, name: 'Peso Muerto', type: 'Fuerza', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=op9kVnSso6Q' },
-    { id: 4, name: 'Salto al Cajón', type: 'Pliometría', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=hxLDG93LTAk' },
-    { id: 5, name: 'Remo TRX', type: 'Funcional', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=R4C3bT5ZJ_o' },
-    { id: 6, name: 'Press Banca', type: 'Fuerza', muscle: 'Pecho', video: 'https://www.youtube.com/watch?v=vcBig73ojpE' },
-    { id: 7, name: 'Cuerdas Batida', type: 'Cardio', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=x7E2lQ3_l9I' },
-    { id: 8, name: 'Crunch Abdominal', type: 'Core', muscle: 'Torso', video: 'https://www.youtube.com/watch?v=Xyd_fa5zoEU' },
-    { id: 9, name: 'Zancadas', type: 'Fuerza', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=D7KaRcUTQeE' },
-    { id: 10, name: 'Dominadas', type: 'Fuerza', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=eGo4IYlbE5g' },
-    { id: 11, name: 'Press Militar', type: 'Fuerza', muscle: 'Hombros', video: 'https://www.youtube.com/watch?v=2yjwXTZQDDI' },
-    { id: 12, name: 'Burpees', type: 'Cardio', muscle: 'Cuerpo Completo', video: 'https://www.youtube.com/watch?v=TU8QYXL8gEQ' },
-    { id: 13, name: 'Plancha', type: 'Core', muscle: 'Torso', video: 'https://www.youtube.com/watch?v=ASdvN_XEl_c' },
-    { id: 14, name: 'Curl Bíceps', type: 'Fuerza', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=in7PaeYlhrM' },
-    { id: 15, name: 'Extensiones Tríceps', type: 'Fuerza', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=nRiJVZDpdL0' },
-    { id: 16, name: 'Mountain Climbers', type: 'Cardio', muscle: 'Torso', video: 'https://www.youtube.com/watch?v=nmwgirgXLIg' },
+    { id: 1, name: 'Sentadilla Barra', type: 'Fuerza', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=gcNh17Ckjgg', description: '- Mantener la espalda recta en todo momento.\n- Pies a la anchura de los hombros.\n- Rodillas alineadas con la punta de los pies.\n- Bajar hasta que la cadera rompa el paralelo.\n- Empuje explosivo con los talones.' },
+    { id: 2, name: 'Swing Kettlebell', type: 'Funcional', muscle: 'Cuerpo Completo', video: 'https://www.youtube.com/watch?v=sV50J2S0xns', description: '- Bisagra de cadera explosiva.\n- Brazos relajados, actúan como cuerdas.\n- Espalda neutra durante todo el movimiento.\n- Core activo para evitar hiperextensión lumbar.\n- Mirada al horizonte.' },
+    { id: 3, name: 'Peso Muerto', type: 'Fuerza', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=op9kVnSso6Q', description: '- Barra pegada a las espinillas.\n- Agarre firme a la anchura de hombros.\n- Escápulas hacia atrás y abajo.\n- Empujar el suelo con las piernas.\n- Bloqueo final con extensión total de cadera.' },
+    { id: 4, name: 'Salto al Cajón', type: 'Pliometría', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=hxLDG93LTAk', description: '- Aterrizaje suave con toda la planta.\n- Extensión completa de cadera arriba.\n- Salto explosivo usando los brazos.\n- Bajar un pie cada vez para seguridad.\n- Pecho hacia arriba durante el salto.' },
+    { id: 5, name: 'Remo TRX', type: 'Funcional', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=R4C3bT5ZJ_o', description: '- Cuerpo en plancha perfecta.\n- Cose pegado al costado.\n- Juntar escápulas al final del tirón.\n- No arquear la zona lumbar.\n- Movimiento controlado al bajar.' },
+    { id: 6, name: 'Press Banca', type: 'Fuerza', muscle: 'Pecho', video: 'https://www.youtube.com/watch?v=vcBig73ojpE', description: '- 5 puntos de apoyo: pies, glúteo, espalda, cabeza.\n- Retracción escapular máxima.\n- La barra toca el esternón suavemente.\n- Codos a 45 grados aproximadamente.\n- Muñecas rectas y fuertes.' },
+    { id: 7, name: 'Cuerdas Batida', type: 'Cardio', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=x7E2lQ3_l9I', description: '- Postura de media sentadilla estable.\n- Core muy activo para absorber el impacto.\n- Alternar brazos de forma rítmica.\n- Pecho alto y espalda recta.\n- Respiración constante.' },
+    { id: 8, name: 'Crunch Abdominal', type: 'Core', muscle: 'Torso', video: 'https://www.youtube.com/watch?v=Xyd_fa5zoEU', description: '- Zona lumbar pegada al suelo.\n- Manos a los lados de la cabeza, no tirar del cuello.\n- Exhalar al subir apretando el abdomen.\n- Mirar hacia el techo.\n- Bajar de forma lenta y controlada.' },
+    { id: 9, name: 'Zancadas', type: 'Fuerza', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=D7KaRcUTQeE', description: '- Paso amplio para proteger rodillas.\n- Rodilla trasera casi toca el suelo.\n- Torso erguido para mayor equilibrio.\n- Rodilla delantera a 90 grados.\n- Empujar desde el talón delantero.' },
+    { id: 10, name: 'Dominadas', type: 'Fuerza', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=eGo4IYlbE5g', description: '- Rango de movimiento completo (extensión-barbilla).\n- Evitar el balanceo excesivo.\n- Pecho hacia la barra.\n- Bajar de forma controlada.\n- Iniciar el movimiento con las escápulas.' },
+    { id: 11, name: 'Press Militar', type: 'Fuerza', muscle: 'Hombros', video: 'https://www.youtube.com/watch?v=2yjwXTZQDDI', description: '- Glúteos y core apretados para estabilidad.\n- La barra pasa cerca del rostro.\n- Bloqueo completo sobre la cabeza.\n- No arquear excesivamente la espalda.\n- Codos ligeramente adelantados.' },
+    { id: 12, name: 'Burpees', type: 'Cardio', muscle: 'Cuerpo Completo', video: 'https://www.youtube.com/watch?v=TU8QYXL8gEQ', description: '- Pecho toca el suelo en cada rep.\n- Salto explosivo al final.\n- Apoyo de manos firme bajo los hombros.\n- Pies aterrizan planos tras el salto del pecho.\n- Palmada sobre la cabeza.' },
+    { id: 13, name: 'Plancha', type: 'Core', muscle: 'Torso', video: 'https://www.youtube.com/watch?v=ASdvN_XEl_c', description: '- Codos bajo los hombros.\n- Línea recta desde cabeza a talones.\n- Glúteos y abdomen en tensión máxima.\n- Mirada al suelo para cuello neutro.\n- Evitar que la cadera caiga.' },
+    { id: 14, name: 'Curl Bíceps', type: 'Fuerza', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=in7PaeYlhrM', description: '- Codos pegados a las costillas.\n- Evitar el balanceo del cuerpo.\n- Rango completo de movimiento.\n- Controlar la fase negativa (bajada).\n- Girar muñecas levemente en supinación.' },
+    { id: 15, name: 'Extensiones Tríceps', type: 'Fuerza', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=nRiJVZDpdL0', description: '- Estabilidad total del brazo superior.\n- Extensión completa del codo.\n- Contracción máxima al final.\n- No usar impulsos de hombro.\n- Mantener core activo.' },
+    { id: 16, name: 'Mountain Climbers', type: 'Cardio', muscle: 'Torso', video: 'https://www.youtube.com/watch?v=nmwgirgXLIg', description: '- Posición de plancha alta estable.\n- Rodillas van hacia el pecho rápidamente.\n- Espalda recta, no levantar la cadera.\n- Core en tensión para controlar el ritmo.\n- Manos firmes en el suelo.' },
+    // Deka Exercises
+    { id: 101, name: 'Deka 1 - RAM Burpees', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=vVj4u_R2fI0', description: '- Mantener el RAM paralelo en el suelo.\n- Pecho toca el RAM obligatoriamente.\n- Extensión completa al levantar el RAM.\n- Pies fuera de la trayectoria del RAM.\n- Ritmo aeróbico constante.' },
+    { id: 102, name: 'Deka 2 - Remo (500m)', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=gcNh17Ckjgg', description: '- Empuje de piernas 60%, cuerpo 20%, brazos 20%.\n- Espalda recta y core conectado.\n- Respiración rítmica con el tirón.\n- Evitar encoger hombros.\n- Ritmo de palada eficiente para 500m.' },
+    { id: 103, name: 'Deka 3 - Box Jump Overs', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=hxLDG93LTAk', description: '- No es necesario extensión total arriba.\n- Aterrizaje con pies firmes en la caja.\n- Salto o paso hacia el otro lado fluido.\n- Uso de brazos para equilibrio.\n- Mirada fija en el borde del cajón.' },
+    { id: 104, name: 'Deka 4 - Med Ball Sit-Up Throws', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=Xyd_fa5zoEU', description: '- Tocar con el balón tras la cabeza.\n- Lanzar al sentarse con fuerza.\n- Mantener pies en contacto con el suelo.\n- Recepción segura contra el pecho.\n- Core fuerte para la fase excéntrica.' },
+    { id: 105, name: 'Deka 5 - Ski Erg (500m)', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=ASdvN_XEl_c', description: '- Tirón largo usando el peso del cuerpo.\n- Core activo para la flexión de tronco.\n- Brazos ligeramente flexionados.\n- Extensión máxima arriba antes del tirón.\n- Cadencia constante y potente.' },
+    { id: 106, name: 'Deka 6 - Farmer\'s Carry', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=op9kVnSso6Q', description: '- Pasos cortos y rápidos.\n- Hombros atrás y abajo (retracción).\n- Core rígido para evitar balanceo.\n- Agarre fuerte en el centro de la pesa.\n- Mirada al frente para orientación.' },
+    { id: 107, name: 'Deka 7 - Air Bike (25 cal)', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=x7E2lQ3_l9I', description: '- Uso coordinado de brazos y piernas.\n- Empuje y tirón con los brazos.\n- Cadencia alta de revoluciones.\n- Respiración profunda para gestionar el lactato.\n- Agarre firme pero sin tensión excesiva.' },
+    { id: 108, name: 'Deka 8 - Dead Ball Wall Overs', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=vVj4u_R2fI0', description: '- Bisagra de cadera para levantar la bola.\n- Lanzamiento por encima del hombro.\n- Recoger la bola flexionando piernas.\n- Girar cuerpo alternando lados.\n- Core estable durante el lanzamiento.' },
+    { id: 109, name: 'Deka 9 - Sled Push/Pull', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=vcBig73ojpE', description: '- Pecho bajo y espalda neutra al empujar.\n- Pasos potentes desde el metatarso.\n- Mantener inercia en el trineo.\n- En el pull, pasos cortos hacia atrás.\n- Brazos extendidos y firmes.' },
+    { id: 110, name: 'Deka 10 - RAM Lunges', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=D7KaRcUTQeE', description: '- Mantener el RAM sobre los hombros.\n- Rodilla trasera toca el suelo levemente.\n- Mantener equilibrio con core activo.\n- Mirada al frente, pecho orgulloso.\n- Empuje potente de la pierna delantera.' },
   ],
   activityFeed: [
     { id: 1, user: 'Sofia M.', type: 'Entrenamiento Completado', detail: 'Carrera Larga - 15km', time: 'hace 10m' },
@@ -234,7 +245,10 @@ function renderLibrarySplit() {
                    <span class="tag">${ex.muscle}</span>
                 </div>
             </div>
-            <button class="icon-btn" onclick="event.stopPropagation(); openVideo('${ex.video}')">📺</button>
+            <div style="display:flex; gap:4px;">
+                <button class="icon-btn" onclick="event.stopPropagation(); editExercise(${ex.id})" title="Editar">✏️</button>
+                <button class="icon-btn" onclick="event.stopPropagation(); openVideo(${ex.id})" title="Ver detalles">📺</button>
+            </div>
         </div>
     `).join('');
 
@@ -307,7 +321,82 @@ window.saveBuiltRoutine = function () {
   renderLibrarySplit();
 }
 
-window.openVideo = (url) => window.open(url, '_blank');
+window.openExerciseModal = function (id = null) {
+  const modal = $('#exercise-modal');
+  const form = $('#exercise-form');
+  const title = $('#ex-modal-title');
+
+  form.reset();
+  if (id) {
+    const ex = state.library.find(e => e.id === id);
+    if (ex) {
+      $('#ex-edit-id').value = ex.id;
+      $('#ex-name').value = ex.name;
+      $('#ex-muscle').value = ex.muscle;
+      $('#ex-video').value = ex.video;
+      $('#ex-description').value = ex.description || '';
+      title.innerText = 'Editar Ejercicio';
+    }
+  } else {
+    $('#ex-edit-id').value = '';
+    title.innerText = 'Nuevo Ejercicio';
+  }
+
+  modal.classList.add('open');
+}
+
+$('#exercise-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const id = $('#ex-edit-id').value;
+  const name = $('#ex-name').value;
+  const muscle = $('#ex-muscle').value;
+  const video = $('#ex-video').value;
+  const description = $('#ex-description').value;
+
+  if (id) {
+    // Edit
+    const exIdx = state.library.findIndex(e => e.id === parseInt(id));
+    if (exIdx > -1) {
+      state.library[exIdx] = { ...state.library[exIdx], name, muscle, video, description };
+    }
+  } else {
+    // New
+    const newEx = {
+      id: Date.now(),
+      name,
+      muscle,
+      type: 'Personalizado',
+      video,
+      description
+    };
+    state.library.push(newEx);
+  }
+
+  saveState();
+  closeModal('exercise-modal');
+  renderLibrarySplit();
+  alert('Ejercicio guardado correctamente');
+});
+
+window.editExercise = function (id) {
+  openExerciseModal(id);
+}
+
+window.openVideo = function (exId) {
+  const ex = state.library.find(e => e.id === parseInt(exId));
+  if (!ex) return;
+
+  $('#video-modal-title').innerText = ex.name;
+  $('#video-exercise-name').innerText = ex.name;
+  $('#video-exercise-description').innerHTML = (ex.description || 'Sin descripción').replace(/\n/g, '<br>');
+
+  let videoId = '';
+  if (ex.video.includes('v=')) videoId = ex.video.split('v=')[1].split('&')[0];
+  else if (ex.video.includes('be/')) videoId = ex.video.split('be/')[1];
+
+  $('#exercise-video-player').src = videoId ? `https://www.youtube.com/embed/${videoId}` : '';
+  $('#video-modal').classList.add('open');
+}
 
 // Share Routine Logic
 window.shareRoutine = function (id) {

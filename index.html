@@ -229,6 +229,7 @@
                         <option value="Brazos">Brazos</option>
                         <option value="Torso">Torso</option>
                         <option value="Cardio">Cardio</option>
+                        <option value="Deka">Deka</option>
                     </select>
                 </div>
 
@@ -236,8 +237,9 @@
                     <!-- Left Pane: Exercises -->
                     <div class="library-pane">
                         <div class="library-pane-header">
-                            <span>Ejercicios Disponibles</span>
-                            <small style="color:var(--text-secondary)">Arrastra para añadir</small>
+                            <span>Ejercicios</span>
+                            <button class="text-link" style="background:none; border:none; cursor:pointer;"
+                                onclick="openExerciseModal()">+ Nuevo</button>
                         </div>
                         <div class="scroll-area" id="library-source-list">
                             <!-- Populated by JS -->
@@ -578,6 +580,46 @@
                     <div class="modal-actions">
                         <button type="button" class="btn-ghost" onclick="closeModal('agenda-modal')">Cancelar</button>
                         <button type="submit" class="btn-primary">Añadir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Exercise Manual Add/Edit Modal -->
+        <div class="modal-overlay" id="exercise-modal">
+            <div class="modal">
+                <h2 id="ex-modal-title">Nuevo Ejercicio</h2>
+                <form id="exercise-form">
+                    <input type="hidden" id="ex-edit-id">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="ex-name" required placeholder="Ej. Squat con Salto">
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría/Músculo</label>
+                        <select id="ex-muscle">
+                            <option value="Piernas">Piernas</option>
+                            <option value="Espalda">Espalda</option>
+                            <option value="Pecho">Pecho</option>
+                            <option value="Brazos">Brazos</option>
+                            <option value="Torso">Torso</option>
+                            <option value="Cardio">Cardio</option>
+                            <option value="Deka">Deka</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Vídeo URL (YouTube)</label>
+                        <input type="url" id="ex-video" placeholder="https://youtube.com/...">
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción (5 puntos clave)</label>
+                        <textarea id="ex-description" rows="5"
+                            style="width:100%; background:var(--bg-primary); border:1px solid var(--bg-tertiary); color:white; border-radius:8px; padding:12px; font-family:inherit;"
+                            placeholder="- Punto 1&#10;- Punto 2..."></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-ghost" onclick="closeModal('exercise-modal')">Cancelar</button>
+                        <button type="submit" class="btn-primary">Guardar Ejercicio</button>
                     </div>
                 </form>
             </div>
