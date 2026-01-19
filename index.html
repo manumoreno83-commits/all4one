@@ -230,6 +230,7 @@
                         <option value="Torso">Torso</option>
                         <option value="Cardio">Cardio</option>
                         <option value="Deka">Deka</option>
+                        <option value="Calentamiento">Calentamiento</option>
                     </select>
                 </div>
 
@@ -545,13 +546,33 @@
                     <button class="icon-btn" onclick="closeModal('video-modal')">✕</button>
                 </div>
                 <div class="modal-body">
-                    <div class="video-container">
-                        <iframe id="exercise-video-player" width="100%" height="315" src="" frameborder="0"
+                    <div class="video-container"
+                        style="border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; margin-bottom: 20px;">
+                        <iframe id="exercise-video-player" width="100%" height="100%" src="" frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen></iframe>
                     </div>
-                    <h3 id="video-exercise-name" class="mt-3"></h3>
-                    <p id="video-exercise-description"></p>
+                    <div class="exercise-details-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                        <div>
+                            <h3 style="margin-bottom:10px; color:var(--accent-color); font-size:16px;">Técnica Paso a
+                                Paso</h3>
+                            <p id="video-exercise-description"
+                                style="color:var(--text-secondary); line-height:1.6; font-size:13px;"></p>
+                        </div>
+                        <div
+                            style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius:12px; padding:15px;">
+                            <h3
+                                style="margin-bottom:10px; color:var(--danger); display:flex; align-items:center; gap:8px; font-size:16px;">
+                                ⚠️ Zonas a Proteger
+                            </h3>
+                            <p id="video-exercise-safety"
+                                style="color:var(--text-primary); font-size:13px; line-height:1.5;"></p>
+                            <div id="exercise-diagram-container"
+                                style="margin-top:15px; border-radius:8px; overflow:hidden; border:1px solid var(--bg-tertiary); background:var(--bg-primary); padding:10px; text-align:center;">
+                                <!-- Icon/Small Illustration based on muscle group -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -605,6 +626,7 @@
                             <option value="Torso">Torso</option>
                             <option value="Cardio">Cardio</option>
                             <option value="Deka">Deka</option>
+                            <option value="Calentamiento">Calentamiento</option>
                         </select>
                     </div>
                     <div class="form-group">
