@@ -1674,15 +1674,7 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-weeklySchedule: { },
-joinedDate: new Date().toISOString().split('T')[0], // Default to today
-  progress: 0,
-    goal: formData.get('goal'),
-      monthlyFee: parseFloat(formData.get('monthlyFee')) || 0,
-        age: formData.get('dob'),
-          weight: formData.get('weight'),
-            height: formData.get('height'),
-};
+
 
 if (targetDate) newClient.targetDate = targetDate;
 
