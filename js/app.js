@@ -1672,28 +1672,21 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-}
-}
 
-// Create Mode
-const newClient = {
-  id: Date.now(),
-  name: formData.get('name'),
-  email: formData.get('email'),
-  phone: formData.get('phone'),
+phone: formData.get('phone'),
   trainerId: state.currentTrainerId,
-  plan: formData.get('plan'),
-  status: 'active',
-  lastActive: 'Ahora',
-  routines: [],
-  weeklySchedule: {},
-  joinedDate: new Date().toISOString().split('T')[0], // Default to today
+    plan: formData.get('plan'),
+      status: 'active',
+        lastActive: 'Ahora',
+          routines: [],
+            weeklySchedule: { },
+joinedDate: new Date().toISOString().split('T')[0], // Default to today
   progress: 0,
-  goal: formData.get('goal'),
-  monthlyFee: parseFloat(formData.get('monthlyFee')) || 0,
-  age: formData.get('dob'),
-  weight: formData.get('weight'),
-  height: formData.get('height'),
+    goal: formData.get('goal'),
+      monthlyFee: parseFloat(formData.get('monthlyFee')) || 0,
+        age: formData.get('dob'),
+          weight: formData.get('weight'),
+            height: formData.get('height'),
 };
 
 if (targetDate) newClient.targetDate = targetDate;
