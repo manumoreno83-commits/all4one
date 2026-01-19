@@ -1673,13 +1673,8 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-phone: formData.get('phone'),
-  trainerId: state.currentTrainerId,
-    plan: formData.get('plan'),
-      status: 'active',
-        lastActive: 'Ahora',
-          routines: [],
-            weeklySchedule: { },
+
+weeklySchedule: { },
 joinedDate: new Date().toISOString().split('T')[0], // Default to today
   progress: 0,
     goal: formData.get('goal'),
