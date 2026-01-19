@@ -1657,17 +1657,7 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-};
-// Run once
-setTimeout(_initSettings, 500);
 
-// --- APPENDED LOGIC END ---
-
-// --- ACCOUNTING MODULE ---
-window.openAccountingModal = function () {
-  $('#accounting-modal').classList.add('open');
-  renderAccountingTable();
-}
 
 window.renderAccountingTable = function () {
   const tableBody = $('#acc-table-body');
