@@ -121,6 +121,12 @@ window.toggleTrainerSelect = function () {
 
 window.loginSimulation = function (role) {
   if (role === 'admin') {
+    const pwd = prompt("Introduce la contraseña de Director:");
+    if (pwd !== '1111') {
+      alert("Contraseña incorrecta");
+      return;
+    }
+
     const trainerId = $('#trainer-login-select').value;
     const trainer = state.trainers.find(t => t.id === trainerId);
 
