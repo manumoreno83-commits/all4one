@@ -1484,6 +1484,245 @@ const _initSettings = function () {
 // Run once
 setTimeout(_initSettings, 500);
 
+// --- ACCOUNTING MODULE ---
+window.openAccountingModal = function () {
+  $('#accounting-modal').classList.add('open');
+  renderAccountingTable();
+}
+
+window.renderAccountingTable = function () {
+  const tableBody = $('#acc-table-body');
+  const totalRevEl = $('#acc-total-revenue');
+  const searchVal = $('#acc-search').value.toLowerCase();
+
+  if (!tableBody) return;
+
+  // Filter clients by current trainer
+  const myClients = state.clients.filter(c => c.trainerId === state.currentTrainerId);
+
+  let totalRevenue = 0;
+
+  const rows = myClients.map(client => {
+    // Calculate months active
+    const start = new Date(client.joinedDate);
+    const now = new Date();
+
+    let months = (now.getFullYear() - start.getFullYear()) * 12;
+    months -= start.getMonth();
+    months += now.getMonth();
+    if (months <= 0) months = 0;
+    if (months === 0 && client.status === 'active') months = 1;
+
+    const totalPaid = months * (client.monthlyFee || 0);
+    totalRevenue += totalPaid;
+
+    return {
+      name: client.name,
+      fee: client.monthlyFee,
+      months: months,
+      total: totalPaid,
+      matches: client.name.toLowerCase().includes(searchVal)
+    };
+  }).filter(row => row.matches);
+
+  // Sort by total paid descending
+  rows.sort((a, b) => b.total - a.total);
+
+  tableBody.innerHTML = rows.map(row => `
+        <tr style="border-bottom:1px solid var(--bg-tertiary);">
+            <td style="padding:12px 10px; color:white; font-weight:500;">${row.name}</td>
+            <td style="padding:12px 10px; text-align:right;">€${row.fee}</td>
+            <td style="padding:12px 10px; text-align:right;">${row.months}</td>
+            <td style="padding:12px 10px; text-align:right; color:var(--success);">€${row.total.toLocaleString()}</td>
+        </tr>
+    `).join('');
+
+  if (totalRevEl) totalRevEl.innerText = '€' + totalRevenue.toLocaleString();
+}
+
+// --- NEW MODAL LOGIC (Appended) ---
+
+window.openCreateStudentModal = function () {
+  $('#new-student-form').reset();
+  $('#new-student-modal').classList.add('open');
+}
+
+$('#new-student-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const id = formData.get('id'); // Check for hidden ID
+
+  // Helper to get manual fields
+  const targetDateEl = document.querySelector('input[name="targetDate"]');
+  const targetDate = targetDateEl ? targetDateEl.value : null;
+
+  if (id) {
+    // Edit Mode
+    const client = state.clients.find(c => c.id === parseInt(id));
+    if (client) {
+      client.name = formData.get('name');
+      client.email = formData.get('email');
+      client.phone = formData.get('phone');
+      client.plan = formData.get('plan');
+      client.monthlyFee = parseFloat(formData.get('monthlyFee')) || 0;
+      client.status = formData.get('status');
+      client.goal = formData.get('goal');
+      client.age = formData.get('dob');
+      client.weight = formData.get('weight');
+      client.height = formData.get('height');
+      if (targetDate) client.targetDate = targetDate;
+
+      saveState();
+      closeModal('new-student-modal');
+      alert('Alumno actualizado correctamente');
+      renderAll();
+      // Refresh detail view if open
+      if (state.currentView === 'view-client-detail') openClientDetail(client.id);
+      return;
+    }
+  }
+
+  // Create Mode
+  const newClient = {
+    id: Date.now(),
+    name: formData.get('name'),
+    email: formData.get('email'),
+    phone: formData.get('phone'),
+    trainerId: state.currentTrainerId,
+    plan: formData.get('plan'),
+    status: 'active',
+    lastActive: 'Ahora',
+    routines: [],
+    weeklySchedule: {},
+    joinedDate: new Date().toISOString().split('T')[0], // Default to today
+    progress: 0,
+    goal: formData.get('goal'),
+    monthlyFee: parseFloat(formData.get('monthlyFee')) || 0,
+    age: formData.get('dob'),
+    weight: formData.get('weight'),
+    height: formData.get('height'),
+  };
+
+  if (targetDate) newClient.targetDate = targetDate;
+
+  state.clients.push(newClient);
+  saveState();
+  closeModal('new-student-modal');
+  alert('Alumno creado con éxito');
+  renderAll();
+});
+
+
+window.openAddAgendaModal = function () {
+  $('#agenda-form').reset();
+  $('#agenda-date').value = new Date().toISOString().split('T')[0];
+  $('#agenda-modal').classList.add('open');
+}
+
+$('#agenda-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const title = $('#agenda-title').value;
+  const type = $('#agenda-type').value;
+  const date = $('#agenda-date').value;
+  const time = $('#agenda-time').value || '09:00';
+
+  const newItem = {
+    id: Date.now(),
+    clientId: null,
+    clientName: title, // Use title as client name for calendar display
+    routineId: null,
+    routineName: type, // Use type as routine name for calendar display
+    date,
+    time,
+    notes: 'Evento de Agenda',
+    status: 'pending',
+    trainerId: state.currentTrainerId
+  };
+
+  if (!state.scheduledSessions) state.scheduledSessions = [];
+  state.scheduledSessions.push(newItem);
+
+  saveState();
+  closeModal('agenda-modal');
+  alert('Actividad agendada');
+  renderAll();
+});
+    </tbody > `;
+
+  table.innerHTML = thead + tbody;
+}
+
+window.openContextItem = function (id, type) {
+  if (type === 'clients') {
+    openClientDetail(id);
+  } else if (type === 'library') {
+    editExercise(id);
+  } else {
+    alert('Este elemento es de solo lectura en esta versión.');
+  }
+}
+
+// --- SETTINGS LOGIC ---
+window.saveSettings = function () {
+  const config = {
+    name: $('#conf-name').value,
+    role: $('#conf-role').value,
+    email: $('#conf-email').value,
+    darkMode: $('#conf-darkmode').checked,
+    theme: state.settings?.theme || 'gold'
+  };
+
+  // Update State
+  state.settings = config;
+  saveState();
+
+  // Update Headers
+  const h2 = $('.profile-header h2');
+  if (h2) h2.innerText = config.name;
+  const p = $('.profile-header p');
+  if (p) p.innerText = config.role;
+
+  alert('Configuración guardada.');
+}
+
+window.setAppTheme = function (colorName) {
+  const colors = {
+    'gold': '#F59E0B',
+    'blue': '#3B82F6',
+    'green': '#10B981',
+    'purple': '#8B5CF6',
+    'red': '#EF4444'
+  };
+  const c = colors[colorName];
+  if (c) {
+    document.documentElement.style.setProperty('--accent-color', c);
+    document.documentElement.style.setProperty('--accent-glow', c + '66');
+
+    if (!state.settings) state.settings = {};
+    state.settings.theme = colorName;
+
+    // Update active class on selector
+    $$('.theme-option').forEach(el => el.classList.remove('active'));
+    // Re-find based on onclick attribute for simplicity
+    const clicked = [...$$('.theme-option')].find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(colorName));
+    if (clicked) clicked.classList.add('active');
+  }
+}
+
+// Hook into state loading for settings
+const _initSettings = function () {
+  if (state.settings) {
+    if (state.settings.theme) setAppTheme(state.settings.theme);
+    const nameInput = $('#conf-name');
+    if (nameInput) nameInput.value = state.settings.name || '';
+    const roleInput = $('#conf-role');
+    if (roleInput) roleInput.value = state.settings.role || '';
+  }
+  updateDashboardStats(); // Ensure stats run on load
+};
+// Run once
+setTimeout(_initSettings, 500);
+
 // --- APPENDED LOGIC END ---
 
 // --- ACCOUNTING MODULE ---
@@ -1538,13 +1777,13 @@ window.renderAccountingTable = function () {
   rows.sort((a, b) => b.total - a.total);
 
   tableBody.innerHTML = rows.map(row => `
-        <tr style="border-bottom:1px solid var(--bg-tertiary);">
+  < tr style = "border-bottom:1px solid var(--bg-tertiary);" >
             <td style="padding:12px 10px; color:white; font-weight:500;">${row.name}</td>
             <td style="padding:12px 10px; text-align:right;">€${row.fee}</td>
             <td style="padding:12px 10px; text-align:right;">${row.months}</td>
             <td style="padding:12px 10px; text-align:right; color:var(--success);">€${row.total.toLocaleString()}</td>
-        </tr>
-    `).join('');
+        </tr >
+  `).join('');
 
   if (totalRevEl) totalRevEl.innerText = '€' + totalRevenue.toLocaleString();
 }
