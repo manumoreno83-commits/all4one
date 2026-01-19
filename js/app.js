@@ -5,9 +5,9 @@ const defaultState = {
   libMode: 'exercises', // 'exercises' or 'routines'
   exerciseFilter: 'all',
   clients: [
-    { id: 101, name: 'Mario Garcia', plan: 'Hipertrofia Pro', status: 'active', lastActive: 'hace 2h', routines: [1], joinedDate: '2023-05-12', progress: 75, goal: 'Subir 5kg músculo' },
-    { id: 102, name: 'Ana Lopez', plan: 'Pérdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa' },
-    { id: 103, name: 'Carlos Ruiz', plan: 'Fuerza Funcional', status: 'pending', lastActive: 'hace 1d', routines: [], joinedDate: '2024-01-05', progress: 10, goal: 'Mejorar movilidad' },
+    { id: 101, name: 'Mario Garcia', plan: 'Hipertrofia Pro', status: 'active', lastActive: 'hace 2h', routines: [1], weeklySchedule: { Monday: 1, Wednesday: 1, Friday: 1 }, joinedDate: '2023-05-12', progress: 75, goal: 'Subir 5kg músculo' },
+    { id: 102, name: 'Ana Lopez', plan: 'Pérdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], weeklySchedule: {}, joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa' },
+    { id: 103, name: 'Carlos Ruiz', plan: 'Fuerza Funcional', status: 'pending', lastActive: 'hace 1d', routines: [], weeklySchedule: {}, joinedDate: '2024-01-05', progress: 10, goal: 'Mejorar movilidad' },
   ],
   agenda: [
     { id: 1, time: '09:00', title: 'Sesión EP: Mario Garcia', type: 'Fuerza Funcional' },
@@ -224,12 +224,20 @@ window.saveBuiltRoutine = function () {
   const name = prompt('Nombre de la Rutina:', 'Nueva Rutina');
   if (!name) return;
 
-  const newRoutine = { id: Date.now(), name, exercises: [...state.builder] };
+  const newRoutine = {
+    id: Date.now(),
+    name,
+    exercises: [...state.builder],
+    createdAt: new Date().toISOString()
+  };
+
   state.routines.push(newRoutine);
-  state.builder = []; // Clear
-  saveState();
+  state.builder = []; // Clear current builder
+  saveState(); // This will trigger renderAll()
+
+  // Switch to a view where they can see their routines or just notify
+  alert(`Rutina "${name}" guardada con éxito.`);
   renderLibrarySplit();
-  alert('Rutina guardada en tu lista de Rutinas');
 }
 
 window.openVideo = (url) => window.open(url, '_blank');
@@ -278,19 +286,43 @@ window.openClientDetail = function (id) {
 
   const detailContent = $('#client-detail-content');
 
-  // Assigned Routines HTML
-  const routinesHtml = state.routines && state.routines.length > 0 ? (client.routines.length > 0 ? client.routines.map(rid => {
+  // Weekly Schedule HTML
+  const daysMap = {
+    Monday: 'Lunes', Tuesday: 'Martes', Wednesday: 'Miércoles', Thursday: 'Jueves', Friday: 'Viernes', Saturday: 'Sábado', Sunday: 'Domingo'
+  };
+
+  const scheduleHtml = Object.keys(daysMap).map(dayKey => {
+    const routineId = client.weeklySchedule ? client.weeklySchedule[dayKey] : null;
+    const routine = routineId ? state.routines.find(r => r.id === routineId) : null;
+
+    return `
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid var(--bg-tertiary);">
+        <span style="font-weight:600; font-size:13px; color:var(--text-secondary); width:80px;">${daysMap[dayKey]}</span>
+        <div style="flex:1; text-align:right;">
+          ${routine ? `<span style="color:var(--accent-color); font-weight:500;">${routine.name}</span>` : '<span style="color:var(--text-secondary); opacity:0.5; font-size:12px;">Descanso</span>'}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // General Routines (Already assigned but not to a specific day)
+  const generalRoutines = client.routines.filter(rid => {
+    // Check if it's NOT in any day of the weekly schedule
+    return !Object.values(client.weeklySchedule || {}).includes(rid);
+  });
+
+  const routinesHtml = generalRoutines.length > 0 ? generalRoutines.map(rid => {
     const r = state.routines.find(rt => rt.id === rid);
     if (!r) return '';
     return `
             <div class="routine-card">
                <div><h4>${r.name}</h4><p>${r.exercises.length} Ejercicios</p></div>
-               <span class="routine-badge">Asignada</span>
+               <span class="routine-badge">General</span>
             </div>
         `;
-  }).join('') : '<p style="color:var(--text-secondary); text-align:center; padding:10px;">Sin rutinas asignadas</p>') : '<p style="color:var(--text-secondary); text-align:center; padding:10px;">No hay rutinas creadas</p>';
+  }).join('') : '';
 
-  // Weekly Progress Chart Mockup
+  // Weekly Progress Chart Mockup (Rest of the code remains same)
   const progressBars = [
     { day: 'L', val: 80 }, { day: 'M', val: 40 }, { day: 'X', val: 100 }, { day: 'J', val: 0 }, { day: 'V', val: 60 }, { day: 'S', val: 90 }, { day: 'D', val: 20 }
   ].map(d => `
@@ -340,12 +372,20 @@ window.openClientDetail = function (id) {
         </div>
 
         <div class="section-header" style="padding:0 20px; margin-top:20px;">
-           <h3 style="margin:0;">Rutinas Activas</h3>
-           <button class="icon-btn text-link" onclick="openAssignModal(${client.id})">Asignar +</button>
+           <h3 style="margin:0;">Planificación Semanal</h3>
+           <button class="icon-btn text-link" onclick="openAssignModal(${client.id})">Asignar Rutina</button>
+        </div>
+        <div style="padding:0 20px; background:var(--bg-secondary); border-radius:12px; margin:0 20px;">
+           ${scheduleHtml}
+        </div>
+
+        ${routinesHtml ? `
+        <div class="section-header" style="padding:0 20px; margin-top:20px;">
+           <h3 style="margin:0;">Otras Rutinas</h3>
         </div>
         <div style="padding:0 20px;">
            ${routinesHtml}
-        </div>
+        </div>` : ''}
     `;
 
   switchView('view-client-detail');
@@ -368,17 +408,34 @@ $('#assign-form').addEventListener('submit', (e) => {
   e.preventDefault();
   const clientId = parseInt($('#assign-client-id').value);
   const routineId = parseInt($('#assign-routine-select').value);
+  const day = $('#assign-day-select').value;
+  const notes = $('#assign-notes').value;
 
   const clientIdx = state.clients.findIndex(c => c.id === clientId);
   if (clientIdx > -1) {
-    if (!state.clients[clientIdx].routines.includes(routineId)) {
-      state.clients[clientIdx].routines.push(routineId);
-      saveState();
-      openClientDetail(clientId); // Refresh view
-      closeModal();
+    const client = state.clients[clientIdx];
+
+    // Initialize if needed
+    if (!client.weeklySchedule) client.weeklySchedule = {};
+    if (!client.routines) client.routines = [];
+
+    if (day === 'General') {
+      if (!client.routines.includes(routineId)) {
+        client.routines.push(routineId);
+      }
     } else {
-      alert('Esta rutina ya está asignada.');
+      // Assign to specific day
+      client.weeklySchedule[day] = routineId;
+      // Also add to global routines list if not there
+      if (!client.routines.includes(routineId)) {
+        client.routines.push(routineId);
+      }
     }
+
+    saveState();
+    openClientDetail(clientId); // Refresh view
+    closeModal();
+    alert('Rutina asignada correctamente.');
   }
 });
 
