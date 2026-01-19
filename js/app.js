@@ -1671,11 +1671,7 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-alert('Alumno actualizado correctamente');
-renderAll();
-// Refresh detail view if open
-if (state.currentView === 'view-client-detail') openClientDetail(client.id);
-return;
+
 }
 }
 
