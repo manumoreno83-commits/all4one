@@ -1656,14 +1656,7 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-if (state.settings) {
-  if (state.settings.theme) setAppTheme(state.settings.theme);
-  const nameInput = $('#conf-name');
-  if (nameInput) nameInput.value = state.settings.name || '';
-  const roleInput = $('#conf-role');
-  if (roleInput) roleInput.value = state.settings.role || '';
-}
-updateDashboardStats(); // Ensure stats run on load
+
 };
 // Run once
 setTimeout(_initSettings, 500);
