@@ -1670,12 +1670,7 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-client.weight = formData.get('weight');
-client.height = formData.get('height');
-if (targetDate) client.targetDate = targetDate;
 
-saveState();
-closeModal('new-student-modal');
 alert('Alumno actualizado correctamente');
 renderAll();
 // Refresh detail view if open
