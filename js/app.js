@@ -115,18 +115,14 @@ function switchView(targetId) {
 
 // --- AUTH LOGIC ---
 window.toggleTrainerSelect = function () {
-  // Show selectors directly, password check moved to confirmation
-  const initialBtn = $('#initial-admin-btn');
-  const selectors = $('#admin-selectors');
-
-  initialBtn.style.display = 'block'; // Ensure initial button is visible
-  selectors.style.display = 'none'; // Ensure selectors are hidden initially
+  // Directly trigger admin login when button is clicked
+  loginSimulation('admin');
 }
 
 window.loginSimulation = function (role) {
   if (role === 'admin') {
-    // First ask for password
-    const pwd = prompt('Introduce contraseña de Director:');
+    // Ask for password directly - no intermediate step
+    const pwd = prompt('Introduce contraseña de Director:\n\nMiguel = 197373\nMarta = 1111');
 
     if (!pwd) return;
 
@@ -183,6 +179,10 @@ window.loginSimulation = function (role) {
     const bottomNav = $('.bottom-nav');
     if (bottomNav) bottomNav.style.display = 'none';
 
+    // Hide top bar action button
+    const topAction = $('#global-top-action');
+    if (topAction) topAction.style.display = 'none';
+
     // Hide all admin views
     $$('.view').forEach(v => v.classList.remove('active'));
 
@@ -192,6 +192,10 @@ window.loginSimulation = function (role) {
     // Show admin navigation
     const bottomNav = $('.bottom-nav');
     if (bottomNav) bottomNav.style.display = 'flex';
+
+    // Show top bar action button
+    const topAction = $('#global-top-action');
+    if (topAction) topAction.style.display = 'block';
 
     // Render admin dashboard
     renderAll();
@@ -408,7 +412,24 @@ if (state.userRole) {
   document.addEventListener('DOMContentLoaded', () => {
     $('#auth-overlay').style.display = 'none';
     $('#app').style.display = 'flex';
-    if (state.userRole === 'student') renderStudentPortal();
+    
+    if (state.userRole === 'student') {
+      // Hide admin elements for students
+      const bottomNav = $('.bottom-nav');
+      if (bottomNav) bottomNav.style.display = 'none';
+      const topAction = $('#global-top-action');
+      if (topAction) topAction.style.display = 'none';
+      
+      renderStudentPortal();
+    } else {
+      // Show admin elements
+      const bottomNav = $('.bottom-nav');
+      if (bottomNav) bottomNav.style.display = 'flex';
+      const topAction = $('#global-top-action');
+      if (topAction) topAction.style.display = 'block';
+      
+      renderAll();
+    }
   });
 }
 

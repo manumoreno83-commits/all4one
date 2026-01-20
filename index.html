@@ -5,6 +5,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#0B1120" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="All4One" />
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="apple-touch-icon" href="./assets/logo.png" />
     <title>All4one - Entrenador Miguel</title>
     <link rel="stylesheet" href="./css/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,17 +33,6 @@
                     style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">
                     Entrar como Director
                 </button>
-                <div id="admin-selectors" style="display:none;">
-                    <select id="trainer-login-select"
-                        style="width:100%; padding:14px; border-radius:12px; background:var(--bg-primary); border:1px solid var(--bg-tertiary); color:white; margin-bottom:10px; font-family:inherit;">
-                        <option value="Miguel">Miguel Angel Díaz - Director Deportivo</option>
-                        <option value="Marta">Marta Caparrós - Directora Deportiva</option>
-                    </select>
-                    <button class="btn-primary" onclick="loginSimulation('admin')"
-                        style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">
-                        Confirmar Acceso
-                    </button>
-                </div>
             </div>
 
             <div
@@ -871,6 +866,78 @@
     <script src="./js/library_db.js"></script>
     <script src="./js/calendar.js"></script>
     <script src="./js/app.js" defer></script>
+
+    <script>
+        // Register Service Worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => console.log('SW registered:', registration))
+                    .catch(err => console.log('SW registration failed:', err));
+            });
+        }
+
+        // Initialize SortableJS for drag & drop functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for library to render
+            setTimeout(() => {
+                initSortables();
+            }, 500);
+        });
+
+        function initSortables() {
+            const libraryList = document.getElementById('library-source-list');
+            const builderDropzone = document.getElementById('routine-builder-dropzone');
+
+            if (libraryList && window.Sortable) {
+                // Library source - clone on drag
+                new Sortable(libraryList, {
+                    group: {
+                        name: 'exercises',
+                        pull: 'clone',
+                        put: false
+                    },
+                    animation: 150,
+                    sort: false,
+                    onEnd: function (evt) {
+                        console.log('Dragged from library');
+                    }
+                });
+            }
+
+            if (builderDropzone && window.Sortable) {
+                // Builder dropzone - accept exercises
+                new Sortable(builderDropzone, {
+                    group: {
+                        name: 'exercises',
+                        pull: true,
+                        put: true
+                    },
+                    animation: 150,
+                    onAdd: function (evt) {
+                        const exerciseId = evt.item.dataset.id;
+                        if (exerciseId && window.addExerciseToBuilder) {
+                            window.addExerciseToBuilder(parseInt(exerciseId));
+                        }
+                    },
+                    onUpdate: function (evt) {
+                        console.log('Reordered in builder');
+                    }
+                });
+            }
+        }
+
+        // Re-initialize when switching to library view
+        const originalSwitchView = window.switchView;
+        if (originalSwitchView) {
+            window.switchView = function (viewId) {
+                originalSwitchView(viewId);
+                if (viewId === 'view-library') {
+                    setTimeout(() => initSortables(), 300);
+                }
+            };
+        }
+    </script>
 </body>
 
 </html>
