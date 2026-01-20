@@ -70,7 +70,7 @@
     <div id="app" style="display:none;">
         <!-- Top Bar -->
         <header class="top-bar">
-            <div class="user-profile">
+            <div class="user-profile" onclick="switchView('view-settings')" style="cursor:pointer;">
                 <img src="./assets/logo.png" alt="All4One Logo" style="height: 44px; width: auto; object-fit: contain;">
                 <div class="greeting">
                     <span class="sub-text">Fitness Club</span>
@@ -95,6 +95,14 @@
             <section id="view-dashboard" class="view active">
                 <div class="section-header">
                     <h2>Panel de Director</h2>
+                    <button class="icon-btn" onclick="logout()" title="Cerrar Sesión" style="color:var(--danger);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </button>
                 </div>
 
                 <!-- Business Stats -->
@@ -103,21 +111,19 @@
                         <span class="num" id="stat-active-students">--</span>
                         <span class="lbl">Alumnos Activos</span>
                     </div>
-                    <div class="stat-box">
+                    <div class="stat-box" onclick="switchView('view-checkins')" style="cursor:pointer;">
                         <span class="num" id="stat-reviews">--</span>
-                        <span class="lbl">Revisiones Pendientes</span>
+                        <span class="lbl">Check-ins Pendientes</span>
                     </div>
-                    <div class="stat-box">
+                    <div class="stat-box"
+                        onclick="$('#accounting-modal').classList.add('open'); window.renderAccountingTable && renderAccountingTable()"
+                        style="cursor:pointer;">
                         <span class="num" id="stat-income">--</span>
                         <span class="lbl">Ingresos Mes</span>
                     </div>
                 </div>
 
                 <div class="stats-row mb-4">
-                    <div class="stat-box">
-                        <span class="num" id="stat-retention">--%</span>
-                        <span class="lbl">Retención</span>
-                    </div>
                     <div class="stat-box">
                         <span class="num" id="stat-sessions">--</span>
                         <span class="lbl">Sesiones Semana</span>
@@ -244,23 +250,50 @@
                         </div>
                     </div>
 
-                    <!-- Right Pane: Routine Builder -->
-                    <div class="library-pane builder-pane">
-                        <div class="library-pane-header">
-                            <span>Mi Rutina</span>
-                            <button class="btn-save-routine" onclick="saveBuiltRoutine()">Guardar</button>
-                        </div>
-                        <div class="scroll-area" id="routine-builder-dropzone" ondragover="allowDrop(event)"
-                            ondrop="drop(event)">
-                            <div class="drop-zone">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" style="margin-bottom:8px; opacity:0.5">
-                                    <path d="M12 5v14M5 12h14" />
-                                </svg>
-                                <p>Arrastra ejercicios aquí o haz clic para añadir.</p>
+                    <!-- Right Pane: Routine Builder & List -->
+                    <div class="library-pane builder-pane"
+                        style="display:flex; flex-direction:column; overflow:hidden; background:transparent; border:none;">
+
+                        <!-- Top: New Routine Builder -->
+                        <div
+                            style="flex:1; display:flex; flex-direction:column; min-height:0; background:rgba(245, 158, 11, 0.05); border:1px dashed var(--accent-color); border-radius:12px; margin-bottom:10px;">
+                            <div class="library-pane-header"
+                                style="background:transparent; border-bottom:1px dashed var(--accent-color);">
+                                <span>Nueva Rutina</span>
+                                <button class="btn-save-routine" onclick="saveBuiltRoutine()">Guardar</button>
+                            </div>
+                            <div class="scroll-area" id="routine-builder-dropzone" ondragover="allowDrop(event)"
+                                ondrop="drop(event)">
+                                <div class="drop-zone">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" style="margin-bottom:8px; opacity:0.5">
+                                        <path d="M12 5v14M5 12h14" />
+                                    </svg>
+                                    <p>Arrastra ejercicios aquí o haz clic para añadir.</p>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Bottom: Saved Routines List -->
+                        <div
+                            style="flex:1; display:flex; flex-direction:column; min-height:0; background:var(--bg-secondary); border:1px solid var(--bg-tertiary); border-radius:12px;">
+                            <div class="library-pane-header">
+                                <span>Mis Rutinas</span>
+                                <div style="display:flex; gap:5px;">
+                                    <select id="saved-routines-filter" onchange="renderSavedRoutines()"
+                                        style="background:var(--bg-primary); color:white; border:none; border-radius:4px; padding:2px 6px; font-size:11px;">
+                                        <option value="all">Todas</option>
+                                        <option value="fuerza">Fuerza</option>
+                                        <option value="hipertrofia">Hipertrofia</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="scroll-area" id="saved-routines-list">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </section>
@@ -286,21 +319,6 @@
                     <p>Director Deportivo</p>
                 </div>
                 <div class="settings-list">
-                    <div class="setting-item">
-                        <span>Versión App</span>
-                        <span class="val">v3.0.1 (All4one)</span>
-                    </div>
-                    <div class="setting-item">
-                        <span>Sincronización</span>
-                        <span class="badge">Activa</span>
-                    </div>
-                    <div class="setting-item" onclick="switchView('view-database')" style="cursor:pointer;">
-                        <span>Base de Datos</span>
-                        <svg style="color:var(--text-secondary)" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </div>
                     <div class="setting-item" onclick="openAccountingModal()" style="cursor:pointer;">
                         <span>Contabilidad</span>
                         <svg style="color:var(--text-secondary)" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -333,6 +351,49 @@
                 </div>
             </section>
 
+            <!-- Check-ins View -->
+            <section id="view-checkins" class="view">
+                <div class="section-header">
+                    <button class="icon-btn" onclick="switchView('view-dashboard')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <h2>Revisiones Semanales</h2>
+                    <button class="icon-btn" onclick="renderCheckins()">🔄</button>
+                </div>
+
+                <div class="tabs-header" style="margin-bottom:16px;">
+                    <button class="tab-btn active" id="tab-checkins-pending"
+                        onclick="filterCheckins('pending')">Pendientes</button>
+                    <button class="tab-btn" id="tab-checkins-completed"
+                        onclick="filterCheckins('completed')">Completados</button>
+                </div>
+
+                <div class="checkin-list" id="checkin-list-container" style="display:grid; gap:12px;">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Check-in Review Modal -->
+            <div class="modal-overlay" id="review-modal">
+                <div class="modal modal-lg">
+                    <div class="section-header">
+                        <h2 id="review-modal-title">Revisión de Alumno</h2>
+                        <button class="icon-btn" onclick="closeModal('review-modal')">✕</button>
+                    </div>
+                    <div class="modal-body" id="review-modal-content">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="modal-actions">
+                        <textarea id="review-feedback" placeholder="Escribe tu feedback aquí..." rows="3"
+                            style="width:100%; margin-bottom:10px; padding:10px; border-radius:8px; border:1px solid var(--bg-tertiary); background:var(--bg-primary); color:white;"></textarea>
+                        <button class="btn-primary" onclick="submitReviewFeedback()">Enviar Feedback y Cerrar</button>
+                    </div>
+                </div>
+            </div>
+
         </main>
 
         <!-- Bottom Navigation -->
@@ -356,6 +417,16 @@
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
                 Alumnos
+            </a>
+            <a href="#" class="nav-item" data-target="view-calendar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Calendario
             </a>
             <div class="nav-item-center-wrapper">
                 <div class="nav-item-center" onclick="handleGlobalAction()">
@@ -798,6 +869,7 @@
 
     </div>
     <script src="./js/library_db.js"></script>
+    <script src="./js/calendar.js"></script>
     <script src="./js/app.js" defer></script>
 </body>
 

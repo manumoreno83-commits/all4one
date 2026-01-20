@@ -5,67 +5,71 @@ const defaultState = {
   libMode: 'exercises', // 'exercises' or 'routines'
   exerciseFilter: 'all',
   trainers: [
-    { id: 'Miguel', name: 'Miguel Angel Díaz', role: 'Director Deportivo', avatar: 'MAD', photo: './assets/miguel.png' },
-    { id: 'Marta', name: 'Marta Caparrós', role: 'Directora Deportiva', avatar: 'MC', photo: './assets/marta.png' }
+    { id: 'Miguel', name: 'Miguel Angel DÃ­az', role: 'Director Deportivo', avatar: 'MAD', photo: './assets/miguel.png' },
+    { id: 'Marta', name: 'Marta CaparrÃ³s', role: 'Directora Deportiva', avatar: 'MC', photo: './assets/marta.png' }
   ],
   currentTrainerId: 'Miguel',
   clients: [
-    { id: 101, name: 'Mario Garcia', email: 'mario@gmail.com', trainerId: 'Miguel', plan: 'Hipertrofia Pro', status: 'active', lastActive: 'hace 2h', routines: [1], weeklySchedule: { Monday: 1, Wednesday: 1, Friday: 1 }, joinedDate: '2023-05-12', progress: 75, goal: 'Subir 5kg músculo', monthlyFee: 60 },
-    { id: 102, name: 'Ana Lopez', email: 'ana@gmail.com', trainerId: 'Marta', plan: 'Pérdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], weeklySchedule: {}, joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa', monthlyFee: 50 },
-    { id: 200, name: 'Manuel Moreno', email: 'manuel.moreno@gmail.com', trainerId: 'Miguel', plan: 'Personalizado', status: 'active', lastActive: 'Ahora', routines: [], weeklySchedule: {}, joinedDate: '2024-01-19', progress: 0, goal: 'Definición', monthlyFee: 70 },
+    { id: 101, name: 'Mario Garcia', email: 'mario@gmail.com', trainerId: 'Miguel', plan: 'Hipertrofia Pro', status: 'active', lastActive: 'hace 2h', routines: [1], weeklySchedule: { Monday: 1, Wednesday: 1, Friday: 1 }, joinedDate: '2023-05-12', progress: 75, goal: 'Subir 5kg mÃºsculo', monthlyFee: 60 },
+    { id: 102, name: 'Ana Lopez', email: 'ana@gmail.com', trainerId: 'Marta', plan: 'PÃ©rdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], weeklySchedule: {}, joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa', monthlyFee: 50 },
+    { id: 200, name: 'Manuel Moreno', email: 'manuel.moreno@gmail.com', trainerId: 'Miguel', plan: 'Personalizado', status: 'active', lastActive: 'Ahora', routines: [], weeklySchedule: {}, joinedDate: '2024-01-19', progress: 0, goal: 'DefiniciÃ³n', monthlyFee: 70 },
     { id: 103, name: 'Carlos Ruiz', email: 'carlos@gmail.com', trainerId: 'Miguel', plan: 'Fuerza Funcional', status: 'pending', lastActive: 'hace 1d', routines: [], weeklySchedule: {}, joinedDate: '2024-01-05', progress: 10, goal: 'Mejorar movilidad', monthlyFee: 45 },
   ],
   userRole: null, // 'admin' or 'student'
   currentStudentId: null,
   agenda: [
-    { id: 1, time: '09:00', title: 'Sesión EP: Mario Garcia', type: 'Fuerza Funcional' },
-    { id: 2, time: '11:30', title: 'Revisión: Ana L.', type: 'Bloque Pérdida Peso' },
+    { id: 1, time: '09:00', title: 'SesiÃ³n EP: Mario Garcia', type: 'Fuerza Funcional' },
+    { id: 2, time: '11:30', title: 'RevisiÃ³n: Ana L.', type: 'Bloque PÃ©rdida Peso' },
   ],
   routines: [
     { id: 1, name: 'Pierna Hipertrofia', exercises: [1, 4] },
     { id: 2, name: 'Full Body A', exercises: [2, 6, 7] }
   ],
   library: [
-    { id: 1, name: 'Sentadilla Barra', type: 'Fuerza', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=gcNh17Ckjgg', description: '- Mantener la espalda recta en todo momento.\n- Pies a la anchura de los hombros.\n- Rodillas alineadas con la punta de los pies.\n- Bajar hasta que la cadera rompa el paralelo.\n- Empuje explosivo con los talones.', safety: '- Rodilla (evitar valgo/hacia adentro)\n- Lumbar (no arquear bajo carga)\n- Tobillo (mantener talón pegado)' },
-    { id: 2, name: 'Swing Kettlebell', type: 'Funcional', muscle: 'Cuerpo Completo', video: 'https://www.youtube.com/watch?v=sV50J2S0xns', description: '- Bisagra de cadera explosiva.\n- Brazos relajados, actúan como cuerdas.\n- Espalda neutra durante todo el movimiento.\n- Core activo para evitar hiperextensión lumbar.\n- Mirada al horizonte.', safety: '- Lumbar (no redondear al bajar)\n- Hombros (no tirar con los brazos)\n- Isquiotibiales (controlar el estiramiento)' },
-    { id: 3, name: 'Peso Muerto', type: 'Fuerza', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=op9kVnSso6Q', description: '- Barra pegada a las espinillas.\n- Agarre firme a la anchura de hombros.\n- Escápulas hacia atrás y abajo.\n- Empujar el suelo con las piernas.\n- Bloqueo final con extensión total de cadera.', safety: '- Lumbar (columna neutra obligatoria)\n- Agarre (evitar desequilibrio)\n- Rodillas (no bloquear bruscamente)' },
-    { id: 4, name: 'Salto al Cajón', type: 'Pliometría', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=hxLDG93LTAk', description: '- Aterrizaje suave con toda la planta.\n- Extensión completa de cadera arriba.\n- Salto explosivo usando los brazos.\n- Bajar un pie cada vez para seguridad.\n- Pecho hacia arriba durante el salto.', safety: '- Tendón de Aquiles (especial cuidado al bajar)\n- Espinillas (evitar golpe con el borde)\n- Rodillas (amortiguar el impacto)' },
-    { id: 5, name: 'Remo TRX', type: 'Funcional', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=R4C3bT5ZJ_o', description: '- Cuerpo en plancha perfecta.\n- Cose pegado al costado.\n- Juntar escápulas al final del tirón.\n- No arquear la zona lumbar.\n- Movimiento controlado al bajar.', safety: '- Hombros (evitar rotación interna)\n- Muñecas (línea recta con antebrazo)\n- Lumbar (no dejar caer la cadera)' },
-    { id: 6, name: 'Press Banca', type: 'Fuerza', muscle: 'Pecho', video: 'https://www.youtube.com/watch?v=vcBig73ojpE', description: '- 5 puntos de apoyo: pies, glúteo, espalda, cabeza.\n- Retracción escapular máxima.\n- La barra toca el esternón suavemente.\n- Codos a 45 grados aproximadamente.\n- Muñecas rectas y fuertes.', safety: '- Hombros (evitar excesiva abducción)\n- Muñecas (no doblar hacia atrás)\n- Pecho (no rebotar la barra)' },
-    { id: 7, name: 'Cuerdas Batida', type: 'Cardio', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=x7E2lQ3_l9I', description: '- Postura de media sentadilla estable.\n- Core muy activo para absorber el impacto.\n- Alternar brazos de forma rítmica.\n- Pecho alto y espalda recta.\n- Respiración constante.', safety: '- Hombros (controlar el latigazo)\n- Lumbar (evitar torsión excesiva)\n- Rodillas (mantener base sólida)' },
+    { id: 1, name: 'Sentadilla Barra', type: 'Fuerza', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=gcNh17Ckjgg', description: '- Mantener la espalda recta en todo momento.\n- Pies a la anchura de los hombros.\n- Rodillas alineadas con la punta de los pies.\n- Bajar hasta que la cadera rompa el paralelo.\n- Empuje explosivo con los talones.', safety: '- Rodilla (evitar valgo/hacia adentro)\n- Lumbar (no arquear bajo carga)\n- Tobillo (mantener talÃ³n pegado)' },
+    { id: 2, name: 'Swing Kettlebell', type: 'Funcional', muscle: 'Cuerpo Completo', video: 'https://www.youtube.com/watch?v=sV50J2S0xns', description: '- Bisagra de cadera explosiva.\n- Brazos relajados, actÃºan como cuerdas.\n- Espalda neutra durante todo el movimiento.\n- Core activo para evitar hiperextensiÃ³n lumbar.\n- Mirada al horizonte.', safety: '- Lumbar (no redondear al bajar)\n- Hombros (no tirar con los brazos)\n- Isquiotibiales (controlar el estiramiento)' },
+    { id: 3, name: 'Peso Muerto', type: 'Fuerza', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=op9kVnSso6Q', description: '- Barra pegada a las espinillas.\n- Agarre firme a la anchura de hombros.\n- EscÃ¡pulas hacia atrÃ¡s y abajo.\n- Empujar el suelo con las piernas.\n- Bloqueo final con extensiÃ³n total de cadera.', safety: '- Lumbar (columna neutra obligatoria)\n- Agarre (evitar desequilibrio)\n- Rodillas (no bloquear bruscamente)' },
+    { id: 4, name: 'Salto al CajÃ³n', type: 'PliometrÃ­a', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=hxLDG93LTAk', description: '- Aterrizaje suave con toda la planta.\n- ExtensiÃ³n completa de cadera arriba.\n- Salto explosivo usando los brazos.\n- Bajar un pie cada vez para seguridad.\n- Pecho hacia arriba durante el salto.', safety: '- TendÃ³n de Aquiles (especial cuidado al bajar)\n- Espinillas (evitar golpe con el borde)\n- Rodillas (amortiguar el impacto)' },
+    { id: 5, name: 'Remo TRX', type: 'Funcional', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=R4C3bT5ZJ_o', description: '- Cuerpo en plancha perfecta.\n- Cose pegado al costado.\n- Juntar escÃ¡pulas al final del tirÃ³n.\n- No arquear la zona lumbar.\n- Movimiento controlado al bajar.', safety: '- Hombros (evitar rotaciÃ³n interna)\n- MuÃ±ecas (lÃ­nea recta con antebrazo)\n- Lumbar (no dejar caer la cadera)' },
+    { id: 6, name: 'Press Banca', type: 'Fuerza', muscle: 'Pecho', video: 'https://www.youtube.com/watch?v=vcBig73ojpE', description: '- 5 puntos de apoyo: pies, glÃºteo, espalda, cabeza.\n- RetracciÃ³n escapular mÃ¡xima.\n- La barra toca el esternÃ³n suavemente.\n- Codos a 45 grados aproximadamente.\n- MuÃ±ecas rectas y fuertes.', safety: '- Hombros (evitar excesiva abducciÃ³n)\n- MuÃ±ecas (no doblar hacia atrÃ¡s)\n- Pecho (no rebotar la barra)' },
+    { id: 7, name: 'Cuerdas Batida', type: 'Cardio', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=x7E2lQ3_l9I', description: '- Postura de media sentadilla estable.\n- Core muy activo para absorber el impacto.\n- Alternar brazos de forma rÃ­tmica.\n- Pecho alto y espalda recta.\n- RespiraciÃ³n constante.', safety: '- Hombros (controlar el latigazo)\n- Lumbar (evitar torsiÃ³n excesiva)\n- Rodillas (mantener base sÃ³lida)' },
     { id: 8, name: 'Crunch Abdominal', type: 'Core', muscle: 'Torso', video: 'https://www.youtube.com/watch?v=Xyd_fa5zoEU', description: '- Zona lumbar pegada al suelo.\n- Manos a los lados de la cabeza, no tirar del cuello.\n- Exhalar al subir apretando el abdomen.\n- Mirar hacia el techo.\n- Bajar de forma lenta y controlada.', safety: '- Cuello (no tirar con las manos)\n- Lumbar (no despegarla del suelo)\n- Cadera (evitar usar flexores)' },
-    { id: 9, name: 'Zancadas', type: 'Fuerza', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=D7KaRcUTQeE', description: '- Paso amplio para proteger rodillas.\n- Rodilla trasera casi toca el suelo.\n- Torso erguido para mayor equilibrio.\n- Rodilla delantera a 90 grados.\n- Empujar desde el talón delantero.', safety: '- Rodilla delantera (no pasar la punta del pie)\n- Cadera (mantener alineación pélvica)\n- Equilibrio (no cruzar pies en línea)' },
-    { id: 10, name: 'Dominadas', type: 'Fuerza', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=eGo4IYlbE5g', description: '- Rango de movimiento completo (extensión-barbilla).\n- Evitar el balanceo excesivo.\n- Pecho hacia la barra.\n- Bajar de forma controlada.\n- Iniciar el movimiento con las escápulas.', safety: '- Hombros (no quedar colgado sin tensión)\n- Codos (evitar epicondilitis)\n- Muñecas (agarre neutro si hay dolor)' },
-    { id: 11, name: 'Press Militar', type: 'Fuerza', muscle: 'Hombros', video: 'https://www.youtube.com/watch?v=2yjwXTZQDDI', description: '- Glúteos y core apretados para estabilidad.\n- La barra pasa cerca del rostro.\n- Bloqueo completo sobre la cabeza.\n- No arquear excesivamente la espalda.\n- Codos ligeramente adelantados.', safety: '- Lumbar (evitar hiperextensión)\n- Hombros (mantener espacio subacromial)\n- Cuello (no proyectar hacia adelante)' },
-    { id: 12, name: 'Burpees', type: 'Cardio', muscle: 'Cuerpo Completo', video: 'https://www.youtube.com/watch?v=TU8QYXL8gEQ', description: '- Pecho toca el suelo en cada rep.\n- Salto explosivo al final.\n- Apoyo de manos firme bajo los hombros.\n- Pies aterrizan planos tras el salto del pecho.\n- Palmada sobre la cabeza.', safety: '- Muñecas (impacto al bajar)\n- Lumbar (no arquear al extender piernas)\n- Rodillas (amortiguar el salto)' },
-    { id: 13, name: 'Plancha', type: 'Core', muscle: 'Torso', video: 'https://www.youtube.com/watch?v=ASdvN_XEl_c', description: '- Codos bajo los hombros.\n- Línea recta desde cabeza a talones.\n- Glúteos y abdomen en tensión máxima.\n- Mirada al suelo para cuello neutro.\n- Evitar que la cadera caiga.', safety: '- Lumbar (no dejar que caiga)\n- Hombros (empujar activamente el suelo)\n- Cuello (mantener alineación)' },
-    { id: 14, name: 'Curl Bíceps', type: 'Fuerza', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=in7PaeYlhrM', description: '- Codos pegados a las costillas.\n- Evitar el balanceo del cuerpo.\n- Rango completo de movimiento.\n- Controlar la fase negativa (bajada).\n- Girar muñecas levemente en supinación.', safety: '- Lumbar (no balancear el torso)\n- Codos (mantenerlos fijos)\n- Muñecas (no flexionar en exceso)' },
-    { id: 15, name: 'Extensiones Tríceps', type: 'Fuerza', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=nRiJVZDpdL0', description: '- Estabilidad total del brazo superior.\n- Extensión completa del codo.\n- Contracción máxima al final.\n- No usar impulsos de hombro.\n- Mantener core activo.', safety: '- Codos (evitar apertura excesiva)\n- Hombros (no elevarlos)\n- Muñecas (posición neutra)' },
-    { id: 16, name: 'Mountain Climbers', type: 'Cardio', muscle: 'Torso', video: 'https://www.youtube.com/watch?v=nmwgirgXLIg', description: '- Posición de plancha alta estable.\n- Rodillas van hacia el pecho rápidamente.\n- Espalda recta, no levantar la cadera.\n- Core en tensión para controlar el ritmo.\n- Manos firmes en el suelo.', safety: '- Muñecas (sobrecarga por tiempo)\n- Lumbar (no botar hacia arriba)\n- Hombros (mantener verticalidad)' },
+    { id: 9, name: 'Zancadas', type: 'Fuerza', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=D7KaRcUTQeE', description: '- Paso amplio para proteger rodillas.\n- Rodilla trasera casi toca el suelo.\n- Torso erguido para mayor equilibrio.\n- Rodilla delantera a 90 grados.\n- Empujar desde el talÃ³n delantero.', safety: '- Rodilla delantera (no pasar la punta del pie)\n- Cadera (mantener alineaciÃ³n pÃ©lvica)\n- Equilibrio (no cruzar pies en lÃ­nea)' },
+    { id: 10, name: 'Dominadas', type: 'Fuerza', muscle: 'Espalda', video: 'https://www.youtube.com/watch?v=eGo4IYlbE5g', description: '- Rango de movimiento completo (extensiÃ³n-barbilla).\n- Evitar el balanceo excesivo.\n- Pecho hacia la barra.\n- Bajar de forma controlada.\n- Iniciar el movimiento con las escÃ¡pulas.', safety: '- Hombros (no quedar colgado sin tensiÃ³n)\n- Codos (evitar epicondilitis)\n- MuÃ±ecas (agarre neutro si hay dolor)' },
+    { id: 11, name: 'Press Militar', type: 'Fuerza', muscle: 'Hombros', video: 'https://www.youtube.com/watch?v=2yjwXTZQDDI', description: '- GlÃºteos y core apretados para estabilidad.\n- La barra pasa cerca del rostro.\n- Bloqueo completo sobre la cabeza.\n- No arquear excesivamente la espalda.\n- Codos ligeramente adelantados.', safety: '- Lumbar (evitar hiperextensiÃ³n)\n- Hombros (mantener espacio subacromial)\n- Cuello (no proyectar hacia adelante)' },
+    { id: 12, name: 'Burpees', type: 'Cardio', muscle: 'Cuerpo Completo', video: 'https://www.youtube.com/watch?v=TU8QYXL8gEQ', description: '- Pecho toca el suelo en cada rep.\n- Salto explosivo al final.\n- Apoyo de manos firme bajo los hombros.\n- Pies aterrizan planos tras el salto del pecho.\n- Palmada sobre la cabeza.', safety: '- MuÃ±ecas (impacto al bajar)\n- Lumbar (no arquear al extender piernas)\n- Rodillas (amortiguar el salto)' },
+    { id: 13, name: 'Plancha', type: 'Core', muscle: 'Torso', video: 'https://www.youtube.com/watch?v=ASdvN_XEl_c', description: '- Codos bajo los hombros.\n- LÃ­nea recta desde cabeza a talones.\n- GlÃºteos y abdomen en tensiÃ³n mÃ¡xima.\n- Mirada al suelo para cuello neutro.\n- Evitar que la cadera caiga.', safety: '- Lumbar (no dejar que caiga)\n- Hombros (empujar activamente el suelo)\n- Cuello (mantener alineaciÃ³n)' },
+    { id: 14, name: 'Curl BÃ­ceps', type: 'Fuerza', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=in7PaeYlhrM', description: '- Codos pegados a las costillas.\n- Evitar el balanceo del cuerpo.\n- Rango completo de movimiento.\n- Controlar la fase negativa (bajada).\n- Girar muÃ±ecas levemente en supinaciÃ³n.', safety: '- Lumbar (no balancear el torso)\n- Codos (mantenerlos fijos)\n- MuÃ±ecas (no flexionar en exceso)' },
+    { id: 15, name: 'Extensiones TrÃ­ceps', type: 'Fuerza', muscle: 'Brazos', video: 'https://www.youtube.com/watch?v=nRiJVZDpdL0', description: '- Estabilidad total del brazo superior.\n- ExtensiÃ³n completa del codo.\n- ContracciÃ³n mÃ¡xima al final.\n- No usar impulsos de hombro.\n- Mantener core activo.', safety: '- Codos (evitar apertura excesiva)\n- Hombros (no elevarlos)\n- MuÃ±ecas (posiciÃ³n neutra)' },
+    { id: 16, name: 'Mountain Climbers', type: 'Cardio', muscle: 'Torso', video: 'https://www.youtube.com/watch?v=nmwgirgXLIg', description: '- PosiciÃ³n de plancha alta estable.\n- Rodillas van hacia el pecho rÃ¡pidamente.\n- Espalda recta, no levantar la cadera.\n- Core en tensiÃ³n para controlar el ritmo.\n- Manos firmes en el suelo.', safety: '- MuÃ±ecas (sobrecarga por tiempo)\n- Lumbar (no botar hacia arriba)\n- Hombros (mantener verticalidad)' },
     // Deka Exercises
-    { id: 101, name: 'Deka 1 - RAM Burpees', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=vVj4u_R2fI0', description: '- Mantener el RAM paralelo en el suelo.\n- Pecho toca el RAM obligatoriamente.\n- Extensión completa al levantar el RAM.\n- Pies fuera de la trayectoria del RAM.\n- Ritmo aeróbico constante.', safety: '- Lumbar (controlar peso del RAM)\n- Muñecas (apoyo en el RAM)\n- Espalda (no redondear al levantar)' },
-    { id: 102, name: 'Deka 2 - Remo (500m)', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=gcNh17Ckjgg', description: '- Empuje de piernas 60%, cuerpo 20%, brazos 20%.\n- Espalda recta y core conectado.\n- Respiración rítmica con el tirón.\n- Evitar encoger hombros.\n- Ritmo de palada eficiente para 500m.', safety: '- Lumbar (no flexionar al estirar)\n- Rodillas (no hiperextender)\n- Hombros (mantener bajos)' },
-    { id: 103, name: 'Deka 3 - Box Jump Overs', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=hxLDG93LTAk', description: '- No es necesario extensión total arriba.\n- Aterrizaje con pies firmes en la caja.\n- Salto o paso hacia el otro lado fluido.\n- Uso de brazos para equilibrio.\n- Mirada fija en el borde del cajón.', safety: '- Tendón de Aquiles (estrés por rebote)\n- Espinillas (cuidado con golpes)\n- Rodillas (amortiguación)' },
-    { id: 104, name: 'Deka 4 - Med Ball Sit-Up Throws', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=Xyd_fa5zoEU', description: '- Tocar con el balón tras la cabeza.\n- Lanzar al sentarse con fuerza.\n- Mantener pies en contacto con el suelo.\n- Recepción segura contra el pecho.\n- Core fuerte para la fase excéntrica.', safety: '- Lumbar (impacto al bajar)\n- Hombros (lanzamiento)\n- Cara (recepción del balón)' },
-    { id: 105, name: 'Deka 5 - Ski Erg (500m)', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=ASdvN_XEl_c', description: '- Tirón largo usando el peso del cuerpo.\n- Core activo para la flexión de tronco.\n- Brazos ligeramente flexionados.\n- Extensión máxima arriba antes del tirón.\n- Cadencia constante y potente.', safety: '- Lumbar (repetitividad del movimiento)\n- Tríceps (sobrecarga)\n- Hombros (movilidad alta)' },
-    { id: 106, name: 'Deka 6 - Farmer\'s Carry', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=op9kVnSso6Q', description: '- Pasos cortos y rápidos.\n- Hombros atrás y abajo (retracción).\n- Core rígido para evitar balanceo.\n- Agarre fuerte en el centro de la pesa.\n- Mirada al frente para orientación.', safety: '- Muñecas/Agarre (fatiga extrema)\n- Hombros (estabilidad escapular)\n- Lumbar (evitar inclinación lateral)' },
-    { id: 107, name: 'Deka 7 - Air Bike (25 cal)', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=x7E2lQ3_l9I', description: '- Uso coordinado de brazos y piernas.\n- Empuje y tirón con los brazos.\n- Cadencia alta de revoluciones.\n- Respiración profunda para gestionar el lactato.\n- Agarre firme pero sin tensión excesiva.', safety: '- Rodillas (alineación con pedales)\n- Hombros (fatiga por empuje/tirón)\n- Cadera (estabilidad en el sillín)' },
-    { id: 108, name: 'Deka 8 - Dead Ball Wall Overs', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=vVj4u_R2fI0', description: '- Bisagra de cadera para levantar la bola.\n- Lanzamiento por encima del hombro.\n- Recoger la bola flexionando piernas.\n- Girar cuerpo alternando lados.\n- Core estable durante el lanzamiento.', safety: '- Lumbar (levantamiento de peso muerto)\n- Hombros (rotación con carga)\n- Balance (evitar caída hacia atrás)' },
-    { id: 109, name: 'Deka 9 - Sled Push/Pull', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=vcBig73ojpE', description: '- Pecho bajo y espalda neutra al empujar.\n- Pasos potentes desde el metatarso.\n- Mantener inercia en el trineo.\n- En el pull, pasos cortos hacia atrás.\n- Brazos extendidos y firmes.', safety: '- Tobillos (tracción en el suelo)\n- Lumbar (no arquear bajo empuje)\n- Rodillas (fuerza lateral)' },
+    { id: 101, name: 'Deka 1 - RAM Burpees', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=vVj4u_R2fI0', description: '- Mantener el RAM paralelo en el suelo.\n- Pecho toca el RAM obligatoriamente.\n- ExtensiÃ³n completa al levantar el RAM.\n- Pies fuera de la trayectoria del RAM.\n- Ritmo aerÃ³bico constante.', safety: '- Lumbar (controlar peso del RAM)\n- MuÃ±ecas (apoyo en el RAM)\n- Espalda (no redondear al levantar)' },
+    { id: 102, name: 'Deka 2 - Remo (500m)', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=gcNh17Ckjgg', description: '- Empuje de piernas 60%, cuerpo 20%, brazos 20%.\n- Espalda recta y core conectado.\n- RespiraciÃ³n rÃ­tmica con el tirÃ³n.\n- Evitar encoger hombros.\n- Ritmo de palada eficiente para 500m.', safety: '- Lumbar (no flexionar al estirar)\n- Rodillas (no hiperextender)\n- Hombros (mantener bajos)' },
+    { id: 103, name: 'Deka 3 - Box Jump Overs', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=hxLDG93LTAk', description: '- No es necesario extensiÃ³n total arriba.\n- Aterrizaje con pies firmes en la caja.\n- Salto o paso hacia el otro lado fluido.\n- Uso de brazos para equilibrio.\n- Mirada fija en el borde del cajÃ³n.', safety: '- TendÃ³n de Aquiles (estrÃ©s por rebote)\n- Espinillas (cuidado con golpes)\n- Rodillas (amortiguaciÃ³n)' },
+    { id: 104, name: 'Deka 4 - Med Ball Sit-Up Throws', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=Xyd_fa5zoEU', description: '- Tocar con el balÃ³n tras la cabeza.\n- Lanzar al sentarse con fuerza.\n- Mantener pies en contacto con el suelo.\n- RecepciÃ³n segura contra el pecho.\n- Core fuerte para la fase excÃ©ntrica.', safety: '- Lumbar (impacto al bajar)\n- Hombros (lanzamiento)\n- Cara (recepciÃ³n del balÃ³n)' },
+    { id: 105, name: 'Deka 5 - Ski Erg (500m)', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=ASdvN_XEl_c', description: '- TirÃ³n largo usando el peso del cuerpo.\n- Core activo para la flexiÃ³n de tronco.\n- Brazos ligeramente flexionados.\n- ExtensiÃ³n mÃ¡xima arriba antes del tirÃ³n.\n- Cadencia constante y potente.', safety: '- Lumbar (repetitividad del movimiento)\n- TrÃ­ceps (sobrecarga)\n- Hombros (movilidad alta)' },
+    { id: 106, name: 'Deka 6 - Farmer\'s Carry', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=op9kVnSso6Q', description: '- Pasos cortos y rÃ¡pidos.\n- Hombros atrÃ¡s y abajo (retracciÃ³n).\n- Core rÃ­gido para evitar balanceo.\n- Agarre fuerte en el centro de la pesa.\n- Mirada al frente para orientaciÃ³n.', safety: '- MuÃ±ecas/Agarre (fatiga extrema)\n- Hombros (estabilidad escapular)\n- Lumbar (evitar inclinaciÃ³n lateral)' },
+    { id: 107, name: 'Deka 7 - Air Bike (25 cal)', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=x7E2lQ3_l9I', description: '- Uso coordinado de brazos y piernas.\n- Empuje y tirÃ³n con los brazos.\n- Cadencia alta de revoluciones.\n- RespiraciÃ³n profunda para gestionar el lactato.\n- Agarre firme pero sin tensiÃ³n excesiva.', safety: '- Rodillas (alineaciÃ³n con pedales)\n- Hombros (fatiga por empuje/tirÃ³n)\n- Cadera (estabilidad en el sillÃ­n)' },
+    { id: 108, name: 'Deka 8 - Dead Ball Wall Overs', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=vVj4u_R2fI0', description: '- Bisagra de cadera para levantar la bola.\n- Lanzamiento por encima del hombro.\n- Recoger la bola flexionando piernas.\n- Girar cuerpo alternando lados.\n- Core estable durante el lanzamiento.', safety: '- Lumbar (levantamiento de peso muerto)\n- Hombros (rotaciÃ³n con carga)\n- Balance (evitar caÃ­da hacia atrÃ¡s)' },
+    { id: 109, name: 'Deka 9 - Sled Push/Pull', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=vcBig73ojpE', description: '- Pecho bajo y espalda neutra al empujar.\n- Pasos potentes desde el metatarso.\n- Mantener inercia en el trineo.\n- En el pull, pasos cortos hacia atrÃ¡s.\n- Brazos extendidos y firmes.', safety: '- Tobillos (tracciÃ³n en el suelo)\n- Lumbar (no arquear bajo empuje)\n- Rodillas (fuerza lateral)' },
     { id: 110, name: 'Deka 10 - RAM Lunges', type: 'Deka', muscle: 'Deka', video: 'https://www.youtube.com/watch?v=D7KaRcUTQeE', description: '- Mantener el RAM sobre los hombros.\n- Rodilla trasera toca el suelo levemente.\n- Mantener equilibrio con core activo.\n- Mirada al frente, pecho orgulloso.\n- Empuje potente de la pierna delantera.', safety: '- Rodillas (impacto con el suelo)\n- Lumbar (carga vertical del RAM)\n- Equilibrio (base estrecha)' },
     // Warm-ups
-    { id: 201, name: 'Movilidad de Cadera', type: 'Calentamiento', muscle: 'Calentamiento', video: 'https://www.youtube.com/watch?v=nmwgirgXLIg', description: '- Rotaciones controladas de cadera.\n- Estiramientos dinámicos de flexores.\n- Aperturas laterales activas.\n- Mantener el core conectado.\n- 10-12 repeticiones por lado.', safety: '- No forzar rangos dolorosos.\n- Mantener espalda neutra.\n- Movimiento fluido, no balístico.' },
-    { id: 202, name: 'Activación Escapular', type: 'Calentamiento', muscle: 'Calentamiento', video: 'https://www.youtube.com/watch?v=R4C3bT5ZJ_o', description: '- Retracción y protracción escapular.\n- Círculos de hombros lentos.\n- Brazos en cruz con rotación.\n- Sostener 1-2 segundos en contracción.\n- Enfoque en la conexión mente-músculo.', safety: '- No elevar hombros hacia orejas.\n- Evitar chasquidos dolorosos.\n- Mantener codos bloqueados.' },
+    { id: 201, name: 'Movilidad de Cadera', type: 'Calentamiento', muscle: 'Calentamiento', video: 'https://www.youtube.com/watch?v=nmwgirgXLIg', description: '- Rotaciones controladas de cadera.\n- Estiramientos dinÃ¡micos de flexores.\n- Aperturas laterales activas.\n- Mantener el core conectado.\n- 10-12 repeticiones por lado.', safety: '- No forzar rangos dolorosos.\n- Mantener espalda neutra.\n- Movimiento fluido, no balÃ­stico.' },
+    { id: 202, name: 'ActivaciÃ³n Escapular', type: 'Calentamiento', muscle: 'Calentamiento', video: 'https://www.youtube.com/watch?v=R4C3bT5ZJ_o', description: '- RetracciÃ³n y protracciÃ³n escapular.\n- CÃ­rculos de hombros lentos.\n- Brazos en cruz con rotaciÃ³n.\n- Sostener 1-2 segundos en contracciÃ³n.\n- Enfoque en la conexiÃ³n mente-mÃºsculo.', safety: '- No elevar hombros hacia orejas.\n- Evitar chasquidos dolorosos.\n- Mantener codos bloqueados.' },
     { id: 203, name: 'Calentamiento Deka RAM', type: 'Calentamiento', muscle: 'Calentamiento', video: 'https://www.youtube.com/watch?v=vVj4u_R2fI0', description: '- RAM cleans ligeros.\n- Movilidad con el RAM sobre cabeza.\n- Rotaciones de tronco con RAM.\n- Zancadas sin peso para despertar piernas.\n- Aumento progresivo de la intensidad.', safety: '- Agarre seguro del RAM.\n- Vigilar el espacio alrededor.\n- Escuchar al cuerpo antes de la carga real.' },
-    { id: 204, name: 'Trotar/Saltar Comba', type: 'Calentamiento', muscle: 'Calentamiento', video: 'https://www.youtube.com/watch?v=x7E2lQ3_l9I', description: '- Ritmo suave y progresivo.\n- Preparación del sistema cardiovascular.\n- 3-5 minutos totales.\n- Coordinación de brazos y piernas.\n- Respiración nasal controlada.', safety: '- Aterrizaje suave sobre metatarsos.\n- No empezar a máxima velocidad.\n- Calzado bien atado.' },
+    { id: 204, name: 'Trotar/Saltar Comba', type: 'Calentamiento', muscle: 'Calentamiento', video: 'https://www.youtube.com/watch?v=x7E2lQ3_l9I', description: '- Ritmo suave y progresivo.\n- PreparaciÃ³n del sistema cardiovascular.\n- 3-5 minutos totales.\n- CoordinaciÃ³n de brazos y piernas.\n- RespiraciÃ³n nasal controlada.', safety: '- Aterrizaje suave sobre metatarsos.\n- No empezar a mÃ¡xima velocidad.\n- Calzado bien atado.' },
   ],
   activityFeed: [
     { id: 1, user: 'Sofia M.', type: 'Entrenamiento Completado', detail: 'Carrera Larga - 15km', time: 'hace 10m' },
     { id: 2, user: 'Mario Garcia', type: 'Nuevo Récord', detail: 'Press Banca 100kg', time: 'hace 2h' }
+  ],
+  checkins: [
+    { id: 101, clientId: 102, date: '2024-01-20', weight: 64.5, prevWeight: 65, photos: ['front.jpg', 'side.jpg'], comments: 'Me he sentido un poco cansada esta semana pero he cumplido la dieta.', status: 'pending' },
+    { id: 102, clientId: 103, date: '2024-01-19', weight: 81.2, prevWeight: 81.0, photos: ['front.jpg'], comments: 'Entrenamientos muy duros, me duele un poco el hombro.', status: 'pending' }
   ]
 };
 
-let state = JSON.parse(localStorage.getItem('directorAppState_v3')) || defaultState;
+let state = JSON.parse(localStorage.getItem('directorAppState_v4')) || defaultState;
 
 // Update Library from external file if exists
 if (typeof window !== 'undefined' && window.NEW_LIBRARY) {
@@ -81,7 +85,7 @@ if (typeof window !== 'undefined' && window.NEW_LIBRARY) {
 }
 
 function saveState() {
-  localStorage.setItem('directorAppState_v3', JSON.stringify(state));
+  localStorage.setItem('directorAppState_v4', JSON.stringify(state));
   renderAll();
 }
 
@@ -111,7 +115,7 @@ function switchView(targetId) {
 
 // --- AUTH LOGIC ---
 window.toggleTrainerSelect = function () {
-  const area = $('#trainer-login-area');
+  // Show selectors directly, password check moved to confirmation
   const initialBtn = $('#initial-admin-btn');
   const selectors = $('#admin-selectors');
 
@@ -121,16 +125,22 @@ window.toggleTrainerSelect = function () {
 
 window.loginSimulation = function (role) {
   if (role === 'admin') {
-    const pwd = prompt("Introduce la contraseña de Director:");
-    if (pwd !== '1111') {
-      alert("Contraseña incorrecta");
-      return;
-    }
-
     const trainerId = $('#trainer-login-select').value;
     const trainer = state.trainers.find(t => t.id === trainerId);
 
     if (trainer) {
+      // Password Check based on ID
+      let pwd = prompt(`Introduce contraseña para ${trainer.name}:`);
+      let correct = false;
+
+      if (trainer.id === 'Miguel' && pwd === '197373') correct = true;
+      else if (trainer.id === 'Marta' && pwd === '1111') correct = true;
+
+      if (!correct) {
+        alert("Contraseña incorrecta");
+        return;
+      }
+
       state.userRole = 'admin';
       state.currentTrainerId = trainer.id;
       state.currentStudentId = null;
@@ -143,7 +153,7 @@ window.loginSimulation = function (role) {
     const email = prompt("Introduce tu email de Google (Simulación):", "manuel.moreno@gmail.com");
     if (!email) return;
 
-    const student = state.clients.find(c => c.email && c.email.toLowerCase() === email.toLowerCase());
+    const student = state.clients.find(c => c.email && c.email.toLowerCase() === email.trim().toLowerCase());
 
     if (student) {
       if (student.status === 'inactive') {
@@ -165,6 +175,49 @@ window.loginSimulation = function (role) {
   saveState();
   if (state.userRole === 'student') renderStudentPortal();
   else renderAll();
+}
+
+window.renderStudentDashboard = function () {
+  const student = state.clients.find(c => c.id === state.currentStudentId);
+  if (!student) return;
+
+  const dashboard = $('#view-dashboard');
+  dashboard.innerHTML = `
+    <div class="section-header">
+       <h2>Hola, ${student.name.split(' ')[0]}</h2>
+    </div>
+
+    <div class="card" style="background: linear-gradient(135deg, var(--accent-color), #4F46E5); color:white; margin-bottom:24px;">
+       <h3 style="margin:0; font-size:14px; opacity:0.9;">Plan Actual</h3>
+       <p style="font-size:24px; font-weight:700; margin:4px 0 10px 0;">${student.plan}</p>
+       <div style="display:flex; gap:10px; font-size:12px; background:rgba(0,0,0,0.2); padding:8px 12px; border-radius:8px; width:fit-content;">
+         <span>?? ${student.goal || 'Sin meta'}</span>
+       </div>
+    </div>
+
+    <div class="section-header">
+      <h3>Mis Rutinas</h3>
+    </div>
+    
+    <div class="routines-list" style="display:grid; gap:12px;">
+      ${(student.routines && student.routines.length > 0) ?
+      student.routines.map(rId => {
+        const r = state.routines.find(rt => rt.id === rId);
+        if (!r) return '';
+        return `
+              <div class="routine-card" onclick="viewRoutine(${r.id})" style="background:var(--bg-secondary); padding:16px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--bg-tertiary);">
+                 <div>
+                    <h4 style="margin:0; font-size:16px;">${r.name}</h4>
+                    <p style="color:var(--text-secondary); font-size:13px; margin:4px 0 0 0;">${r.exercises.length} Ejercicios</p>
+                 </div>
+                 <button class="icon-btn" style="background:var(--accent-color); color:white; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center;">?</button>
+              </div>
+            `;
+      }).join('')
+      : '<div style="text-align:center; padding:30px; color:var(--text-secondary); background:var(--bg-secondary); border-radius:16px;">No tienes rutinas asignadas aÃºn.</div>'
+    }
+    </div>
+  `;
 }
 
 window.renderStudentPortal = function () {
@@ -212,6 +265,7 @@ window.renderStudentPortal = function () {
   }
 
   renderStudentProfile();
+  renderStudentDashboard();
   switchView('view-dashboard');
 }
 
@@ -235,7 +289,7 @@ window.renderStudentProfile = function () {
                 </div>
                 <!-- Photo Upload simulation -->
                 <button class="icon-btn" onclick="updateStudentPhoto()" style="position:absolute; bottom:20px; right:calc(50% - 50px); background:var(--accent-color); color:white; border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.5);">
-                    📷
+                    ??
                 </button>
 
                 <h2 style="margin-top:10px;">${student.name}</h2>
@@ -244,7 +298,7 @@ window.renderStudentProfile = function () {
 
             <form id="student-bio-form" onsubmit="saveStudentBio(event)" style="padding:20px;">
                 <div class="form-section">
-                    <h4>Datos Biométricos</h4>
+                    <h4>Datos BiomÃ©tricos</h4>
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Edad</label>
@@ -266,7 +320,7 @@ window.renderStudentProfile = function () {
                 </div>
 
                 <div class="form-section">
-                    <h4>Información Personal</h4>
+                    <h4>InformaciÃ³n Personal</h4>
                     <div class="form-group full-width">
                         <label>Lesiones o Molestias</label>
                         <textarea name="injuries" rows="3" style="width:100%; background:var(--bg-primary); border:1px solid var(--bg-tertiary); color:white; border-radius:8px; padding:12px;">${student.injuries || ''}</textarea>
@@ -440,7 +494,7 @@ function renderAgenda() {
   }).slice(0, 5);
 
   if (upcoming.length === 0) {
-    container.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">No hay eventos próximos</p>';
+    container.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">No hay eventos prÃ³ximos</p>';
     return;
   }
 
@@ -451,7 +505,7 @@ function renderAgenda() {
                 <h4 style="margin:0; font-size:14px; color:white;">${item.clientName || 'Evento'}</h4>
                 <p style="margin:0; font-size:12px; color:var(--text-secondary);">${item.routineName || item.notes || ''}</p>
             </div>
-            <div style="font-size:18px;">${item.status === 'completed' ? '✅' : '📅'}</div>
+            <div style="font-size:18px;">${item.status === 'completed' ? '?' : '??'}</div>
         </div>
     `).join('');
 }
@@ -477,13 +531,24 @@ function renderLibrarySplit() {
 
   if (!sourceList || !builderList) return;
 
-  // 0. Render Chips (if container exists)
+  // 0. Render Chips (Always render to ensure they appear)
   if (chipContainer) {
-    const categories = ['Todos', 'Piernas', 'Espalda', 'Pecho', 'Brazos', 'Torso', 'Cardio', 'Deka', 'Hyrox', 'Funcional', 'Calentamiento'];
+    // Only render if empty to allow sorting without re-rendering on every update? 
+    // Actually, if we filter, we might re-render. Let's keep state of order.
+    // If `state.filterOrder` exists, use it.
+    let categories = ['Todos', 'Calentamiento', 'Torso', 'Brazos', 'Piernas', 'Espalda', 'Pecho', 'Deka', 'Hyrox', 'Funcional', 'Cardio'];
+
+    // Check if we have missing categories from state.filterOrder? No, just force this order.
+    // If user re-sorts, state.filterOrder will update.
+    if (state.filterOrder && state.filterOrder.length > 0) {
+      categories = state.filterOrder;
+    }
+
+    // Always render if empty, otherwise just update active states
     chipContainer.innerHTML = categories.map(cat => {
       const val = cat === 'Todos' ? 'all' : cat;
       const isActive = state.exerciseFilter === val;
-      return `<div class="filter-chip ${isActive ? 'active' : ''}" onclick="setExerciseFilter('${val}')">${cat}</div>`;
+      return `<div class="filter-chip ${isActive ? 'active' : ''}" data-id="${cat}" onclick="setExerciseFilter('${val}')">${cat}</div>`;
     }).join('');
   }
 
@@ -498,32 +563,21 @@ function renderLibrarySplit() {
   });
 
   sourceList.innerHTML = filtered.map(ex => {
-    // Smart Image Selection
-    let keywords = 'gym,fitness';
-    if (ex.muscle === 'Hyrox' || ex.type === 'Hyrox') keywords = 'crossfit,sled,running';
-    else if (ex.muscle === 'Deka' || ex.type === 'Deka') keywords = 'functional,training,workout';
-    else if (ex.muscle === 'Cardio') keywords = 'cardio,running,rowing';
-    else if (ex.muscle === 'Piernas') keywords = 'legs,squat,gym';
-    else if (ex.muscle === 'Espalda') keywords = 'back,pullup,gym';
-    else if (ex.muscle === 'Pecho') keywords = 'chest,benchpress,gym';
-
-    // Use specific images if available (mocked for now as we don't have a real google scraper)
-    const imgUrl = ex.image || `https://loremflickr.com/320/240/${keywords}/all?lock=${ex.id}`;
-
     return `
-        <div class="exercise-item" data-id="${ex.id}" onclick="addToBuilder(${ex.id})">
-            <div class="exercise-thumb">
-                <img src="${imgUrl}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
-            </div>
-            <div class="exercise-info">
+        <div class="exercise-item" data-id="${ex.id}" draggable="true" onclick="addToBuilder(${ex.id})">
+            <div class="exercise-info" style="flex:1;">
                 <h4>${ex.name}</h4>
                 <div class="exercise-tags">
                    <span class="tag">${ex.muscle}</span>
                 </div>
             </div>
             <div style="display:flex; gap:8px;">
-                <button class="icon-btn-large" onclick="event.stopPropagation(); editExercise(${ex.id})" title="Editar" style="font-size:14px;">✏️</button>
-                <button class="icon-btn-large" onclick="event.stopPropagation(); openVideo(${ex.id})" title="Ver vídeo" style="font-size:14px;">📺</button>
+                <button class="icon-btn-large" onclick="event.stopPropagation(); editExercise(${ex.id})" title="Editar" style="width:36px; height:36px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--bg-tertiary); border-radius:50%;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                </button>
+                <button class="icon-btn-large" onclick="event.stopPropagation(); openVideo(${ex.id})" title="Ver vídeo" style="width:36px; height:36px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--bg-tertiary); border-radius:50%;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </button>
             </div>
         </div>
     `;
@@ -541,25 +595,115 @@ function renderLibrarySplit() {
     builderList.innerHTML = state.builder.map((exId, idx) => {
       const ex = state.library.find(e => e.id === exId);
       if (!ex) return '';
+
+      // Get exercise config (sets, reps, rest)
+      const config = state.builderConfig && state.builderConfig[exId] ? state.builderConfig[exId] : { sets: 3, reps: 10, rest: 60 };
+
       return `
-               <div class="builder-item" data-id="${ex.id}">
-                  <div style="display:flex; align-items:center; gap:10px;">
-                    <span class="drag-handle" style="cursor:grab; opacity:0.3; font-size:12px;">☰</span>
-                    <span style="font-weight:600; font-size:14px;">${idx + 1}. ${ex.name}</span>
-                  </div>
-                  <button class="icon-btn" onclick="removeFromBuilder(${idx})" style="color:var(--danger); padding:8px;">✕</button>
+         <div class="builder-item" data-id="${ex.id}" style="cursor:move;">
+            <div class="drag-handle" style="cursor:grab; padding:0 8px; color:var(--text-secondary);">☰</div>
+            <div style="flex:1; margin-left:8px;">
+               <h4 style="margin:0; font-size:14px;">${ex.name}</h4>
+               <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
+                  ${config.sets} series × ${config.reps} reps | ${config.rest}s descanso
                </div>
-            `;
+            </div>
+            <div style="display:flex; gap:4px;">
+               <button class="icon-btn" onclick="editBuilderExercise(${idx})" title="Configurar">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v6m0 6v6m-6-6h6m6 0h6"></path></svg>
+               </button>
+               <button class="icon-btn" onclick="removeFromBuilder(${idx})" title="Eliminar">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+               </button>
+            </div>
+         </div>
+      `;
     }).join('');
   }
 
   // 3. Initialize/Update SortableJS
   initSortables();
+
+  // 4. Render Saved Routines (New feature)
+  renderSavedRoutines();
+}
+
+window.renderSavedRoutines = function () {
+  const container = $('#saved-routines-list');
+  const filter = $('#saved-routines-filter') ? $('#saved-routines-filter').value : 'all';
+
+  if (!container) return;
+
+  const routines = state.routines || [];
+
+  // Simple filtering (can be expanded)
+  const filtered = routines.filter(r => {
+    if (filter === 'all') return true;
+    // Mock category check since routines don't have tags yet, maybe check name?
+    return r.name.toLowerCase().includes(filter.toLowerCase());
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<p style="padding:15px; color:var(--text-secondary); text-align:center; font-size:13px;">No tienes rutinas con este filtro.</p>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(r => `
+    <div class="routine-mini-card" style="padding:12px; border-bottom:1px solid var(--bg-tertiary); display:flex; justify-content:space-between; align-items:center; transition:background 0.2s;">
+        <div onclick="loadRoutineToBuilder(${r.id})" style="flex:1; cursor:pointer;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <h4 style="margin:0; font-size:14px;">${r.name}</h4>
+                <span style="font-size:11px; color:var(--text-secondary);">${r.exercises.length} ejs</span>
+            </div>
+            <p style="margin:0; font-size:11px; color:var(--text-secondary);">Creada: ${new Date(r.createdAt || Date.now()).toLocaleDateString()}</p>
+        </div>
+        <div style="display:flex; gap:5px; margin-left:10px;">
+            <button class="icon-btn" onclick="event.stopPropagation(); deleteRoutine(${r.id})" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center; color:var(--danger);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+        </div>
+    </div>
+  `).join('');
+}
+
+window.deleteRoutine = function (id) {
+  if (confirm('¿Seguro que quieres eliminar esta rutina?')) {
+    state.routines = state.routines.filter(r => r.id !== id);
+    saveState();
+  }
+}
+
+window.loadRoutineToBuilder = function (id) {
+  const r = state.routines.find(rt => rt.id === id);
+  if (r) {
+    if (confirm(`¿Cargar la rutina "${r.name}" en el constructor? Esto reemplazará lo actual.`)) {
+      state.builder = [...r.exercises];
+      renderLibrarySplit();
+    }
+  }
 }
 
 function initSortables() {
   const sourceEl = $('#library-source-list');
   const builderEl = $('#routine-builder-dropzone');
+  const chipContainer = $('#lib-filter-chips');
+
+  // Filter Chips Sortable
+  if (chipContainer && !chipContainer.sortable) {
+    new Sortable(chipContainer, {
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      onEnd: function (evt) {
+        const newOrder = [];
+        chipContainer.querySelectorAll('.filter-chip').forEach(chip => {
+          newOrder.push(chip.innerText);
+        });
+        state.filterOrder = newOrder;
+        saveState();
+      }
+    });
+    chipContainer.sortable = true; // Mark as initialized
+  }
 
   if (!sourceEl || !builderEl) return;
 
@@ -575,10 +719,8 @@ function initSortables() {
       animation: 150,
       draggable: '.exercise-item',
       onEnd: function (evt) {
-        if (evt.from !== evt.to) {
-          // Update state.builder based on the new order in builderEl
-          syncBuilderFromDOM();
-        }
+        // After drag ends, sync the builder
+        setTimeout(() => syncBuilderFromDOM(), 50);
       }
     });
   }
@@ -614,12 +756,54 @@ function syncBuilderFromDOM() {
 
 // Builder Actions
 window.addToBuilder = function (exId) {
+  if (!state.builder) state.builder = [];
   state.builder.push(exId);
+
+  // Initialize config for this exercise
+  if (!state.builderConfig) state.builderConfig = {};
+  if (!state.builderConfig[exId]) {
+    state.builderConfig[exId] = { sets: 3, reps: 10, rest: 60 };
+  }
+
   renderLibrarySplit();
 }
 
 window.removeFromBuilder = function (index) {
+  const exId = state.builder[index];
   state.builder.splice(index, 1);
+
+  // Remove config for this exercise
+  if (state.builderConfig && state.builderConfig[exId]) {
+    delete state.builderConfig[exId];
+  }
+
+  renderLibrarySplit();
+}
+
+// Edit exercise configuration in builder
+window.editBuilderExercise = function (index) {
+  const exId = state.builder[index];
+  const ex = state.library.find(e => e.id === exId);
+  if (!ex) return;
+
+  if (!state.builderConfig) state.builderConfig = {};
+  const config = state.builderConfig[exId] || { sets: 3, reps: 10, rest: 60 };
+
+  const sets = prompt(`Series para "${ex.name}":`, config.sets);
+  if (sets === null) return;
+
+  const reps = prompt(`Repeticiones para "${ex.name}":`, config.reps);
+  if (reps === null) return;
+
+  const rest = prompt(`Descanso (segundos) para "${ex.name}":`, config.rest);
+  if (rest === null) return;
+
+  state.builderConfig[exId] = {
+    sets: parseInt(sets) || 3,
+    reps: parseInt(reps) || 10,
+    rest: parseInt(rest) || 60
+  };
+
   renderLibrarySplit();
 }
 
@@ -649,8 +833,13 @@ window.saveBuiltRoutine = function () {
   saveState(); // This will trigger renderAll()
 
   // Switch to a view where they can see their routines or just notify
-  alert(`Rutina "${name}" guardada con éxito.`);
+  alert(`Rutina "${name}" guardada con Ã©xito.`);
   renderLibrarySplit();
+}
+
+// Map editExercise to openExerciseModal
+window.editExercise = function (id) {
+  openExerciseModal(id);
 }
 
 // Update `openExerciseModal`
@@ -781,7 +970,7 @@ window.openClientDetail = function (id) {
             <span style="font-weight:500; font-size:13px; color:white; text-transform:capitalize;">${dayName}</span>
         </div>
         <div style="flex:1; text-align:right;">
-          ${sess ? `<span style="color:var(--accent-color); font-weight:500; cursor:pointer;" onclick="alert('Detalle: ${sess.routineName}')">${sess.routineName} ${sess.status === 'completed' ? '✅' : ''}</span>` :
+          ${sess ? `<span style="color:var(--accent-color); font-weight:500; cursor:pointer;" onclick="alert('Detalle: ${sess.routineName}')">${sess.routineName} ${sess.status === 'completed' ? '?' : ''}</span>` :
         `<span style="color:var(--text-secondary); opacity:0.3; font-size:12px;">Descanso</span>`}
         </div>
       </div>`;
@@ -858,9 +1047,60 @@ window.openClientDetail = function (id) {
   switchView('view-client-detail');
 }
 
-// Add editClient stub
+// Edit Client (Admin) - Fix Logic
 window.editClient = function (id) {
-  alert("Función de editar perfil de alumno " + id + " en desarrollo.");
+  const client = state.clients.find(c => c.id === id);
+  if (!client) return;
+
+  const form = $('#new-student-form');
+  if (!form) return;
+
+  form.reset();
+
+  // Populate fields safely
+  const fields = {
+    'name': client.name,
+    'email': client.email,
+    'phone': client.phone || '',
+    'plan': client.plan,
+    'monthlyFee': client.monthlyFee,
+    'goal': client.goal,
+    'weight': client.weight,
+    'height': client.height,
+    'status': client.status
+  };
+
+  for (const [name, val] of Object.entries(fields)) {
+    const input = form.querySelector(`[name="${name}"]`);
+    if (input) input.value = val !== undefined ? val : '';
+  }
+
+  // Handle Dates if ISO/Special
+  if (client.joinedDate) {
+    const dateInp = form.querySelector(`[name="dob"]`); // Assuming dob reused or separate?
+    // Not mapping dob here, focusing on core fields.
+  }
+
+  // Hidden ID
+  let idInput = document.getElementById('edit-client-id-hidden');
+  if (!idInput) {
+    idInput = document.createElement('input');
+    idInput.type = 'hidden';
+    idInput.id = 'edit-client-id-hidden';
+    idInput.name = 'id';
+    form.appendChild(idInput);
+  }
+  idInput.value = client.id;
+
+  // Change title
+  const title = $('#new-student-modal .section-header h2');
+  if (title) title.innerText = 'Editar Alumno';
+
+  // Change submit button text
+  const btn = $('#new-student-form button[type="submit"]');
+  if (btn) btn.innerText = 'Guardar Cambios';
+
+  $('#new-student-modal').classList.add('open');
 }
 
 // --- ASSIGNMENT ---
@@ -939,7 +1179,7 @@ $('#assign-form').addEventListener('submit', (e) => {
 
   saveState();
   closeModal('assign-modal');
-  alert(`Sesión programada para el ${date} a las ${time}`);
+  alert(`SesiÃ³n programada para el ${date} a las ${time}`);
   renderCalendar(); // ensure calendar catches it if we switch
 });
 
@@ -988,7 +1228,7 @@ window.renderCalendar = function () {
                             <div class="time">${s.time}</div>
                             <span class="title">${s.clientName}</span>
                             <span class="sub">${s.routineName}</span>
-                            ${s.status === 'completed' ? '✅' : ''}
+                            ${s.status === 'completed' ? '?' : ''}
                         </div>
                     `).join('')}
                 </div>
@@ -1110,6 +1350,33 @@ if (studentForm) {
 
 
 // Init & Rendering
+function renderClients() {
+  const list = $('.client-list');
+  if (!list) return;
+
+  const filtered = state.clients.filter(c => c.trainerId === state.currentTrainerId);
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary);">No hay alumnos asignados.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(c => `
+    <div class="client-card" style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="client-info" onclick="openClientDetail(${c.id})" style="flex:1; cursor:pointer;">
+        <h3>${c.name}</h3>
+        <p>${c.plan}</p>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div class="client-status ${c.status}">${c.status === 'active' ? 'Activo' : 'Pendiente'}</div>
+        <button class="icon-btn" onclick="event.stopPropagation(); editClient(${c.id})" title="Editar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
 function renderAll() {
   if (state.userRole === 'student') {
     renderStudentPortal();
@@ -1165,7 +1432,7 @@ function calculateStats() {
 
   // Reviews: Count "Revisión" in upcoming sessions or Agenda
   // Looking at scheduledSessions for future dates + agenda
-  const reviewsCount = (state.agenda || []).filter(a => a.type && a.type.includes('Revisión')).length;
+  const reviewsCount = (state.checkins || []).filter(c => c.status === 'pending').length;
 
   // Sessions this week (Mocking current week check for simplicity, or just total scheduled)
   const sessionsCount = (state.scheduledSessions || []).length;
@@ -1173,7 +1440,7 @@ function calculateStats() {
   // Update UI with specific IDs
   if ($('#stat-active-students')) $('#stat-active-students').innerText = activeClients.length;
   if ($('#stat-reviews')) $('#stat-reviews').innerText = reviewsCount;
-  if ($('#stat-income')) $('#stat-income').innerText = '€' + totalRevenue;
+  if ($('#stat-income')) $('#stat-income').innerText = totalRevenue + '€';
   if ($('#stat-retention')) $('#stat-retention').innerText = retentionRate + '%';
   if ($('#stat-sessions')) $('#stat-sessions').innerText = sessionsCount;
 }
@@ -1240,14 +1507,14 @@ window.viewRoutine = function (id) {
       <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:12px; margin-bottom:8px;">
         <div style="display:flex; align-items:center; gap:12px;">
           <div style="width:40px; height:40px; background:var(--bg-tertiary); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:20px;">
-            ${ex.muscle === 'Cardio' ? '🏃' : '💪'}
+            ${ex.muscle === 'Cardio' ? 'Ã°Å¸ÂÆ’' : 'Ã°Å¸â€™Âª'}
           </div>
           <div>
             <h4 style="font-size:14px; margin:0;">${ex.name}</h4>
             <span style="font-size:11px; color:var(--text-secondary);">${ex.muscle}</span>
           </div>
         </div>
-        <button class="icon-btn-large" onclick="openVideo(${ex.id})">📺</button>
+        <button class="icon-btn-large" onclick="openVideo(${ex.id})">??</button>
       </div>
     `;
   }).join('');
@@ -1255,7 +1522,7 @@ window.viewRoutine = function (id) {
   const detailViewHTML = `
     <section id="view-routine-detail" class="view active">
       <div class="section-header">
-         <button class="icon-btn" onclick="renderStudentPortal()">← Volver</button>
+         <button class="icon-btn" onclick="renderStudentPortal()">Ã¢â€ Â Volver</button>
          <h2>${r.name}</h2>
       </div>
       <div style="margin-top:16px;">
@@ -1379,7 +1646,7 @@ window.renderDbTable = function () {
       col3: e.type,
       date: 0
     }));
-    columns = ['Ejercicio', 'Músculo', 'Tipo', '-'];
+    columns = ['Ejercicio', 'MÃºsculo', 'Tipo', '-'];
   }
 
   // Filter
@@ -1405,7 +1672,7 @@ window.renderDbTable = function () {
                 <td>${row.col2}</td>
                 <td>${row.col3}</td>
                 <td>${row.date ? new Date(row.date).toLocaleDateString() : '-'}</td>
-                <td><button class="icon-btn" onclick="openContextItem(${row.id}, '${dbState.tab}')">${dbState.tab === 'library' ? '✏️' : '👁️'}</button></td>
+                <td><button class="icon-btn" onclick="openContextItem(${row.id}, '${dbState.tab}')">${dbState.tab === 'library' ? 'Ã¢Å“ÂÃ¯Â¸Â' : 'Ã°Å¸â€˜ÂÃ¯Â¸Â'}</button></td>
             </tr>
         `).join('')}
     </tbody>`;
@@ -1443,7 +1710,7 @@ window.saveSettings = function () {
   const p = $('.profile-header p');
   if (p) p.innerText = config.role;
 
-  alert('Configuración guardada.');
+  alert('ConfiguraciÃ³n guardada.');
 }
 
 window.setAppTheme = function (colorName) {
@@ -1513,12 +1780,13 @@ window.renderAccountingTable = function () {
     if (months <= 0) months = 0;
     if (months === 0 && client.status === 'active') months = 1;
 
-    const totalPaid = months * (client.monthlyFee || 0);
+    const fee = parseFloat(client.monthlyFee) || 0;
+    const totalPaid = months * fee;
     totalRevenue += totalPaid;
 
     return {
       name: client.name,
-      fee: client.monthlyFee,
+      fee: fee,
       months: months,
       total: totalPaid,
       matches: client.name.toLowerCase().includes(searchVal)
@@ -1540,11 +1808,120 @@ window.renderAccountingTable = function () {
   if (totalRevEl) totalRevEl.innerText = '€' + totalRevenue.toLocaleString();
 }
 
-// --- NEW MODAL LOGIC (Appended) ---
-
 window.openCreateStudentModal = function () {
   $('#new-student-form').reset();
   $('#new-student-modal').classList.add('open');
+}
+
+// --- CHECK-IN SYSTEM LOGIC ---
+
+window.renderCheckins = function () {
+  const list = $('#checkin-list-container');
+  if (!list) return;
+
+  const filter = state.checkinFilter || 'pending';
+
+  // UI Tab toggle
+  $$('.tab-btn').forEach(b => b.classList.remove('active'));
+  const activeTab = $(`#tab-checkins-${filter}`);
+  if (activeTab) activeTab.classList.add('active');
+
+  const reviews = state.checkins || [];
+  const filtered = reviews.filter(r => r.status === filter);
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<p style="text-align:center; padding:30px; color:var(--text-secondary);">No hay revisiones ${filter === 'pending' ? 'pendientes' : 'completadas'}.</p>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(r => {
+    const client = state.clients.find(c => c.id === r.clientId);
+    if (!client) return '';
+
+    // Weight Diff
+    const diff = (r.weight - r.prevWeight).toFixed(1);
+    const diffColor = diff < 0 ? 'var(--success)' : (diff > 0 ? 'var(--danger)' : 'var(--text-secondary)'); // Context dependent but standard logic
+
+    return `
+            <div class="card" onclick="openReviewModal(${r.id})" style="background:var(--bg-secondary); border:1px solid var(--bg-tertiary); cursor:pointer;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="display:flex; gap:12px;">
+                        <div class="avatar">${client.name.charAt(0)}</div>
+                        <div>
+                            <h4 style="margin:0; font-size:16px;">${client.name}</h4>
+                            <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-secondary);">${new Date(r.date).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:700; font-size:18px;">${r.weight}kg</div>
+                        <div style="font-size:12px; color:${diffColor}">${diff > 0 ? '+' : ''}${diff}kg</div>
+                    </div>
+                </div>
+                <div style="margin-top:12px; font-size:14px; color:var(--text-secondary); background:var(--bg-primary); padding:10px; border-radius:8px;">
+                    "${r.comments}"
+                </div>
+            </div>
+        `;
+  }).join('');
+}
+
+window.filterCheckins = function (status) {
+  state.checkinFilter = status;
+  renderCheckins();
+}
+
+window.openReviewModal = function (reviewId) {
+  const review = state.checkins.find(r => r.id === reviewId);
+  if (!review) return;
+
+  state.currentReviewId = reviewId;
+
+  const client = state.clients.find(c => c.id === review.clientId);
+  const modalContent = $('#review-modal-content');
+
+  modalContent.innerHTML = `
+        <div style="display:flex; gap:20px; align-items:center; margin-bottom:20px;">
+             <div class="avatar-large">${client.name.charAt(0)}</div>
+             <div>
+                 <h3 style="margin:0;">${client.name}</h3>
+                 <p style="color:var(--text-secondary);">${client.plan}</p>
+             </div>
+             <div style="margin-left:auto; text-align:right;">
+                 <h2 style="margin:0; color:var(--accent-color);">${review.weight}kg</h2>
+                 <p style="margin:0; font-size:12px; color:var(--text-secondary);">Anterior: ${review.prevWeight}kg</p>
+             </div>
+        </div>
+        
+        <h4 style="border-bottom:1px solid var(--bg-tertiary); padding-bottom:8px; margin-bottom:12px;">Comentarios del Alumno</h4>
+        <p style="margin-bottom:20px; font-style:italic;">"${review.comments}"</p>
+
+        <h4 style="border-bottom:1px solid var(--bg-tertiary); padding-bottom:8px; margin-bottom:12px;">Fotos de Check-in (Simulación)</h4>
+        <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:10px;">
+            <div style="min-width:120px; height:160px; background:#333; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); border-radius:8px;">Frente</div>
+            <div style="min-width:120px; height:160px; background:#333; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); border-radius:8px;">Perfil</div>
+            <div style="min-width:120px; height:160px; background:#333; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); border-radius:8px;">Espalda</div>
+        </div>
+    `;
+
+  // Pre-fill feedback if exists
+  $('#review-feedback').value = review.feedback || '';
+
+  $('#review-modal').classList.add('open');
+}
+
+window.submitReviewFeedback = function () {
+  const feedback = $('#review-feedback').value;
+  const review = state.checkins.find(r => r.id === state.currentReviewId);
+
+  if (review) {
+    review.feedback = feedback;
+    review.status = 'completed';
+    saveState();
+    closeModal('review-modal');
+    renderCheckins();
+    calculateStats(); // Update pending count
+    alert('Feedback enviado correctamente!');
+  }
 }
 
 $('#new-student-form').addEventListener('submit', function (e) {
@@ -1597,7 +1974,7 @@ $('#new-student-form').addEventListener('submit', function (e) {
     joinedDate: new Date().toISOString().split('T')[0], // Default to today
     progress: 0,
     goal: formData.get('goal'),
-    monthlyFee: parseFloat(formData.get('monthlyFee')) || 0,
+    monthlyFee: parseFloat(formData.get('monthlyFee')) || 50,
     age: formData.get('dob'),
     weight: formData.get('weight'),
     height: formData.get('height'),
@@ -1608,7 +1985,7 @@ $('#new-student-form').addEventListener('submit', function (e) {
   state.clients.push(newClient);
   saveState();
   closeModal('new-student-modal');
-  alert('Alumno creado con éxito');
+  alert('Alumno creado con Ã©xito');
   renderAll();
 });
 
@@ -1651,72 +2028,3 @@ $('#agenda-form').addEventListener('submit', function (e) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-if (targetDate) newClient.targetDate = targetDate;
-
-state.clients.push(newClient);
-saveState();
-closeModal('new-student-modal');
-alert('Alumno creado con éxito');
-renderAll();
-});
-
-
-window.openAddAgendaModal = function () {
-  $('#agenda-form').reset();
-  $('#agenda-date').value = new Date().toISOString().split('T')[0];
-  $('#agenda-modal').classList.add('open');
-}
-
-$('#agenda-form').addEventListener('submit', function (e) {
-  e.preventDefault();
-  const title = $('#agenda-title').value;
-  const type = $('#agenda-type').value;
-  const date = $('#agenda-date').value;
-  const time = $('#agenda-time').value || '09:00';
-
-  const newItem = {
-    id: Date.now(),
-    clientId: null,
-    clientName: title, // Use title as client name for calendar display
-    routineId: null,
-    routineName: type, // Use type as routine name for calendar display
-    date,
-    time,
-    notes: 'Evento de Agenda',
-    status: 'pending',
-    trainerId: state.currentTrainerId
-  };
-
-  if (!state.scheduledSessions) state.scheduledSessions = [];
-  state.scheduledSessions.push(newItem);
-
-  saveState();
-  closeModal('agenda-modal');
-  alert('Actividad agendada');
-  renderAll();
-});
