@@ -119,54 +119,58 @@ window.toggleTrainerSelect = function () {
   const initialBtn = $('#initial-admin-btn');
   const selectors = $('#admin-selectors');
 
-  initialBtn.style.display = 'none';
-  selectors.style.display = 'block';
+  initialBtn.style.display = 'block'; // Ensure initial button is visible
+  selectors.style.display = 'none'; // Ensure selectors are hidden initially
 }
 
 window.loginSimulation = function (role) {
   if (role === 'admin') {
-    const trainerId = $('#trainer-login-select').value;
-    const trainer = state.trainers.find(t => t.id === trainerId);
+    // First ask for password
+    const pwd = prompt('Introduce contraseña de Director:');
 
-    if (trainer) {
-      // Password Check based on ID
-      let pwd = prompt(`Introduce contraseña para ${trainer.name}:`);
-      let correct = false;
+    if (!pwd) return;
 
-      if (trainer.id === 'Miguel' && pwd === '197373') correct = true;
-      else if (trainer.id === 'Marta' && pwd === '1111') correct = true;
+    let trainer = null;
 
-      if (!correct) {
-        alert("Contraseña incorrecta");
-        return;
-      }
-
-      state.userRole = 'admin';
-      state.currentTrainerId = trainer.id;
-      state.currentStudentId = null;
+    // Check password and assign trainer
+    if (pwd === '197373') {
+      trainer = state.trainers.find(t => t.id === 'Miguel');
+    } else if (pwd === '1111') {
+      trainer = state.trainers.find(t => t.id === 'Marta');
     } else {
-      alert('Entrenador no encontrado.');
+      alert('Contraseña incorrecta');
       return;
     }
+
+    if (!trainer) {
+      alert('Error: Entrenador no encontrado');
+      return;
+    }
+
+    state.userRole = 'admin';
+    state.currentTrainerId = trainer.id;
+    state.currentStudentId = null;
+
+    console.log(`Login exitoso: ${trainer.name}`);
   } else {
-    // Simulating Google Auth by asking for email
+    // Student login with Google simulation
     const email = prompt("Introduce tu email de Google (Simulación):", "manuel.moreno@gmail.com");
     if (!email) return;
 
-    const student = state.clients.find(c => c.email && c.email.toLowerCase() === email.trim().toLowerCase());
-
-    if (student) {
-      if (student.status === 'inactive') {
-        alert('Tu cuenta está inactiva. Contacta con tu entrenador.');
-        return;
-      }
-      state.userRole = 'student';
-      state.currentStudentId = student.id;
-      state.currentTrainerId = student.trainerId; // Student linked to their trainer
-    } else {
+    const student = state.clients.find(c => c.email && c.email.toLowerCase() === email.toLowerCase());
+    if (!student) {
       alert("No se ha encontrado ninguna cuenta con este email. Por favor, pide a tu entrenador que te dé de alta primero.");
       return;
     }
+
+    if (student.status === 'inactive') {
+      alert('Tu cuenta está inactiva. Contacta con tu entrenador.');
+      return;
+    }
+
+    state.userRole = 'student';
+    state.currentStudentId = student.id;
+    state.currentTrainerId = student.trainerId; // Student linked to their trainer
   }
 
   $('#auth-overlay').style.display = 'none';
@@ -494,7 +498,7 @@ function renderAgenda() {
   }).slice(0, 5);
 
   if (upcoming.length === 0) {
-    container.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">No hay eventos prÃ³ximos</p>';
+    container.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">No hay eventos próximos</p>';
     return;
   }
 
@@ -530,6 +534,7 @@ if (agendaFormEl) {
     const time = document.getElementById('agenda-time').value;
     const title = document.getElementById('agenda-title').value;
     const type = document.getElementById('agenda-type').value;
+    const dateInput = document.getElementById('agenda-date');
 
     if (!time || !title) {
       alert('Por favor completa todos los campos');
@@ -539,16 +544,32 @@ if (agendaFormEl) {
     // Add to agenda
     if (!state.agenda) state.agenda = [];
 
+    const eventDate = dateInput && dateInput.value ? new Date(dateInput.value) : new Date();
+
     const newEvent = {
       id: Date.now(),
       time: time,
       title: title,
       type: type,
-      date: new Date().toISOString(),
+      date: eventDate.toISOString(),
       trainerId: state.currentTrainerId
     };
 
     state.agenda.push(newEvent);
+
+    // Also add to scheduledSessions if it's a training or review
+    if (type === 'Entrenamiento' || type === 'Revisión') {
+      if (!state.scheduledSessions) state.scheduledSessions = [];
+      state.scheduledSessions.push({
+        id: newEvent.id,
+        date: eventDate.toISOString().split('T')[0],
+        time: time,
+        clientName: title,
+        notes: type,
+        status: 'pending'
+      });
+    }
+
     saveState();
 
     // Close modal and refresh
@@ -887,7 +908,7 @@ window.saveBuiltRoutine = function () {
   saveState(); // This will trigger renderAll()
 
   // Switch to a view where they can see their routines or just notify
-  alert(`Rutina "${name}" guardada con Ã©xito.`);
+  alert(`Rutina "${name}" guardada con éxito.`);
   renderLibrarySplit();
 }
 
@@ -1084,7 +1105,7 @@ window.openClientDetail = function (id) {
             <span style="font-weight:500; font-size:13px; color:white; text-transform:capitalize;">${dayName}</span>
         </div>
         <div style="flex:1; text-align:right;">
-          ${sess ? `<span style="color:var(--accent-color); font-weight:500; cursor:pointer;" onclick="alert('Detalle: ${sess.routineName}')">${sess.routineName} ${sess.status === 'completed' ? '?' : ''}</span>` :
+          ${sess ? `<span style="color:var(--accent-color); font-weight:500; cursor:pointer;" onclick="alert('Detalle: ${sess.routineName}')">${sess.routineName} ${sess.status === 'completed' ? '✅' : ''}</span>` :
         `<span style="color:var(--text-secondary); opacity:0.3; font-size:12px;">Descanso</span>`}
         </div>
       </div>`;
@@ -1279,7 +1300,7 @@ $('#assign-form').addEventListener('submit', (e) => {
 
   saveState();
   closeModal('assign-modal');
-  alert(`SesiÃ³n programada para el ${date} a las ${time}`);
+  alert(`Sesión programada para el ${date} a las ${time}`);
   renderCalendar(); // ensure calendar catches it if we switch
 });
 
@@ -1328,7 +1349,7 @@ window.renderCalendar = function () {
                             <div class="time">${s.time}</div>
                             <span class="title">${s.clientName}</span>
                             <span class="sub">${s.routineName}</span>
-                            ${s.status === 'completed' ? '?' : ''}
+                            ${s.status === 'completed' ? '✅' : ''}
                         </div>
                     `).join('')}
                 </div>
@@ -1362,7 +1383,7 @@ function renderCalendar() {
     // Filter events for this day
     const daySessions = sessions.filter(s => s.date === dateStr && s.trainerId === state.currentTrainerId);
     // Agenda events don't have dates in current simple state, let's assume they are for "today"
-    const dayAgenda = i === 0 ? agenda : []; // Mock: only show agenda for today
+    const dayAgenda = agenda.filter(a => a.date.split('T')[0] === dateStr && a.trainerId === state.currentTrainerId);
 
     return `
             <div class="calendar-day-col">
@@ -1607,14 +1628,14 @@ window.viewRoutine = function (id) {
       <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:12px; margin-bottom:8px;">
         <div style="display:flex; align-items:center; gap:12px;">
           <div style="width:40px; height:40px; background:var(--bg-tertiary); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:20px;">
-            ${ex.muscle === 'Cardio' ? 'Ã°Å¸ÂÆ’' : 'Ã°Å¸â€™Âª'}
+            ${ex.muscle === 'Cardio' ? '🏃' : '💪'}
           </div>
           <div>
             <h4 style="font-size:14px; margin:0;">${ex.name}</h4>
             <span style="font-size:11px; color:var(--text-secondary);">${ex.muscle}</span>
           </div>
         </div>
-        <button class="icon-btn-large" onclick="openVideo(${ex.id})">??</button>
+        <button class="icon-btn-large" onclick="openVideo(${ex.id})">▶️</button>
       </div>
     `;
   }).join('');
@@ -1622,7 +1643,7 @@ window.viewRoutine = function (id) {
   const detailViewHTML = `
     <section id="view-routine-detail" class="view active">
       <div class="section-header">
-         <button class="icon-btn" onclick="renderStudentPortal()">Ã¢â€ Â Volver</button>
+         <button class="icon-btn" onclick="renderStudentPortal()">⬅️ Volver</button>
          <h2>${r.name}</h2>
       </div>
       <div style="margin-top:16px;">
@@ -1746,7 +1767,7 @@ window.renderDbTable = function () {
       col3: e.type,
       date: 0
     }));
-    columns = ['Ejercicio', 'MÃºsculo', 'Tipo', '-'];
+    columns = ['Ejercicio', 'Músculo', 'Tipo', '-'];
   }
 
   // Filter
@@ -1772,7 +1793,7 @@ window.renderDbTable = function () {
                 <td>${row.col2}</td>
                 <td>${row.col3}</td>
                 <td>${row.date ? new Date(row.date).toLocaleDateString() : '-'}</td>
-                <td><button class="icon-btn" onclick="openContextItem(${row.id}, '${dbState.tab}')">${dbState.tab === 'library' ? 'Ã¢Å“ÂÃ¯Â¸Â' : 'Ã°Å¸â€˜ÂÃ¯Â¸Â'}</button></td>
+                <td><button class="icon-btn" onclick="openContextItem(${row.id}, '${dbState.tab}')">${dbState.tab === 'library' ? '✏️' : '👁️'}</button></td>
             </tr>
         `).join('')}
     </tbody>`;
@@ -1810,7 +1831,7 @@ window.saveSettings = function () {
   const p = $('.profile-header p');
   if (p) p.innerText = config.role;
 
-  alert('ConfiguraciÃ³n guardada.');
+  alert('Configuración guardada.');
 }
 
 window.setAppTheme = function (colorName) {
@@ -1959,7 +1980,6 @@ window.renderCheckins = function () {
     return `
             <div class="card" onclick="openReviewModal(${r.id})" style="background:var(--bg-secondary); border:1px solid var(--bg-tertiary); cursor:pointer;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div style="display:flex; gap:12px;">
                         <div class="avatar">${client.name.charAt(0)}</div>
                         <div>
                             <h4 style="margin:0; font-size:16px;">${client.name}</h4>
@@ -2097,6 +2117,10 @@ $('#new-student-form').addEventListener('submit', function (e) {
   if (targetDate) newClient.targetDate = targetDate;
 
   state.clients.push(newClient);
+
+  // Create initial bi-weekly check-in
+  createBiWeeklyCheckin(newClient.id);
+
   saveState();
   closeModal('new-student-modal');
   alert('Alumno creado con Ã©xito');
