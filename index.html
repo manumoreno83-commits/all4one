@@ -471,7 +471,18 @@
 
                     <div class="form-group">
                         <label>Plan de Entrenamiento</label>
-                        <input type="text" id="client-plan" required placeholder="Ej. Hipertrofia 3 días" />
+                        <select id="client-plan" required>
+                            <option value="">Selecciona un plan...</option>
+                            <!-- Populated by JS from state.trainingPlans -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Objetivo Principal</label>
+                        <select id="client-goal">
+                            <option value="">Selecciona objetivo...</option>
+                            <!-- Populated by JS from state.availableGoals -->
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -607,12 +618,9 @@
                             </div>
                             <div class="form-group full-width">
                                 <label>Objetivo Principal</label>
-                                <select name="goal">
-                                    <option value="Hypertrophy">Hipertrofia</option>
-                                    <option value="Strength">Fuerza</option>
-                                    <option value="WeightLoss">Pérdida de Peso</option>
-                                    <option value="Health">Salud General</option>
-                                    <option value="Competition">Competición</option>
+                                <select name="goal" id="new-student-goal">
+                                    <option value="">Selecciona...</option>
+                                    <!-- Populated by JS -->
                                 </select>
                             </div>
                             <div class="form-group full-width">
@@ -625,11 +633,9 @@
                             </div>
                             <div class="form-group full-width">
                                 <label>Plan Inicial</label>
-                                <select name="plan">
-                                    <option value="Hipertrofia 3 días">Hipertrofia 3 días</option>
-                                    <option value="Fuerza 5x5">Fuerza 5x5</option>
-                                    <option value="Full Body">Full Body</option>
-                                    <option value="Personalizado">Personalizado</option>
+                                <select name="plan" id="new-student-plan">
+                                    <option value="">Selecciona...</option>
+                                    <!-- Populated by JS -->
                                 </select>
                             </div>
                             <div class="form-group">
@@ -938,6 +944,7 @@
             };
         }
     </script>
+    <script src="./js/plans-goals-manager.js"></script>
 </body>
 
 </html>

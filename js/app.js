@@ -21,9 +21,195 @@ const defaultState = {
     { id: 1, time: '09:00', title: 'SesiÃ³n EP: Mario Garcia', type: 'Fuerza Funcional' },
     { id: 2, time: '11:30', title: 'RevisiÃ³n: Ana L.', type: 'Bloque PÃ©rdida Peso' },
   ],
+  // Training Plans (10 pre-established plans)
+  trainingPlans: [
+    {
+      id: 1,
+      name: 'Hipertrofia 3 Días',
+      description: 'Plan de 3 días semanales enfocado en ganancia de masa muscular',
+      frequency: '3 días/semana',
+      duration: '8-12 semanas',
+      routineIds: [1, 2, 3]
+    },
+    {
+      id: 2,
+      name: 'Fuerza 5x5',
+      description: 'Programa de fuerza basado en el método 5x5',
+      frequency: '3 días/semana',
+      duration: '12 semanas',
+      routineIds: [4, 5, 6]
+    },
+    {
+      id: 3,
+      name: 'Full Body 4 Días',
+      description: 'Entrenamiento de cuerpo completo 4 veces por semana',
+      frequency: '4 días/semana',
+      duration: '8 semanas',
+      routineIds: [7, 8, 9, 10]
+    },
+    {
+      id: 4,
+      name: 'Pérdida de Peso',
+      description: 'Combinación de fuerza y cardio para pérdida de grasa',
+      frequency: '4 días/semana',
+      duration: '12 semanas',
+      routineIds: [11, 12, 13, 14]
+    },
+    {
+      id: 5,
+      name: 'Tonificación Femenina',
+      description: 'Plan diseñado para tonificar y definir',
+      frequency: '3 días/semana',
+      duration: '10 semanas',
+      routineIds: [15, 16, 17]
+    },
+    {
+      id: 6,
+      name: 'Principiante Total',
+      description: 'Introducción al entrenamiento de fuerza',
+      frequency: '2-3 días/semana',
+      duration: '4 semanas',
+      routineIds: [18, 19, 20]
+    },
+    {
+      id: 7,
+      name: 'Competición Deka 8 Semanas',
+      description: 'Preparación específica para competición Deka (3 días/semana)',
+      frequency: '3 días/semana',
+      duration: '8 semanas',
+      routineIds: [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]
+    },
+    {
+      id: 8,
+      name: 'Atleta Funcional',
+      description: 'Entrenamiento funcional de alto rendimiento',
+      frequency: '5 días/semana',
+      duration: '12 semanas',
+      routineIds: [45, 46, 47, 48, 49]
+    },
+    {
+      id: 9,
+      name: 'Salud General',
+      description: 'Mantenimiento y bienestar general',
+      frequency: '2 días/semana',
+      duration: 'Continuo',
+      routineIds: [50, 51]
+    },
+    {
+      id: 10,
+      name: 'CrossFit Preparación',
+      description: 'Preparación para competiciones de CrossFit',
+      frequency: '5 días/semana',
+      duration: '16 semanas',
+      routineIds: [52, 53, 54, 55, 56]
+    }
+  ],
+
+  // Available Goals for Students
+  availableGoals: [
+    'Hipertrofia',
+    'Pérdida de Peso',
+    'Fuerza',
+    'Salud General',
+    'Competición Deka',
+    'Competición CrossFit',
+    'Tonificación',
+    'Movilidad',
+    'Resistencia',
+    'Definición Muscular'
+  ],
+
   routines: [
-    { id: 1, name: 'Pierna Hipertrofia', exercises: [1, 4] },
-    { id: 2, name: 'Full Body A', exercises: [2, 6, 7] }
+    // HIPERTROFIA 3 DÍAS (Plan 1)
+    { id: 1, name: 'Hipertrofia A - Pecho/Tríceps', planId: 1, exercises: [6, 15, 8], week: 1 },
+    { id: 2, name: 'Hipertrofia B - Espalda/Bíceps', planId: 1, exercises: [3, 10, 14], week: 1 },
+    { id: 3, name: 'Hipertrofia C - Piernas/Hombros', planId: 1, exercises: [1, 9, 11], week: 1 },
+
+    // FUERZA 5X5 (Plan 2)
+    { id: 4, name: 'Fuerza A - Sentadilla/Press', planId: 2, exercises: [1, 6, 5], week: 1 },
+    { id: 5, name: 'Fuerza B - Peso Muerto/Press Militar', planId: 2, exercises: [3, 11, 10], week: 1 },
+    { id: 6, name: 'Fuerza C - Piernas/Core', planId: 2, exercises: [1, 9, 13], week: 1 },
+
+    // FULL BODY 4 DÍAS (Plan 3)
+    { id: 7, name: 'Full Body A', planId: 3, exercises: [1, 6, 10, 13], week: 1 },
+    { id: 8, name: 'Full Body B', planId: 3, exercises: [3, 11, 9, 8], week: 1 },
+    { id: 9, name: 'Full Body C', planId: 3, exercises: [6, 5, 1, 16], week: 1 },
+    { id: 10, name: 'Full Body D', planId: 3, exercises: [10, 9, 11, 13], week: 1 },
+
+    // PÉRDIDA DE PESO (Plan 4)
+    { id: 11, name: 'Cardio/Fuerza A', planId: 4, exercises: [12, 1, 7, 16], week: 1 },
+    { id: 12, name: 'Cardio/Fuerza B', planId: 4, exercises: [2, 6, 12, 8], week: 1 },
+    { id: 13, name: 'HIIT A', planId: 4, exercises: [12, 4, 7, 16], week: 1 },
+    { id: 14, name: 'HIIT B', planId: 4, exercises: [16, 9, 12, 13], week: 1 },
+
+    // TONIFICACIÓN FEMENINA (Plan 5)
+    { id: 15, name: 'Tonif. A - Tren Inferior', planId: 5, exercises: [1, 9, 4, 8], week: 1 },
+    { id: 16, name: 'Tonif. B - Tren Superior', planId: 5, exercises: [6, 5, 14, 15], week: 1 },
+    { id: 17, name: 'Tonif. C - Full Body', planId: 5, exercises: [2, 10, 9, 13], week: 1 },
+
+    // PRINCIPIANTE (Plan 6)
+    { id: 18, name: 'Principiante A', planId: 6, exercises: [1, 6, 8], week: 1 },
+    { id: 19, name: 'Principiante B', planId: 6, exercises: [9, 5, 13], week: 1 },
+    { id: 20, name: 'Principiante C', planId: 6, exercises: [3, 10, 8], week: 1 },
+
+    // COMPETICIÓN DEKA 8 SEMANAS - 3 días/semana (Plan 7)
+    // Semana 1 - Adaptación
+    { id: 21, name: 'Deka S1D1 - Introducción Zonas', planId: 7, exercises: [201, 101, 102, 103, 204], week: 1, notes: 'Técnica + Familiarización' },
+    { id: 22, name: 'Deka S1D2 - Zonas 4-7', planId: 7, exercises: [201, 104, 105, 106, 107, 204], week: 1, notes: 'Volumen bajo, técnica perfecta' },
+    { id: 23, name: 'Deka S1D3 - Zonas 8-10', planId: 7, exercises: [201, 108, 109, 110, 204], week: 1, notes: 'Core y estabilidad' },
+
+    // Semana 2 - Base Aeróbica
+    { id: 24, name: 'Deka S2D1 - Circuito A', planId: 7, exercises: [203, 101, 103, 105, 107, 109], week: 2, notes: '3 rondas, descanso 2min' },
+    { id: 25, name: 'Deka S2D2 - Resistencia', planId: 7, exercises: [201, 102, 104, 106, 108], week: 2, notes: 'Ritmo constante 40min' },
+    { id: 26, name: 'Deka S2D3 - Circuito B', planId: 7, exercises: [203, 102, 104, 106, 108, 110], week: 2, notes: '3 rondas, descanso 90s' },
+
+    // Semana 3 - Intensidad
+    { id: 27, name: 'Deka S3D1 - HIIT Zonas', planId: 7, exercises: [203, 101, 103, 105, 107], week: 3, notes: 'AMRAP 20min' },
+    { id: 28, name: 'Deka S3D2 - Fuerza + Cardio', planId: 7, exercises: [201, 102, 106, 109, 110], week: 3, notes: 'Fuerza al 80%' },
+    { id: 29, name: 'Deka S3D3 - Simulacro Parcial', planId: 7, exercises: [203, 101, 102, 103, 104, 105], week: 3, notes: '5 zonas seguidas' },
+
+    // Semana 4 - Volumen Alto
+    { id: 30, name: 'Deka S4D1 - Resistencia Larga', planId: 7, exercises: [201, 102, 104, 106, 107, 108], week: 4, notes: '50min ritmo Deka' },
+    { id: 31, name: 'Deka S4D2 - Transiciones', planId: 7, exercises: [203, 101, 103, 105, 109, 110], week: 4, notes: 'Cambios rápidos' },
+    { id: 32, name: 'Deka S4D3 - Test Medio', planId: 7, exercises: [203, 101, 102, 103, 104, 105, 106, 107], week: 4, notes: 'Mitad del recorrido Deka' },
+
+    // Semana 5 - Pico de Intensidad
+    { id: 33, name: 'Deka S5D1 - Velocidad', planId: 7, exercises: [203, 101, 103, 107, 109], week: 5, notes: 'Máxima velocidad' },
+    { id: 34, name: 'Deka S5D2 - Potencia', planId: 7, exercises: [201, 102, 104, 106, 108, 110], week: 5, notes: 'Explosividad máxima' },
+    { id: 35, name: 'Deka S5D3 - Circuito Completo', planId: 7, exercises: [203, 101, 102, 103, 104, 105, 106, 107, 108], week: 5, notes: '9 zonas continuas' },
+
+    // Semana 6 - Simulacro
+    { id: 36, name: 'Deka S6D1 - Técnica Refinada', planId: 7, exercises: [203, 101, 105, 109, 110], week: 6, notes: 'Perfección técnica' },
+    { id: 37, name: 'Deka S6D2 - Simulacro COMPLETO', planId: 7, exercises: [203, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110], week: 6, notes: 'DEKA COMPLETO - Registrar tiempo' },
+    { id: 38, name: 'Deka S6D3 - Recuperación Activa', planId: 7, exercises: [201, 204], week: 6, notes: 'Movilidad suave' },
+
+    // Semana 7 - Afinamiento
+    { id: 39, name: 'Deka S7D1 - Zonas Débiles', planId: 7, exercises: [203, 102, 106, 109], week: 7, notes: 'Trabajar puntos débiles' },
+    { id: 40, name: 'Deka S7D2 - Ritmo Competición', planId: 7, exercises: [203, 101, 103, 105, 107, 110], week: 7, notes: 'Ritmo objetivo' },
+    { id: 41, name: 'Deka S7D3 - Test Final', planId: 7, exercises: [203, 101, 102, 103, 104, 105, 106, 107, 108, 109], week: 7, notes: 'Casi completo - valorar' },
+
+    // Semana 8 - Taper (Descarga pre-competición)
+    { id: 42, name: 'Deka S8D1 - Activación Ligera', planId: 7, exercises: [203, 101, 103, 105], week: 8, notes: '50% intensidad' },
+    { id: 43, name: 'Deka S8D2 - Técnica + Visualización', planId: 7, exercises: [201, 102, 106, 204], week: 8, notes: 'Mental + técnica' },
+    { id: 44, name: 'Deka S8D3 - DESCANSO', planId: 7, exercises: [201, 204], week: 8, notes: 'Solo movilidad - Listo para competir' },
+
+    // ATLETA FUNCIONAL (Plan 8)
+    { id: 45, name: 'Funcional A - Olimpicos', planId: 8, exercises: [2, 3, 4, 16], week: 1 },
+    { id: 46, name: 'Funcional B - Gimnásticos', planId: 8, exercises: [10, 12, 13, 16], week: 1 },
+    { id: 47, name: 'Funcional C - MetCon', planId: 8, exercises: [12, 2, 7, 16], week: 1 },
+    { id: 48, name: 'Funcional D - Fuerza', planId: 8, exercises: [1, 3, 11, 9], week: 1 },
+    { id: 49, name: 'Funcional E - Cardio', planId: 8, exercises: [7, 12, 16, 4], week: 1 },
+
+    // SALUD GENERAL (Plan 9)
+    { id: 50, name: 'Salud A - Completo', planId: 9, exercises: [1, 6, 9, 8], week: 1 },
+    { id: 51, name: 'Salud B - Movilidad', planId: 9, exercises: [2, 5, 13, 16], week: 1 },
+
+    // CROSSFIT PREPARACIÓN (Plan 10)
+    { id: 52, name: 'CrossFit A - Olimpicos', planId: 10, exercises: [2, 4, 16, 13], week: 1 },
+    { id: 53, name: 'CrossFit B - Gimnásticos', planId: 10, exercises: [10, 12, 9, 8], week: 1 },
+    { id: 54, name: 'CrossFit C - Fuerza', planId: 10, exercises: [1, 3, 6, 11], week: 1 },
+    { id: 55, name: 'CrossFit D - MetCon A', planId: 10, exercises: [12, 7, 4, 16], week: 1 },
+    { id: 56, name: 'CrossFit E - MetCon B', planId: 10, exercises: [2, 9, 12, 13], week: 1 }
   ],
   library: [
     { id: 1, name: 'Sentadilla Barra', type: 'Fuerza', muscle: 'Piernas', video: 'https://www.youtube.com/watch?v=gcNh17Ckjgg', description: '- Mantener la espalda recta en todo momento.\n- Pies a la anchura de los hombros.\n- Rodillas alineadas con la punta de los pies.\n- Bajar hasta que la cadera rompa el paralelo.\n- Empuje explosivo con los talones.', safety: '- Rodilla (evitar valgo/hacia adentro)\n- Lumbar (no arquear bajo carga)\n- Tobillo (mantener talÃ³n pegado)' },
@@ -677,7 +863,9 @@ function renderLibrarySplit() {
 
   sourceList.innerHTML = filtered.map(ex => {
     return `
-        <div class="exercise-item" data-id="${ex.id}" draggable="true">
+        <div class="exercise-item" data-id="${ex.id}" draggable="true" 
+             ondragstart="handleDragStart(event, ${ex.id})" 
+             ondragend="handleDragEnd(event)">
             <div class="exercise-info" style="flex:1;" onclick="addToBuilder(${ex.id})">
                 <h4>${ex.name}</h4>
                 <div class="exercise-tags">
