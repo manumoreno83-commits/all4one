@@ -5,14 +5,14 @@ const defaultState = {
   libMode: 'exercises', // 'exercises' or 'routines'
   exerciseFilter: 'all',
   trainers: [
-    { id: 'Miguel', name: 'Miguel Angel DÃ­az', role: 'Director Deportivo', avatar: 'MAD', photo: './assets/miguel.png' },
-    { id: 'Marta', name: 'Marta CaparrÃ³s', role: 'Directora Deportiva', avatar: 'MC', photo: './assets/marta.png' }
+    { id: 'Miguel', name: 'Miguel Angel Díaz', role: 'Director Deportivo', avatar: 'MAD', photo: './assets/miguel.png' },
+    { id: 'Marta', name: 'Marta Caparrós', role: 'Directora Deportiva', avatar: 'MC', photo: './assets/marta.png' }
   ],
   currentTrainerId: 'Miguel',
   clients: [
-    { id: 101, name: 'Mario Garcia', email: 'mario@gmail.com', trainerId: 'Miguel', plan: 'Hipertrofia Pro', status: 'active', lastActive: 'hace 2h', routines: [1], weeklySchedule: { Monday: 1, Wednesday: 1, Friday: 1 }, joinedDate: '2023-05-12', progress: 75, goal: 'Subir 5kg mÃºsculo', monthlyFee: 60 },
-    { id: 102, name: 'Ana Lopez', email: 'ana@gmail.com', trainerId: 'Marta', plan: 'PÃ©rdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], weeklySchedule: {}, joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa', monthlyFee: 50 },
-    { id: 200, name: 'Manuel Moreno', email: 'manuel.moreno@gmail.com', trainerId: 'Miguel', plan: 'Personalizado', status: 'active', lastActive: 'Ahora', routines: [], weeklySchedule: {}, joinedDate: '2024-01-19', progress: 0, goal: 'DefiniciÃ³n', monthlyFee: 70 },
+    { id: 101, name: 'Mario Garcia', email: 'mario@gmail.com', trainerId: 'Miguel', plan: 'Hipertrofia Pro', status: 'active', lastActive: 'hace 2h', routines: [1], weeklySchedule: { Monday: 1, Wednesday: 1, Friday: 1 }, joinedDate: '2023-05-12', progress: 75, goal: 'Subir 5kg músculo', monthlyFee: 60 },
+    { id: 102, name: 'Ana Lopez', email: 'ana@gmail.com', trainerId: 'Marta', plan: 'Pérdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], weeklySchedule: {}, joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa', monthlyFee: 50 },
+    { id: 200, name: 'Manuel Moreno', email: 'manuel.moreno@gmail.com', trainerId: 'Miguel', plan: 'Personalizado', status: 'active', lastActive: 'Ahora', routines: [], weeklySchedule: {}, joinedDate: '2024-01-19', progress: 0, goal: 'Definición', monthlyFee: 70 },
     { id: 103, name: 'Carlos Ruiz', email: 'carlos@gmail.com', trainerId: 'Miguel', plan: 'Fuerza Funcional', status: 'pending', lastActive: 'hace 1d', routines: [], weeklySchedule: {}, joinedDate: '2024-01-05', progress: 10, goal: 'Mejorar movilidad', monthlyFee: 45 },
   ],
   userRole: null, // 'admin' or 'student'
@@ -510,6 +510,60 @@ function renderAgenda() {
     `).join('');
 }
 
+// Open Add Agenda Modal
+window.openAddAgendaModal = function () {
+  const modal = $('#agenda-modal');
+  if (!modal) return;
+
+  const form = $('#agenda-form');
+  if (form) form.reset();
+
+  modal.classList.add('open');
+}
+
+// Handle Agenda Form Submission
+const agendaFormEl = document.getElementById('agenda-form');
+if (agendaFormEl) {
+  agendaFormEl.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const time = document.getElementById('agenda-time').value;
+    const title = document.getElementById('agenda-title').value;
+    const type = document.getElementById('agenda-type').value;
+
+    if (!time || !title) {
+      alert('Por favor completa todos los campos');
+      return;
+    }
+
+    // Add to agenda
+    if (!state.agenda) state.agenda = [];
+
+    const newEvent = {
+      id: Date.now(),
+      time: time,
+      title: title,
+      type: type,
+      date: new Date().toISOString(),
+      trainerId: state.currentTrainerId
+    };
+
+    state.agenda.push(newEvent);
+    saveState();
+
+    // Close modal and refresh
+    closeModal('agenda-modal');
+    renderAgenda();
+
+    // If calendar is open, refresh it
+    if (window.CalendarModule && document.getElementById('view-calendar').classList.contains('active')) {
+      CalendarModule.render();
+    }
+
+    alert('¡Evento añadido correctamente!');
+  });
+}
+
 
 // --- LIBRARY LOGIC ---
 
@@ -868,6 +922,66 @@ window.openExerciseModal = function (id = null) {
   modal.classList.add('open');
 }
 
+// Open Video Modal
+window.openVideo = function (exId) {
+  const ex = state.library.find(e => e.id === parseInt(exId));
+  if (!ex) return;
+
+  const modal = $('#video-modal');
+  const title = $('#video-modal-title');
+  const player = $('#exercise-video-player');
+  const description = $('#video-exercise-description');
+  const safety = $('#video-exercise-safety');
+
+  if (!modal || !player) return;
+
+  // Set title
+  if (title) title.innerText = ex.name;
+
+  // Convert YouTube URL to embed format
+  let embedUrl = '';
+  if (ex.video) {
+    // Handle different YouTube URL formats
+    if (ex.video.includes('youtube.com/watch?v=')) {
+      const videoId = ex.video.split('v=')[1]?.split('&')[0];
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (ex.video.includes('youtu.be/')) {
+      const videoId = ex.video.split('youtu.be/')[1]?.split('?')[0];
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (ex.video.includes('youtube.com/results')) {
+      // For search results, create a search embed
+      const query = ex.video.split('search_query=')[1];
+      embedUrl = `https://www.youtube.com/embed?listType=search&list=${query}`;
+    } else {
+      embedUrl = ex.video;
+    }
+  }
+
+  // Set video source
+  player.src = embedUrl;
+
+  // Set description
+  if (description) {
+    description.innerHTML = ex.description ? ex.description.replace(/\n/g, '<br>') : 'No hay descripción disponible.';
+  }
+
+  // Set safety info
+  if (safety) {
+    safety.innerHTML = ex.safety ? ex.safety.replace(/\n/g, '<br>') : 'Mantener buena técnica. Parar si hay dolor.';
+  }
+
+  modal.classList.add('open');
+}
+
+// Close video modal and stop video
+window.closeVideoModal = function () {
+  const modal = $('#video-modal');
+  const player = $('#exercise-video-player');
+
+  if (player) player.src = ''; // Stop video
+  if (modal) modal.classList.remove('open');
+}
+
 $('#exercise-form').addEventListener('submit', (e) => {
   e.preventDefault();
   const id = $('#ex-edit-id').value;
@@ -1057,42 +1171,28 @@ window.editClient = function (id) {
 
   form.reset();
 
-  // Populate fields safely
-  const fields = {
-    'name': client.name,
-    'email': client.email,
-    'phone': client.phone || '',
-    'plan': client.plan,
-    'monthlyFee': client.monthlyFee,
-    'goal': client.goal,
-    'weight': client.weight,
-    'height': client.height,
-    'status': client.status
+  // Populate fields using form field names
+  const setField = (name, value) => {
+    const input = form.querySelector(`[name="${name}"]`);
+    if (input && value !== undefined && value !== null) input.value = value;
   };
 
-  for (const [name, val] of Object.entries(fields)) {
-    const input = form.querySelector(`[name="${name}"]`);
-    if (input) input.value = val !== undefined ? val : '';
-  }
+  setField('name', client.name);
+  setField('email', client.email);
+  setField('phone', client.phone || '');
+  setField('plan', client.plan);
+  setField('monthlyFee', client.monthlyFee);
+  setField('goal', client.goal);
+  setField('weight', client.weight);
+  setField('height', client.height);
+  setField('status', client.status);
+  setField('dob', client.age);
+  setField('targetDate', client.targetDate);
 
-  // Handle Dates if ISO/Special
-  if (client.joinedDate) {
-    const dateInp = form.querySelector(`[name="dob"]`); // Assuming dob reused or separate?
-    // Not mapping dob here, focusing on core fields.
-  }
+  // Set hidden ID field
+  setField('id', client.id);
 
-  // Hidden ID
-  let idInput = document.getElementById('edit-client-id-hidden');
-  if (!idInput) {
-    idInput = document.createElement('input');
-    idInput.type = 'hidden';
-    idInput.id = 'edit-client-id-hidden';
-    idInput.name = 'id';
-    form.appendChild(idInput);
-  }
-  idInput.value = client.id;
-
-  // Change title
+  // Change modal title
   const title = $('#new-student-modal .section-header h2');
   if (title) title.innerText = 'Editar Alumno';
 
@@ -1809,7 +1909,21 @@ window.renderAccountingTable = function () {
 }
 
 window.openCreateStudentModal = function () {
-  $('#new-student-form').reset();
+  const form = $('#new-student-form');
+  if (form) form.reset();
+
+  // Remove hidden ID if exists
+  const hiddenId = document.getElementById('edit-client-id-hidden');
+  if (hiddenId) hiddenId.remove();
+
+  // Reset modal title
+  const title = $('#new-student-modal .section-header h2');
+  if (title) title.innerText = 'Nuevo Alumno';
+
+  // Reset button text
+  const btn = $('#new-student-form button[type="submit"]');
+  if (btn) btn.innerText = 'Registrar Alumno';
+
   $('#new-student-modal').classList.add('open');
 }
 
