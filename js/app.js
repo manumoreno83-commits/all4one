@@ -177,8 +177,25 @@ window.loginSimulation = function (role) {
   $('#app').style.display = 'flex';
 
   saveState();
-  if (state.userRole === 'student') renderStudentPortal();
-  else renderAll();
+
+  if (state.userRole === 'student') {
+    // Hide admin navigation for students
+    const bottomNav = $('.bottom-nav');
+    if (bottomNav) bottomNav.style.display = 'none';
+
+    // Hide all admin views
+    $$('.view').forEach(v => v.classList.remove('active'));
+
+    // Show only student portal
+    renderStudentPortal();
+  } else {
+    // Show admin navigation
+    const bottomNav = $('.bottom-nav');
+    if (bottomNav) bottomNav.style.display = 'flex';
+
+    // Render admin dashboard
+    renderAll();
+  }
 }
 
 window.renderStudentDashboard = function () {
