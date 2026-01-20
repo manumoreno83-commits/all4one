@@ -71,8 +71,10 @@ See `DEPLOYMENT_GUIDE.md` for complete instructions.
 
 ## 📊 All Features Working
 
-✅ Director Login (Miguel: 197373, Marta: 1111)
-✅ Student Login (Google simulation)
+✅ **Director Login** (Password-based: Miguel=197373, Marta=1111)
+✅ **Student Login** (Email/Google simulation)
+✅ **Role-Based Access Control** (Students can't see admin features)
+✅ **Logout Functionality** (Visible for both admin and students)
 ✅ Dashboard with stats
 ✅ Client management (CRUD)
 ✅ Exercise library (150+ exercises)
