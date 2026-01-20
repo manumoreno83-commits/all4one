@@ -639,8 +639,8 @@ function renderLibrarySplit() {
 
   sourceList.innerHTML = filtered.map(ex => {
     return `
-        <div class="exercise-item" data-id="${ex.id}" draggable="true" onclick="addToBuilder(${ex.id})">
-            <div class="exercise-info" style="flex:1;">
+        <div class="exercise-item" data-id="${ex.id}" draggable="true">
+            <div class="exercise-info" style="flex:1;" onclick="addToBuilder(${ex.id})">
                 <h4>${ex.name}</h4>
                 <div class="exercise-tags">
                    <span class="tag">${ex.muscle}</span>
@@ -671,8 +671,8 @@ function renderLibrarySplit() {
       const ex = state.library.find(e => e.id === exId);
       if (!ex) return '';
 
-      // Get exercise config (sets, reps, rest)
-      const config = state.builderConfig && state.builderConfig[exId] ? state.builderConfig[exId] : { sets: 3, reps: 10, rest: 60 };
+      // Get exercise config (sets, reps, rest, intensity)
+      const config = state.builderConfig && state.builderConfig[exId] ? state.builderConfig[exId] : { sets: 3, reps: 10, rest: 60, intensity: 75 };
 
       return `
          <div class="builder-item" data-id="${ex.id}" style="cursor:move;">
@@ -680,7 +680,7 @@ function renderLibrarySplit() {
             <div style="flex:1; margin-left:8px;">
                <h4 style="margin:0; font-size:14px;">${ex.name}</h4>
                <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
-                  ${config.sets} series × ${config.reps} reps | ${config.rest}s descanso
+                  ${config.sets} series × ${config.reps} reps | ${config.rest}s${config.intensity && config.intensity !== 75 ? ` | ${config.intensity}% intensidad` : ''}
                </div>
             </div>
             <div style="display:flex; gap:4px;">
@@ -834,10 +834,10 @@ window.addToBuilder = function (exId) {
   if (!state.builder) state.builder = [];
   state.builder.push(exId);
 
-  // Initialize config for this exercise
+  // Initialize config for this exercise with intensity
   if (!state.builderConfig) state.builderConfig = {};
   if (!state.builderConfig[exId]) {
-    state.builderConfig[exId] = { sets: 3, reps: 10, rest: 60 };
+    state.builderConfig[exId] = { sets: 3, reps: 10, rest: 60, intensity: 75 };
   }
 
   renderLibrarySplit();
@@ -862,7 +862,7 @@ window.editBuilderExercise = function (index) {
   if (!ex) return;
 
   if (!state.builderConfig) state.builderConfig = {};
-  const config = state.builderConfig[exId] || { sets: 3, reps: 10, rest: 60 };
+  const config = state.builderConfig[exId] || { sets: 3, reps: 10, rest: 60, intensity: 75 };
 
   const sets = prompt(`Series para "${ex.name}":`, config.sets);
   if (sets === null) return;
@@ -873,10 +873,14 @@ window.editBuilderExercise = function (index) {
   const rest = prompt(`Descanso (segundos) para "${ex.name}":`, config.rest);
   if (rest === null) return;
 
+  const intensity = prompt(`Intensidad (%) para "${ex.name}" (0-100):`, config.intensity);
+  if (intensity === null) return;
+
   state.builderConfig[exId] = {
     sets: parseInt(sets) || 3,
     reps: parseInt(reps) || 10,
-    rest: parseInt(rest) || 60
+    rest: parseInt(rest) || 60,
+    intensity: Math.min(100, Math.max(0, parseInt(intensity) || 75))
   };
 
   renderLibrarySplit();
@@ -943,10 +947,13 @@ window.openExerciseModal = function (id = null) {
   modal.classList.add('open');
 }
 
-// Open Video Modal
+// Open Video Modal - FIXED
 window.openVideo = function (exId) {
   const ex = state.library.find(e => e.id === parseInt(exId));
-  if (!ex) return;
+  if (!ex) {
+    alert('Ejercicio no encontrado');
+    return;
+  }
 
   const modal = $('#video-modal');
   const title = $('#video-modal-title');
@@ -954,7 +961,10 @@ window.openVideo = function (exId) {
   const description = $('#video-exercise-description');
   const safety = $('#video-exercise-safety');
 
-  if (!modal || !player) return;
+  if (!modal) {
+    alert('Modal de video no encontrado');
+    return;
+  }
 
   // Set title
   if (title) title.innerText = ex.name;
@@ -962,27 +972,51 @@ window.openVideo = function (exId) {
   // Convert YouTube URL to embed format
   let embedUrl = '';
   if (ex.video) {
-    // Handle different YouTube URL formats
-    if (ex.video.includes('youtube.com/watch?v=')) {
-      const videoId = ex.video.split('v=')[1]?.split('&')[0];
-      embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    } else if (ex.video.includes('youtu.be/')) {
-      const videoId = ex.video.split('youtu.be/')[1]?.split('?')[0];
-      embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    } else if (ex.video.includes('youtube.com/results')) {
-      // For search results, create a search embed
-      const query = ex.video.split('search_query=')[1];
-      embedUrl = `https://www.youtube.com/embed?listType=search&list=${query}`;
-    } else {
-      embedUrl = ex.video;
+    try {
+      // Handle different YouTube URL formats
+      if (ex.video.includes('youtube.com/watch?v=')) {
+        const videoId = ex.video.split('v=')[1]?.split('&')[0];
+        if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`;
+      } else if (ex.video.includes('youtu.be/')) {
+        const videoId = ex.video.split('youtu.be/')[1]?.split('?')[0];
+        if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`;
+      } else if (ex.video.includes('youtube.com/results') || ex.video.includes('search_query=')) {
+        // For search results, extract query and create search URL
+        const query = ex.video.includes('search_query=') ?
+          ex.video.split('search_query=')[1] :
+          encodeURIComponent(ex.name);
+        // Open in new tab instead of embed for search results
+        window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank');
+        return;
+      } else if (ex.video.includes('youtube.com/embed')) {
+        embedUrl = ex.video;
+      } else {
+        // Assume it's already an embed URL or try to use it directly
+        embedUrl = ex.video;
+      }
+    } catch (e) {
+      console.error('Error parsing video URL:', e);
+      embedUrl = '';
     }
   }
 
   // Set video source
-  player.src = embedUrl;
+  if (player) {
+    if (embedUrl) {
+      player.src = embedUrl;
+      player.style.display = 'block';
+    } else {
+      player.style.display = 'none';
+      if (description) {
+        description.innerHTML = '<p style="color:var(--warning);">⚠️ Video no disponible. <a href="https://www.youtube.com/results?search_query=' +
+          encodeURIComponent(ex.name) + '" target="_blank" style="color:var(--accent-color);">Buscar en YouTube</a></p>' +
+          (ex.description ? '<br>' + ex.description.replace(/\n/g, '<br>') : '');
+      }
+    }
+  }
 
   // Set description
-  if (description) {
+  if (description && embedUrl) {
     description.innerHTML = ex.description ? ex.description.replace(/\n/g, '<br>') : 'No hay descripción disponible.';
   }
 

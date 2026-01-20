@@ -29,11 +29,14 @@ window.CalendarModule = {
 
         let html = `
             <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px;">
-                <button class="icon-btn" onclick="CalendarModule.previousWeek()">
+                <button class="icon-btn" onclick="CalendarModule.previousWeek()" style="padding: 8px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
-                <h3 style="margin: 0;">${this.getWeekLabel(week)}</h3>
-                <button class="icon-btn" onclick="CalendarModule.nextWeek()">
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <h3 style="margin: 0;">${this.getWeekLabel(week)}</h3>
+                    <button class="btn-ghost" onclick="CalendarModule.goToToday()" style="font-size: 12px; padding: 4px 12px;">Hoy</button>
+                </div>
+                <button class="icon-btn" onclick="CalendarModule.nextWeek()" style="padding: 8px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
                 </button>
             </div>
@@ -196,6 +199,12 @@ window.CalendarModule = {
         if (window.openAddAgendaModal) {
             window.openAddAgendaModal();
         }
+    },
+
+
+    goToToday() {
+        this.currentDate = new Date();
+        this.render();
     },
 
     viewEvent(eventId) {
