@@ -5,8 +5,8 @@ const defaultState = {
   libMode: 'exercises', // 'exercises' or 'routines'
   exerciseFilter: 'all',
   trainers: [
-    { id: 'Miguel', name: 'Miguel Angel Díaz', role: 'Director Deportivo', avatar: 'MAD', photo: './assets/miguel.png' },
-    { id: 'Marta', name: 'Marta Caparrós', role: 'Directora Deportiva', avatar: 'MC', photo: './assets/marta.png' }
+    { id: 'Miguel', name: 'Miguel Angel Díaz', role: 'Coach Deportivo', avatar: 'MAD', photo: './assets/miguel.png' },
+    { id: 'Marta', name: 'Marta Caparrós', role: 'Coach Deportiva', avatar: 'MC', photo: './assets/marta.png' }
   ],
   currentTrainerId: 'Miguel',
   clients: [
@@ -122,7 +122,7 @@ window.toggleTrainerSelect = function () {
 window.loginSimulation = function (role) {
   if (role === 'admin') {
     // Ask for password directly - no intermediate step
-    const pwd = prompt('Introduce contraseña de Director:\n\nMiguel = 197373\nMarta = 1111');
+    const pwd = prompt('Introduce contraseña de Coach:\n\nMiguel = 197373\nMarta = 1111');
 
     if (!pwd) return;
 
@@ -412,14 +412,14 @@ if (state.userRole) {
   document.addEventListener('DOMContentLoaded', () => {
     $('#auth-overlay').style.display = 'none';
     $('#app').style.display = 'flex';
-    
+
     if (state.userRole === 'student') {
       // Hide admin elements for students
       const bottomNav = $('.bottom-nav');
       if (bottomNav) bottomNav.style.display = 'none';
       const topAction = $('#global-top-action');
       if (topAction) topAction.style.display = 'none';
-      
+
       renderStudentPortal();
     } else {
       // Show admin elements
@@ -427,7 +427,7 @@ if (state.userRole) {
       if (bottomNav) bottomNav.style.display = 'flex';
       const topAction = $('#global-top-action');
       if (topAction) topAction.style.display = 'block';
-      
+
       renderAll();
     }
   });
