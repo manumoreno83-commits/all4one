@@ -270,6 +270,32 @@ if (typeof window !== 'undefined' && window.NEW_LIBRARY) {
   saveState();
 }
 
+// FORCE SYNC of Plans and Goals if missing or incomplete
+if (!state.trainingPlans || state.trainingPlans.length < 10) {
+  console.log('🔄 Syncing Training Plans...');
+  state.trainingPlans = defaultState.trainingPlans;
+  saveState();
+}
+
+if (!state.availableGoals || state.availableGoals.length < 10) {
+  console.log('🔄 Syncing Goals...');
+  state.availableGoals = defaultState.availableGoals;
+  saveState();
+}
+
+// Sync Routines (Merge new ones)
+if (!state.routines || state.routines.length < defaultState.routines.length) {
+  console.log('🔄 Syncing Routines...');
+  // We want to keep user created routines but ensure defaults are present
+  const existingIds = new Set(state.routines.map(r => r.id));
+  const newRoutines = defaultState.routines.filter(r => !existingIds.has(r.id));
+
+  if (newRoutines.length > 0) {
+    state.routines = [...state.routines, ...newRoutines];
+    saveState();
+  }
+}
+
 function saveState() {
   localStorage.setItem('directorAppState_v4', JSON.stringify(state));
   renderAll();
@@ -388,202 +414,7 @@ window.loginSimulation = function (role) {
   }
 }
 
-window.renderStudentDashboard = function () {
-  const student = state.clients.find(c => c.id === state.currentStudentId);
-  if (!student) return;
-
-  const dashboard = $('#view-dashboard');
-  dashboard.innerHTML = `
-    <div class="section-header">
-       <h2>Hola, ${student.name.split(' ')[0]}</h2>
-       <button class="icon-btn" onclick="logout()" title="Cerrar Sesión" style="color:var(--danger); background:var(--bg-secondary); padding:8px; border-radius:8px;">
-           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-               <polyline points="16 17 21 12 16 7"></polyline>
-               <line x1="21" y1="12" x2="9" y2="12"></line>
-           </svg>
-       </button>
-    </div>
-
-    <div class="card" style="background: linear-gradient(135deg, var(--accent-color), #4F46E5); color:white; margin-bottom:24px;">
-       <h3 style="margin:0; font-size:14px; opacity:0.9;">Plan Actual</h3>
-       <p style="font-size:24px; font-weight:700; margin:4px 0 10px 0;">${student.plan}</p>
-       <div style="display:flex; gap:10px; font-size:12px; background:rgba(0,0,0,0.2); padding:8px 12px; border-radius:8px; width:fit-content;">
-         <span>🎯 ${student.goal || 'Sin meta'}</span>
-       </div>
-    </div>
-
-    <div class="section-header">
-      <h3>Mis Rutinas</h3>
-    </div>
-    
-    <div class="routines-list" style="display:grid; gap:12px;">
-      ${(student.routines && student.routines.length > 0) ?
-      student.routines.map(rId => {
-        const r = state.routines.find(rt => rt.id === rId);
-        if (!r) return '';
-        return `
-              <div class="routine-card" onclick="viewRoutine(${r.id})" style="background:var(--bg-secondary); padding:16px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--bg-tertiary); cursor:pointer;">
-                 <div>
-                    <h4 style="margin:0; font-size:16px;">${r.name}</h4>
-                    <p style="color:var(--text-secondary); font-size:13px; margin:4px 0 0 0;">${r.exercises.length} Ejercicios</p>
-                 </div>
-                 <button class="icon-btn" style="background:var(--accent-color); color:white; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center;">👉</button>
-              </div>
-            `;
-      }).join('')
-      : '<div style="text-align:center; padding:30px; color:var(--text-secondary); background:var(--bg-secondary); border-radius:16px;">No tienes rutinas asignadas aún.</div>'
-    }
-    </div>
-  `;
-}
-
-window.renderStudentPortal = function () {
-  // 1. Adjust Navigation
-  document.querySelectorAll('.nav-item').forEach(el => el.style.display = 'none');
-  document.querySelector('.nav-item-center-wrapper').style.display = 'none'; // distinct from Admin FAB
-
-  // We need student specific nav items. 
-  // For now, let's repurpose the existing "Settings" as "Profile" and "Dashboard" as "My Plan".
-  // Or dynamically allow specific ones.
-  // Let's just show Dashboard (Home) and Settings (Profile).
-
-  // Find Nav Links by matching text or icon or data-target if possible.
-  // Dashboard is usually the first one?
-  // Let's create specific student nav if it doesn't exist, or just use `innerHTML` on nav.
-  const bottomNav = document.querySelector('.bottom-nav');
-  if (bottomNav) {
-    bottomNav.innerHTML = `
-            <a href="#" class="nav-item active" onclick="switchView('view-dashboard')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                Inicio
-            </a>
-            <a href="#" class="nav-item" onclick="switchView('view-student-profile')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                Perfil
-            </a>
-        `;
-  }
-
-  // 2. Render Student Dashboard (Current Plan)
-  // We can reuse the main dashboard but filter for the student.
-  // Or switchView to 'view-student-dashboard' if we had one. 
-  // Let's reuse 'view-dashboard' but customize content in `renderAll`? 
-  // `renderAll` updates dashboard stats.
-  // Let's just switchView('view-dashboard') and let renderAll handle the content diffs based on role.
-
-  // 3. Render Profile View
-  // We need to inject the Profile View HTML if it doesn't exist.
-  let profileView = document.getElementById('view-student-profile');
-  if (!profileView) {
-    profileView = document.createElement('section');
-    profileView.id = 'view-student-profile';
-    profileView.className = 'view';
-    document.getElementById('app').appendChild(profileView);
-  }
-
-  renderStudentProfile();
-  renderStudentDashboard();
-  switchView('view-dashboard');
-}
-
-window.renderStudentProfile = function () {
-  const student = state.clients.find(c => c.id === state.currentStudentId);
-  if (!student) return;
-
-  const profileView = document.getElementById('view-student-profile');
-  profileView.innerHTML = `
-        <div class="section-header">
-            <h2>Mi Perfil</h2>
-            <button class="icon-btn" onclick="logout()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            </button>
-        </div>
-        
-        <div class="scroll-area" style="padding-bottom:80px;">
-            <div class="client-hero" style="position:relative;">
-                <div class="avatar-large" style="background-image:url('${student.photo || ''}'); background-size:cover; background-position:center;">
-                    ${student.photo ? '' : student.name.charAt(0)}
-                </div>
-                <!-- Photo Upload simulation -->
-                <button class="icon-btn" onclick="updateStudentPhoto()" style="position:absolute; bottom:20px; right:calc(50% - 50px); background:var(--accent-color); color:white; border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.5);">
-                    ??
-                </button>
-
-                <h2 style="margin-top:10px;">${student.name}</h2>
-                <p style="color:var(--text-secondary)">${student.plan}</p>
-            </div>
-
-            <form id="student-bio-form" onsubmit="saveStudentBio(event)" style="padding:20px;">
-                <div class="form-section">
-                    <h4>Datos BiomÃ©tricos</h4>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Edad</label>
-                            <input type="number" name="age" value="${student.age || ''}" placeholder="Ej. 30">
-                        </div>
-                        <div class="form-group">
-                            <label>Peso (kg)</label>
-                            <input type="number" name="weight" value="${student.weight || ''}" placeholder="Ej. 75">
-                        </div>
-                        <div class="form-group">
-                            <label>Altura (cm)</label>
-                            <input type="number" name="height" value="${student.height || ''}" placeholder="Ej. 180">
-                        </div>
-                        <div class="form-group">
-                             <label>Grasa %</label>
-                             <input type="number" name="bodyFat" value="${student.bodyFat || ''}" placeholder="Ej. 15">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h4>InformaciÃ³n Personal</h4>
-                    <div class="form-group full-width">
-                        <label>Lesiones o Molestias</label>
-                        <textarea name="injuries" rows="3" style="width:100%; background:var(--bg-primary); border:1px solid var(--bg-tertiary); color:white; border-radius:8px; padding:12px;">${student.injuries || ''}</textarea>
-                    </div>
-                    <div class="form-group full-width">
-                         <label>Objetivo Personal</label>
-                         <input type="text" name="goal" value="${student.goal || ''}">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-primary" style="width:100%; margin-top:10px;">Guardar Cambios</button>
-            </form>
-        </div>
-    `;
-}
-
-window.updateStudentPhoto = function () {
-  const url = prompt("Introduce la URL de tu nueva foto de perfil:");
-  if (url) {
-    const student = state.clients.find(c => c.id === state.currentStudentId);
-    if (student) {
-      student.photo = url;
-      saveState();
-      renderStudentProfile();
-    }
-  }
-}
-
-window.saveStudentBio = function (e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const student = state.clients.find(c => c.id === state.currentStudentId);
-
-  if (student) {
-    student.age = formData.get('age');
-    student.weight = formData.get('weight');
-    student.height = formData.get('height');
-    student.bodyFat = formData.get('bodyFat');
-    student.injuries = formData.get('injuries');
-    student.goal = formData.get('goal');
-
-    saveState();
-    alert('Perfil actualizado correctamente');
-  }
-}
+// Duplicate Student Portal Logic Removed - Using implementation at line 1840
 
 
 
@@ -632,54 +463,7 @@ window.handleGlobalAction = function () {
 }
 
 // Edit Client (Admin)
-window.editClient = function (id) {
-  const client = state.clients.find(c => c.id === id);
-  if (!client) return;
-
-  // Reuse Create Modal but could be cleaner to have separate.
-  // We'll pre-fill the form.
-  const form = $('#new-student-form');
-  form.reset();
-
-  // Fill fields
-  // Assuming inputs have name attributes matching properties or IDs
-  // We need to match manually or via loop if names match
-  const map = {
-    'name': client.name,
-    'email': client.email,
-    'phone': client.phone || '',
-    'plan': client.plan,
-    'fee': client.monthlyFee,
-    'goal': client.goal,
-    'dob': client.age, // Stored differently in previous step logic?
-    'weight': client.weight,
-    'height': client.height
-  };
-
-  for (let key in map) {
-    const input = form.querySelector(`[name="${key}"]`);
-    if (input) input.value = map[key];
-  }
-
-  // Status
-  const statusSelect = form.querySelector('select[name="status"]');
-  if (statusSelect) statusSelect.value = client.status;
-
-  // Change title and behavior (Tricky with current setup, we might overwrite CREATE logic)
-  // Better to have a unified save logic that checks for existing ID or hidden ID field.
-  // Let's add a hidden ID field to the modal.
-  let idInput = document.getElementById('edit-client-id-hidden');
-  if (!idInput) {
-    idInput = document.createElement('input');
-    idInput.type = 'hidden';
-    idInput.id = 'edit-client-id-hidden';
-    idInput.name = 'id';
-    form.appendChild(idInput);
-  }
-  idInput.value = client.id;
-
-  $('#new-student-modal').classList.add('open');
-}
+// Duplicate editClient removed
 
 // Update the Submit Handler to handle Edit
 const originalSubmit = $('#new-student-form').onsubmit;
@@ -693,20 +477,7 @@ const originalSubmit = $('#new-student-form').onsubmit;
 // We need to modify the appended handler to check for `formData.get('id')`.
 
 // Agenda Logic
-window.openAddAgendaModal = () => $('#agenda-modal').classList.add('open');
-$('#agenda-form').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const time = $('#agenda-time').value;
-  const title = $('#agenda-title').value;
-  const type = $('#agenda-type').value;
-
-  // Appended logic handles this differently? 
-  // Line 354: This seems to be the OLD agenda handler.
-  // The NEW handler was appended at the end of the file (Step 271).
-  // I should remove this OLD handler to avoid double submission or conflict.
-
-  // Wait, I will COMMENT OUT this old handler block to avoid conflicts.
-});
+// Old agenda handler removed
 
 /* Old Agenda Handler commented out
 $('#agenda-form').addEventListener('submit', (e) => {
@@ -756,65 +527,10 @@ window.openAddAgendaModal = function () {
   modal.classList.add('open');
 }
 
-// Handle Agenda Form Submission
-const agendaFormEl = document.getElementById('agenda-form');
-if (agendaFormEl) {
-  agendaFormEl.addEventListener('submit', (e) => {
-    e.preventDefault();
 
-    const time = document.getElementById('agenda-time').value;
-    const title = document.getElementById('agenda-title').value;
-    const type = document.getElementById('agenda-type').value;
-    const dateInput = document.getElementById('agenda-date');
+// Handle Agenda Form Submission (Deprecated - Removed duplicate)
+// logic consolidated in appended block
 
-    if (!time || !title) {
-      alert('Por favor completa todos los campos');
-      return;
-    }
-
-    // Add to agenda
-    if (!state.agenda) state.agenda = [];
-
-    const eventDate = dateInput && dateInput.value ? new Date(dateInput.value) : new Date();
-
-    const newEvent = {
-      id: Date.now(),
-      time: time,
-      title: title,
-      type: type,
-      date: eventDate.toISOString(),
-      trainerId: state.currentTrainerId
-    };
-
-    state.agenda.push(newEvent);
-
-    // Also add to scheduledSessions if it's a training or review
-    if (type === 'Entrenamiento' || type === 'Revisión') {
-      if (!state.scheduledSessions) state.scheduledSessions = [];
-      state.scheduledSessions.push({
-        id: newEvent.id,
-        date: eventDate.toISOString().split('T')[0],
-        time: time,
-        clientName: title,
-        notes: type,
-        status: 'pending'
-      });
-    }
-
-    saveState();
-
-    // Close modal and refresh
-    closeModal('agenda-modal');
-    renderAgenda();
-
-    // If calendar is open, refresh it
-    if (window.CalendarModule && document.getElementById('view-calendar').classList.contains('active')) {
-      CalendarModule.render();
-    }
-
-    alert('¡Evento añadido correctamente!');
-  });
-}
 
 
 // --- LIBRARY LOGIC ---
@@ -1397,7 +1113,11 @@ window.openClientDetail = function (id) {
            </div>
            <div class="avatar-large">${client.name.charAt(0)}</div>
            <h2>${client.name}</h2>
-           <p style="color:var(--accent-color)">${client.plan}</p>
+           
+           <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px;">
+             <p style="color:var(--accent-color); margin:0;">${client.plan}</p>
+             <button class="icon-btn" style="width:24px; height:24px; padding:4px;" onclick="quickEditStudentPlan(${client.id})" title="Editar Plan">✏️</button>
+           </div>
            
            <div class="mini-stats-row" style="display:flex; justify-content:center; gap:20px; margin-top:12px;">
               <div style="text-align:center;">
@@ -1413,7 +1133,10 @@ window.openClientDetail = function (id) {
            <!-- Goal Bar -->
            <div style="padding:0 20px; margin-top:20px;">
               <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
-                  <span style="color:var(--text-secondary)">OBJETIVO: ${client.goal || 'No definido'}</span>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                      <span style="color:var(--text-secondary)">OBJETIVO: ${client.goal || 'No definido'}</span>
+                      <button class="icon-btn" style="width:20px; height:20px; padding:2px;" onclick="quickEditStudentGoal(${client.id})" title="Editar Objetivo">✏️</button>
+                  </div>
                   <span style="color:var(--text-secondary)">${client.targetDate ? `📅 ${new Date(client.targetDate).toLocaleDateString()}` : ''}</span>
               </div>
               <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
