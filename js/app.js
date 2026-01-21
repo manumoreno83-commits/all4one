@@ -300,7 +300,15 @@ function saveState() {
   if (state.currentView === 'view-dashboard') updateDashboardStats();
 }
 
-// ... (Selectors and other code remains)
+// Selectors
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => document.querySelectorAll(selector);
+
+// EXPOSE TO WINDOW FOR INLINE HANDLERS
+window.$ = $;
+window.$$ = $$;
+
+// Navigation
 
 // --- SORTABLE LOGIC ---
 function initSortables() {

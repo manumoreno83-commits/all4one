@@ -416,10 +416,15 @@
             <div class="home-header" style="text-align: center; margin-bottom: 25px;">
                 <div class="logo-circle"
                     style="width: 80px; height: 80px; background: black; border-radius: 50%; margin: 0 auto 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #333;">
-                    <div style="font-size: 10px; font-weight: 700; letter-spacing: 1px;">LA ROCA</div>
-                    <div style="font-size: 8px; color: #888;">CLUB</div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M6.5 6.5h11a1.5 1.5 0 0 1 1.5 1.5v11a1.5 1.5 0 0 1-1.5 1.5h-11a1.5 1.5 0 0 1-1.5-1.5v-11a1.5 1.5 0 0 1 1.5-1.5z">
+                        </path>
+                        <path d="M6 10l5 5 7-7"></path>
+                    </svg>
                 </div>
-                <h2 style="font-size: 20px; color: white; margin: 0;">La Roca Club</h2>
+                <h2 style="font-size: 20px; color: white; margin: 0;">Fitness Club</h2>
             </div>
 
             <div class="quick-actions-grid"
@@ -1276,6 +1281,116 @@
             </div>
         </div>
 
+        <!-- Navigation Bar (Mobile) -->
+        <nav class="bottom-nav">
+            <!-- Student Nav -->
+            <a href="#" class="nav-item nav-student" data-target="view-student-home"
+                onclick="if(state.userRole==='student') switchView('view-student-home');">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>Inicio</span>
+            </a>
+            <a href="#" class="nav-item nav-student" data-target="view-library"
+                onclick="if(state.userRole==='student') { switchView('view-library'); setLibMode('routines'); }">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                    <line x1="6" y1="1" x2="6" y2="4"></line>
+                    <line x1="10" y1="1" x2="10" y2="4"></line>
+                    <line x1="14" y1="1" x2="14" y2="4"></line>
+                </svg>
+                <span>Entrenos</span>
+            </a>
+            <a href="#" class="nav-item nav-student" data-target="view-client-detail"
+                onclick="if(state.userRole==='student') openClientDetail(state.currentStudentId);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Perfil</span>
+            </a>
+            <a href="#" class="nav-item nav-student" data-target="view-student-menu"
+                onclick="if(state.userRole==='student') switchView('view-student-menu');">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+                <span>Menú</span>
+            </a>
+
+            <!-- Admin Nav -->
+            <a href="#" class="nav-item nav-admin active" data-target="view-dashboard"
+                onclick="switchView('view-dashboard')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Inicio</span>
+            </a>
+            <a href="#" class="nav-item nav-admin" data-target="view-clients" onclick="switchView('view-clients')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>Alumnos</span>
+            </a>
+
+            <div class="nav-fab-container nav-admin">
+                <button class="nav-fab" onclick="document.querySelector('.fab-menu').classList.toggle('active')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+                <div class="fab-menu">
+                    <button onclick="openCreateStudentModal()">
+                        <span>Nuevo Alumno</span>
+                    </button>
+                    <button onclick="switchView('view-library'); setLibMode('routines');">
+                        <span>Nueva Rutina</span>
+                    </button>
+                    <button onclick="openAddAgendaModal()">
+                        <span>Agendar</span>
+                    </button>
+                    <button onclick="$('#accounting-modal').classList.add('open'); renderAccountingTable();">
+                        <span>Contabilidad</span>
+                    </button>
+                </div>
+            </div>
+
+            <a href="#" class="nav-item nav-admin" data-target="view-calendar" onclick="switchView('view-calendar')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>Agenda</span>
+            </a>
+            <a href="#" class="nav-item nav-admin" data-target="view-library" onclick="switchView('view-library')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                <span>Biblioteca</span>
+            </a>
+        </nav>
     </div>
     <script src="./js/library_db.js"></script>
     <script src="./js/calendar.js"></script>
