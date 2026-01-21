@@ -283,29 +283,117 @@ if (!state.availableGoals || state.availableGoals.length < 10) {
   saveState();
 }
 
-// Sync Routines (Merge new ones)
-if (!state.routines || state.routines.length < defaultState.routines.length) {
-  console.log('🔄 Syncing Routines...');
-  // We want to keep user created routines but ensure defaults are present
-  const existingIds = new Set(state.routines.map(r => r.id));
-  const newRoutines = defaultState.routines.filter(r => !existingIds.has(r.id));
+// Sync Routines (Merge new ones) - ALWAYS CHECK to ensure all default routines exist
+if (!state.routines) state.routines = [];
+const existingIds = new Set(state.routines.map(r => r.id));
+const newRoutines = defaultState.routines.filter(r => !existingIds.has(r.id));
 
-  if (newRoutines.length > 0) {
-    state.routines = [...state.routines, ...newRoutines];
-    saveState();
-  }
+if (newRoutines.length > 0) {
+  console.log(`🔄 Syncing ${newRoutines.length} missing routines...`);
+  state.routines = [...state.routines, ...newRoutines];
+  saveState();
 }
 
 function saveState() {
   localStorage.setItem('directorAppState_v4', JSON.stringify(state));
-  renderAll();
+  // Render updates if we are in a view that needs it
+  if (state.currentView === 'view-dashboard') updateDashboardStats();
 }
 
-// Selectors
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => document.querySelectorAll(selector);
+// ... (Selectors and other code remains)
 
-// Navigation
+// --- SORTABLE LOGIC ---
+function initSortables() {
+  const sourceEl = $('#library-source-list');
+  const builderEl = $('#routine-builder-dropzone');
+  const chipContainer = $('#lib-filter-chips');
+
+  // Filter Chips Sortable
+  if (chipContainer && !chipContainer.sortable) {
+    new Sortable(chipContainer, {
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      delay: 100, // Reduced delay for better feel
+      delayOnTouchOnly: true,
+      touchStartThreshold: 5,
+      direction: 'horizontal',
+      onEnd: function (evt) {
+        const newOrder = [];
+        chipContainer.querySelectorAll('.filter-chip').forEach(chip => {
+          newOrder.push(chip.innerText);
+        });
+        state.filterOrder = newOrder;
+        saveState();
+      }
+    });
+    chipContainer.sortable = true;
+  }
+
+  if (!sourceEl || !builderEl) return;
+
+  // Source List (Draggable Source)
+  if (!sourceEl.sortable) {
+    sourceEl.sortable = new Sortable(sourceEl, {
+      group: {
+        name: 'shared',
+        pull: 'clone', // To clone items to builder
+        put: false // Do not allow drops here
+      },
+      sort: false, // Do not allow sorting inside library
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      delay: 200,
+      delayOnTouchOnly: true,
+      touchStartThreshold: 5,
+      forceFallback: true, // IMPORTANT for Mobile
+      fallbackClass: 'sortable-fallback',
+      onStart: function (evt) {
+        // Vibration feedback if supported
+        if (navigator.vibrate) navigator.vibrate(50);
+      }
+    });
+  }
+
+  // Builder List (Drop Target)
+  if (!builderEl.sortable) {
+    builderEl.sortable = new Sortable(builderEl, {
+      group: 'shared',
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      delay: 200,
+      delayOnTouchOnly: true,
+      touchStartThreshold: 5,
+      forceFallback: true, // IMPORTANT for Mobile
+      fallbackClass: 'sortable-fallback',
+      onAdd: function (evt) {
+        const itemEl = evt.item; // The dragged element
+        const id = parseInt(itemEl.dataset.id);
+        // Remove the dragged DOM element because renderLibrarySplit will re-render everything cleanly
+        itemEl.remove(); // Clean up the clone
+
+        addToBuilder(id); // Update state and re-render
+      },
+      onUpdate: function (evt) {
+        // Handle Reordering
+        const exerciseIds = [];
+        builderEl.querySelectorAll('.builder-item').forEach(el => {
+          exerciseIds.push(parseInt(el.dataset.id));
+        });
+
+        // Reconstruct builder state based on new order
+        // We need to preserve duplicates if any, but our map above just takes IDs.
+        // Wait, builder state is [id, id, id]. 
+        // But if we have duplicates in builder, querySelectorAll might be tricky if we don't have unique IDs per instance.
+        // The current builder-item implementation uses `data-id="${ex.id}"` which is the EXERCISE ID.
+        // If I have 2 Squats, they have same ID. 
+        // This sorting logic works if we just grab IDs in order.
+        state.builder = exerciseIds;
+        saveState();
+        // renderLibrarySplit(); // Optional: re-render to ensure indices are correct
+      }
+    });
+  }
+}
 
 // Navigation
 // Navigation
