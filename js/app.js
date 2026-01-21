@@ -308,6 +308,7 @@ const $$ = (selector) => document.querySelectorAll(selector);
 // Navigation
 
 // Navigation
+// Navigation
 function switchView(targetId) {
   state.currentView = targetId;
 
@@ -321,14 +322,16 @@ function switchView(targetId) {
     view.classList.toggle('active', view.id === targetId);
   });
 
-  if (targetId === 'view-dashboard') updateDashboardStats();
-  if (targetId === 'view-calendar') renderCalendar();
-  if (targetId === 'view-checkins') renderCheckins();
-  if (targetId === 'view-clients') renderClients(); // Corrected from renderClientList
-  if (targetId === 'view-library') renderLibrarySplit();
-  if (targetId === 'view-settings') _initSettings(); // Assuming this exists or will exist
-  // if (targetId === 'view-student-home'); // Already rendered static HTML + dynamic parts if needed
-  // if (targetId === 'view-student-menu'); // Already rendered static HTML
+  try {
+    if (targetId === 'view-dashboard' && typeof updateDashboardStats === 'function') updateDashboardStats();
+    if (targetId === 'view-calendar' && typeof renderCalendar === 'function') renderCalendar();
+    if (targetId === 'view-checkins' && typeof renderCheckins === 'function') renderCheckins();
+    if (targetId === 'view-clients' && typeof renderClients === 'function') renderClients();
+    if (targetId === 'view-library' && typeof renderLibrarySplit === 'function') renderLibrarySplit();
+    if (targetId === 'view-settings' && typeof _initSettings === 'function') _initSettings();
+  } catch (err) {
+    console.error('View render error:', err);
+  }
 
   // Scroll Top
   const content = $('#main-content');
@@ -341,62 +344,79 @@ window.toggleTrainerSelect = function () {
   loginSimulation('admin');
 }
 
+// Stub for checkins if missing
+if (typeof renderCheckins === 'undefined') {
+  window.renderCheckins = function () { console.log('renderCheckins not implemented'); };
+}
 
 window.loginSimulation = function (role) {
-  if (role === 'admin') {
-    const pwd = prompt('Introduce contraseña de Coach:\n\nMiguel = 197373\nMarta = 1111');
-    if (!pwd) return;
+  try {
+    // Safety check for empty state
+    if (!state.clients) state.clients = defaultState.clients;
+    if (!state.trainers) state.trainers = defaultState.trainers;
 
-    let trainer = null;
-    if (pwd === '197373') trainer = state.trainers.find(t => t.id === 'Miguel');
-    else if (pwd === '1111') trainer = state.trainers.find(t => t.id === 'Marta');
-    else { alert('Contraseña incorrecta'); return; }
+    if (role === 'admin') {
+      const pwd = prompt('Introduce contraseña de Coach:\n\nMiguel = 197373\nMarta = 1111');
+      if (!pwd) return;
 
-    if (!trainer) { alert('Error: Entrenador no encontrado'); return; }
+      let trainer = null;
+      if (pwd === '197373') trainer = state.trainers.find(t => t.id === 'Miguel');
+      else if (pwd === '1111') trainer = state.trainers.find(t => t.id === 'Marta');
+      else { alert('Contraseña incorrecta'); return; }
 
-    state.userRole = 'admin';
-    state.currentTrainerId = trainer.id;
-    state.currentStudentId = null;
+      if (!trainer) { alert('Error: Entrenador no encontrado'); return; }
 
-    document.body.classList.remove('role-student');
-    document.body.classList.add('role-admin');
+      state.userRole = 'admin';
+      state.currentTrainerId = trainer.id;
+      state.currentStudentId = null;
 
-  } else {
-    // Student login
-    const email = prompt("Introduce tu email de Google (Simulación):", "manuel.moreno@gmail.com");
-    if (!email) return;
+      document.body.classList.remove('role-student');
+      document.body.classList.add('role-admin');
 
-    const student = state.clients.find(c => c.email && c.email.toLowerCase() === email.toLowerCase());
-    if (!student) {
-      alert("No se ha encontrado ninguna cuenta con este email. Por favor, pide a tu entrenador que te dé de alta primero.");
-      return;
+    } else {
+      // Student login
+      const email = prompt("Introduce tu email de Google (Simulación):", "manuel.moreno@gmail.com");
+      if (!email) return;
+
+      // Ensure case insensitive comparison
+      const student = state.clients.find(c => c.email && c.email.toLowerCase().trim() === email.toLowerCase().trim());
+      if (!student) {
+        alert("No se ha encontrado ninguna cuenta con este email. Por favor, pide a tu entrenador que te dé de alta primero.");
+        return;
+      }
+
+      if (student.status === 'inactive') {
+        alert('Tu cuenta está inactiva. Contacta con tu entrenador.');
+        return;
+      }
+
+      state.userRole = 'student';
+      state.currentStudentId = student.id;
+      state.currentTrainerId = student.trainerId;
+
+      document.body.classList.remove('role-admin');
+      document.body.classList.add('role-student');
     }
 
-    if (student.status === 'inactive') {
-      alert('Tu cuenta está inactiva. Contacta con tu entrenador.');
-      return;
+    const authOverlay = $('#auth-overlay');
+    const app = $('#app');
+    if (authOverlay) authOverlay.style.display = 'none';
+    if (app) app.style.display = 'flex';
+
+    saveState();
+
+    if (state.userRole === 'student') {
+      // Student Default View
+      switchView('view-student-home');
+    } else {
+      // Admin Default View
+      switchView('view-dashboard');
+      // Check if renderAll exists
+      if (typeof renderAll === 'function') renderAll();
     }
-
-    state.userRole = 'student';
-    state.currentStudentId = student.id;
-    state.currentTrainerId = student.trainerId;
-
-    document.body.classList.remove('role-admin');
-    document.body.classList.add('role-student');
-  }
-
-  $('#auth-overlay').style.display = 'none';
-  $('#app').style.display = 'flex';
-
-  saveState();
-
-  if (state.userRole === 'student') {
-    // Student Default View
-    switchView('view-student-home');
-  } else {
-    // Admin Default View
-    switchView('view-dashboard');
-    renderAll();
+  } catch (e) {
+    alert("Error en login: " + e.message);
+    console.error(e);
   }
 }
 
