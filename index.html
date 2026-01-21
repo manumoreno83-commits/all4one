@@ -391,9 +391,422 @@
 
         </main>
 
-        <!-- Bottom Navigation -->
+        <!-- STUDENT: Home View (Inicio) -->
+        <section id="view-student-home" class="view">
+            <div class="search-bar" style="margin-bottom: 20px; border: 1px solid #333; background: #000;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" placeholder="Buscar..." style="color: white;" />
+                <div style="margin-left: auto; display: flex; gap: 15px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                        <line x1="4" y1="22" x2="4" y2="15"></line>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="home-header" style="text-align: center; margin-bottom: 25px;">
+                <div class="logo-circle"
+                    style="width: 80px; height: 80px; background: black; border-radius: 50%; margin: 0 auto 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #333;">
+                    <div style="font-size: 10px; font-weight: 700; letter-spacing: 1px;">LA ROCA</div>
+                    <div style="font-size: 8px; color: #888;">CLUB</div>
+                </div>
+                <h2 style="font-size: 20px; color: white; margin: 0;">La Roca Club</h2>
+            </div>
+
+            <div class="quick-actions-grid"
+                style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 30px; text-align: center;">
+                <div class="action-item">
+                    <div class="icon-box" style="margin-bottom: 5px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                            stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </div>
+                    <span style="font-size: 12px; color: #888;">Agenda</span>
+                </div>
+                <div class="action-item">
+                    <div class="icon-box" style="margin-bottom: 5px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                            stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <span style="font-size: 12px; color: #888;">Reservas</span>
+                </div>
+                <div class="action-item">
+                    <div class="icon-box" style="margin-bottom: 5px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                            stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                            <path d="M8 14h.01"></path>
+                            <path d="M12 14h.01"></path>
+                            <path d="M16 14h.01"></path>
+                            <path d="M8 18h.01"></path>
+                            <path d="M12 18h.01"></path>
+                            <path d="M16 18h.01"></path>
+                        </svg>
+                    </div>
+                    <span style="font-size: 12px; color: #888;">Horario</span>
+                </div>
+                <div class="action-item">
+                    <div class="icon-box" style="margin-bottom: 5px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                            stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                    </div>
+                    <span style="font-size: 12px; color: #888;">Tienda</span>
+                </div>
+            </div>
+
+            <div class="social-banner"
+                style="background: white; border-radius: 8px; padding: 15px; margin-bottom: 25px; color: black; position: relative;">
+                <div style="font-weight: 500; margin-bottom: 10px;">¡Descubre nuestras redes sociales!</div>
+                <div style="display: flex; gap: 15px;">
+                    <div
+                        style="width: 40px; height: 40px; background: #25D366; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"
+                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div
+                        style="width: 40px; height: 40px; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </div>
+                </div>
+                <button
+                    style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 18px; color: #999;">×</button>
+            </div>
+
+            <div class="store-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: 700; color: #888; letter-spacing: 1px;">TIENDA ONLINE
+                    </h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#5BC0DE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </div>
+
+                <div style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px;">
+                    <!-- Product 1 -->
+                    <div style="min-width: 160px; background: white; border-radius: 4px; padding: 10px; color: black;">
+                        <div
+                            style="height: 140px; background: #eee; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; position: relative;">
+                            <img src="./assets/tshirt.png" style="max-height: 100%; max-width: 100%;" alt="Camiseta">
+                            <span
+                                style="position: absolute; bottom: 5px; left: 5px; background: #007bff; color: white; font-size: 10px; padding: 2px 5px; font-weight: 700;">REBAJAS</span>
+                            <span
+                                style="position: absolute; bottom: 5px; right: 5px; background: #dc3545; color: white; font-size: 10px; padding: 2px 5px; font-weight: 700;">-27%</span>
+                        </div>
+                        <div style="font-size: 12px; color: #dc3545; font-weight: 600; margin-bottom: 2px;">¡Ahorra
+                            5.39€!</div>
+                        <div style="margin-bottom: 5px;">
+                            <span style="font-size: 16px; font-weight: 800;">14.56 €</span>
+                            <span style="font-size: 12px; color: #999; text-decoration: line-through;">19.95€</span>
+                        </div>
+                        <div style="font-size: 11px; font-weight: 600; line-height: 1.3;">CAMISETA CHICA NUEVA
+                            COLECCIÓN BENALMÁDENA</div>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div style="min-width: 160px; background: white; border-radius: 4px; padding: 10px; color: black;">
+                        <div
+                            style="height: 140px; background: #eee; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; position: relative;">
+                            <img src="./assets/wristband.png" style="max-height: 100%; max-width: 100%;"
+                                alt="Muñequera">
+                            <span
+                                style="position: absolute; bottom: 5px; left: 5px; background: #007bff; color: white; font-size: 10px; padding: 2px 5px; font-weight: 700;">REBAJAS</span>
+                            <span
+                                style="position: absolute; bottom: 5px; right: 5px; background: #dc3545; color: white; font-size: 10px; padding: 2px 5px; font-weight: 700;">-27%</span>
+                        </div>
+                        <div style="font-size: 12px; color: #dc3545; font-weight: 600; margin-bottom: 2px;">¡Ahorra
+                            4.02€!</div>
+                        <div style="margin-bottom: 5px;">
+                            <span style="font-size: 16px; font-weight: 800;">10.88 €</span>
+                            <span style="font-size: 12px; color: #999; text-decoration: line-through;">14.90€</span>
+                        </div>
+                        <div style="font-size: 11px; font-weight: 600; line-height: 1.3;">MUÑEQUERA VELCRO</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STUDENT: Menu View (La Roca Style) -->
+        <section id="view-student-menu" class="view" style="padding: 0;">
+            <div class="menu-header"
+                style="background: black; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333;">
+                <div style="flex: 1;"></div> <!-- Spacer -->
+                <h2 style="color: white; font-size: 18px; margin: 0; font-weight: 600;">Menú</h2>
+                <div style="flex: 1; display: flex; justify-content: flex-end; gap: 15px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                        <line x1="4" y1="22" x2="4" y2="15"></line>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="menu-list" style="background: white;">
+                <!-- Mensajes -->
+                <div class="menu-item" onclick="alert('Funcionalidad de Mensajes próximamente')"
+                    style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; cursor: pointer;">
+                    <div style="margin-right: 15px; color: #5BC0DE;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                            </path>
+                        </svg>
+                    </div>
+                    <span style="font-size: 16px; color: #333; font-weight: 500; flex: 1;">Mensajes</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <!-- Ranking -->
+                <div class="menu-item" onclick="alert('Ranking próximamente')"
+                    style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; cursor: pointer;">
+                    <div style="margin-right: 15px; color: #F0AD4E;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                            <path d="M4 22h16"></path>
+                            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                        </svg>
+                    </div>
+                    <span style="font-size: 16px; color: #333; font-weight: 500; flex: 1;">Ranking</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <!-- Timer -->
+                <div class="menu-item" onclick="alert('Timer próximamente')"
+                    style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; cursor: pointer; margin-bottom: 20px;">
+                    <div style="margin-right: 15px; color: #5BC0DE;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <span style="font-size: 16px; color: #333; font-weight: 500; flex: 1;">Timer</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <!-- SECTION: EVOLUCIÓN Y ÚLTIMAS MARCAS -->
+                <div
+                    style="padding: 10px 20px; background: #f5f5f5; color: #999; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                    Evolución y Últimas Marcas</div>
+
+                <!-- Calendario -->
+                <div class="menu-item" onclick="switchView('view-calendar')"
+                    style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; cursor: pointer;">
+                    <div style="margin-right: 15px; color: #D9534F;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </div>
+                    <span style="font-size: 16px; color: #333; font-weight: 500; flex: 1;">Calendario</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <!-- Mis máximas -->
+                <div class="menu-item" onclick="alert('Mis máximas próximamente')"
+                    style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; cursor: pointer;">
+                    <div style="margin-right: 15px; color: #F0AD4E;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="8" r="7"></circle>
+                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                        </svg>
+                    </div>
+                    <span style="font-size: 16px; color: #333; font-weight: 500; flex: 1;">Mis máximas</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <!-- Evolución física -->
+                <div class="menu-item" onclick="alert('Evolución física próximamente')"
+                    style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; cursor: pointer; margin-bottom: 20px;">
+                    <div style="margin-right: 15px; color: #0275D8;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                            <line x1="16" y1="8" x2="2" y2="22"></line>
+                            <line x1="17.5" y1="15" x2="9" y2="15"></line>
+                        </svg>
+                    </div>
+                    <span style="font-size: 16px; color: #333; font-weight: 500; flex: 1;">Evolución física</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <!-- SECTION: TÉCNICA -->
+                <div
+                    style="padding: 10px 20px; background: #f5f5f5; color: #999; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                    Técnica</div>
+
+                <!-- Librería de ejercicios -->
+                <div class="menu-item" onclick="switchView('view-library')"
+                    style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; cursor: pointer;">
+                    <div style="margin-right: 15px; color: #5E35B1;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                    </div>
+                    <span style="font-size: 16px; color: #333; font-weight: 500; flex: 1;">Librería de
+                        ejercicios</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <!-- Mis vídeos -->
+                <div class="menu-item" onclick="alert('Mis vídeos próximamente')"
+                    style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; cursor: pointer; margin-bottom: 20px;">
+                    <div style="margin-right: 15px; color: #D32F2F;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                        </svg>
+                    </div>
+                    <span style="font-size: 16px; color: #333; font-weight: 500; flex: 1;">Mis vídeos</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <!-- SECTION: PREFERENCIAS -->
+                <div
+                    style="padding: 10px 20px; background: #f5f5f5; color: #999; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                    Preferencias y Privacidad</div>
+
+                <!-- Ajustes -->
+                <div class="menu-item" onclick="switchView('view-settings')"
+                    style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; cursor: pointer; margin-bottom: 20px;">
+                    <div style="margin-right: 15px; color: #333;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                            </path>
+                        </svg>
+                    </div>
+                    <span style="font-size: 16px; color: #333; font-weight: 500; flex: 1;">Ajustes</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <div style="padding: 20px; text-align: center; color: #ccc;">
+                    <div style="font-size: 12px; font-weight: 700; margin-bottom: 5px;">POWERED BY</div>
+                    <div style="font-size: 16px; font-weight: 800; font-style: italic;">TIMP</div>
+                </div>
+            </div>
+        </section>
+
+        </main>
+
+        <!-- Bottom Navigation (Shared) -->
         <nav class="bottom-nav">
-            <a href="#" class="nav-item" data-target="view-dashboard">
+            <!-- Student Navigation -->
+            <a href="#" class="nav-item student-nav active" data-target="view-student-home">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Inicio
+            </a>
+            <a href="#" class="nav-item student-nav" data-target="view-dashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                Entreno
+            </a>
+            <a href="#" class="nav-item student-nav" data-target="view-client-detail">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Perfil
+            </a>
+            <a href="#" class="nav-item student-nav" data-target="view-student-menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+                Menú
+            </a>
+
+            <!-- Admin Navigation (Hidden for students in JS) -->
+            <a href="#" class="nav-item admin-nav" data-target="view-dashboard">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="7" height="7"></rect>
@@ -403,7 +816,7 @@
                 </svg>
                 Inicio
             </a>
-            <a href="#" class="nav-item" data-target="view-clients">
+            <a href="#" class="nav-item admin-nav" data-target="view-clients">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -413,7 +826,7 @@
                 </svg>
                 Alumnos
             </a>
-            <a href="#" class="nav-item" data-target="view-calendar">
+            <a href="#" class="nav-item admin-nav" data-target="view-calendar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -423,16 +836,7 @@
                 </svg>
                 Calendario
             </a>
-            <div class="nav-item-center-wrapper">
-                <div class="nav-item-center" onclick="handleGlobalAction()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </div>
-            </div>
-            <a href="#" class="nav-item active" data-target="view-library">
+            <a href="#" class="nav-item admin-nav" data-target="view-library">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -440,7 +844,7 @@
                 </svg>
                 Biblioteca
             </a>
-            <a href="#" class="nav-item" data-target="view-settings">
+            <a href="#" class="nav-item admin-nav" data-target="view-settings">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>

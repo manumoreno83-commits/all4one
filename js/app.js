@@ -306,6 +306,8 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
 // Navigation
+
+// Navigation
 function switchView(targetId) {
   state.currentView = targetId;
 
@@ -319,10 +321,18 @@ function switchView(targetId) {
     view.classList.toggle('active', view.id === targetId);
   });
 
+  if (targetId === 'view-dashboard') updateDashboardStats();
   if (targetId === 'view-calendar') renderCalendar();
+  if (targetId === 'view-checkins') renderCheckins();
+  if (targetId === 'view-clients') renderClients(); // Corrected from renderClientList
+  if (targetId === 'view-library') renderLibrarySplit();
+  if (targetId === 'view-settings') _initSettings(); // Assuming this exists or will exist
+  // if (targetId === 'view-student-home'); // Already rendered static HTML + dynamic parts if needed
+  // if (targetId === 'view-student-menu'); // Already rendered static HTML
 
   // Scroll Top
-  $('#main-content').scrollTop = 0;
+  const content = $('#main-content');
+  if (content) content.scrollTop = 0;
 }
 
 // --- AUTH LOGIC ---
@@ -331,37 +341,28 @@ window.toggleTrainerSelect = function () {
   loginSimulation('admin');
 }
 
+
 window.loginSimulation = function (role) {
   if (role === 'admin') {
-    // Ask for password directly - no intermediate step
     const pwd = prompt('Introduce contraseña de Coach:\n\nMiguel = 197373\nMarta = 1111');
-
     if (!pwd) return;
 
     let trainer = null;
+    if (pwd === '197373') trainer = state.trainers.find(t => t.id === 'Miguel');
+    else if (pwd === '1111') trainer = state.trainers.find(t => t.id === 'Marta');
+    else { alert('Contraseña incorrecta'); return; }
 
-    // Check password and assign trainer
-    if (pwd === '197373') {
-      trainer = state.trainers.find(t => t.id === 'Miguel');
-    } else if (pwd === '1111') {
-      trainer = state.trainers.find(t => t.id === 'Marta');
-    } else {
-      alert('Contraseña incorrecta');
-      return;
-    }
-
-    if (!trainer) {
-      alert('Error: Entrenador no encontrado');
-      return;
-    }
+    if (!trainer) { alert('Error: Entrenador no encontrado'); return; }
 
     state.userRole = 'admin';
     state.currentTrainerId = trainer.id;
     state.currentStudentId = null;
 
-    console.log(`Login exitoso: ${trainer.name}`);
+    document.body.classList.remove('role-student');
+    document.body.classList.add('role-admin');
+
   } else {
-    // Student login with Google simulation
+    // Student login
     const email = prompt("Introduce tu email de Google (Simulación):", "manuel.moreno@gmail.com");
     if (!email) return;
 
@@ -378,7 +379,10 @@ window.loginSimulation = function (role) {
 
     state.userRole = 'student';
     state.currentStudentId = student.id;
-    state.currentTrainerId = student.trainerId; // Student linked to their trainer
+    state.currentTrainerId = student.trainerId;
+
+    document.body.classList.remove('role-admin');
+    document.body.classList.add('role-student');
   }
 
   $('#auth-overlay').style.display = 'none';
@@ -387,29 +391,11 @@ window.loginSimulation = function (role) {
   saveState();
 
   if (state.userRole === 'student') {
-    // Hide admin navigation for students
-    const bottomNav = $('.bottom-nav');
-    if (bottomNav) bottomNav.style.display = 'none';
-
-    // Hide top bar action button
-    const topAction = $('#global-top-action');
-    if (topAction) topAction.style.display = 'none';
-
-    // Hide all admin views
-    $$('.view').forEach(v => v.classList.remove('active'));
-
-    // Show only student portal
-    renderStudentPortal();
+    // Student Default View
+    switchView('view-student-home');
   } else {
-    // Show admin navigation
-    const bottomNav = $('.bottom-nav');
-    if (bottomNav) bottomNav.style.display = 'flex';
-
-    // Show top bar action button
-    const topAction = $('#global-top-action');
-    if (topAction) topAction.style.display = 'block';
-
-    // Render admin dashboard
+    // Admin Default View
+    switchView('view-dashboard');
     renderAll();
   }
 }
@@ -546,110 +532,164 @@ window.setLibMode = function (mode) {
   renderLibrarySplit();
 }
 
-function renderLibrarySplit() {
-  const sourceList = $('#library-source-list');
-  const builderList = $('#routine-builder-dropzone');
-  const chipContainer = $('#lib-filter-chips');
+// Helper for HTML escaping if needed, but here we just need mobile logic
+window.renderLibrarySplit = function () {
+  const container = $('#main-content');
+  if (!container) return;
 
-  if (!sourceList || !builderList) return;
+  const builderExercises = (state.builder || []).map((id, index) => {
+    const ex = state.library.find(e => e.id === id);
+    if (!ex) return null;
+    return { ...ex, index };
+  }).filter(e => e);
 
-  // 0. Render Chips (Always render to ensure they appear)
-  if (chipContainer) {
-    // Only render if empty to allow sorting without re-rendering on every update? 
-    // Actually, if we filter, we might re-render. Let's keep state of order.
-    // If `state.filterOrder` exists, use it.
-    let categories = ['Todos', 'Calentamiento', 'Torso', 'Brazos', 'Piernas', 'Espalda', 'Pecho', 'Deka', 'Hyrox', 'Funcional', 'Cardio'];
+  // --- MOBILE TABS LOGIC ---
+  const currentTab = state.mobileTab || (builderExercises.length > 0 ? 'builder' : 'library');
 
-    // Check if we have missing categories from state.filterOrder? No, just force this order.
-    // If user re-sorts, state.filterOrder will update.
-    if (state.filterOrder && state.filterOrder.length > 0) {
-      categories = state.filterOrder;
+  const content = `
+    <section id="view-library" class="view active" style="overflow:hidden; display:flex; flex-direction:column; height:calc(100vh - 80px);">
+        <!-- Header -->
+        <div class="section-header" style="flex-shrink:0;">
+             <button class="icon-btn" onclick="switchView('view-dashboard')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+            </button>
+            <h2>Constructor de Rutinas</h2>
+            <button class="btn-primary btn-save-routine" onclick="saveBuiltRoutine()">Guardar</button>
+        </div>
+
+        <!-- Mobile Tabs -->
+        <div class="mobile-tab-header">
+            <button class="mobile-tab-btn ${currentTab === 'builder' ? 'active' : ''}" onclick="switchMobileTab('builder')">
+                Constructor (${builderExercises.length})
+            </button>
+            <button class="mobile-tab-btn ${currentTab === 'library' ? 'active' : ''}" onclick="switchMobileTab('library')">
+                Biblioteca
+            </button>
+        </div>
+
+        <!-- Split Layout -->
+        <div class="split-layout" style="flex:1; overflow:hidden; display:flex;">
+            
+            <!-- LEFT: Library Source -->
+            <div class="library-pane ${currentTab === 'library' ? 'active-tab' : ''}" style="flex:1; background:var(--bg-secondary); border-right:1px solid var(--bg-tertiary); display:flex; flex-direction:column; overflow:hidden;">
+                
+                <!-- Filters -->
+                <div style="padding:12px; border-bottom:1px solid var(--bg-tertiary); background:var(--bg-secondary);">
+                    <div class="search-bar">
+                         <input type="text" placeholder="Buscar ejercicio..." id="lib-search-input" oninput="filterLibrary()" value="${state.exerciseFilter !== 'all' && !['Pecho', 'Espalda', 'Piernas', 'Hombros', 'Brazos', 'Core', 'Cardio', 'Deka'].includes(state.exerciseFilter) ? state.exerciseFilter : ''}">
+                         ${state.exerciseFilter !== 'all' ? `<button class="icon-btn" onclick="setExerciseFilter('all')">✕</button>` : ''}
+                    </div>
+                    
+                    <div class="filter-chips" id="lib-filter-chips" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;">
+                        ${(state.filterOrder || ['Pecho', 'Espalda', 'Piernas', 'Hombros', 'Brazos', 'Core', 'Cardio', 'Deka']).map(f =>
+    `<button class="filter-chip ${state.exerciseFilter === f ? 'active' : ''}" onclick="setExerciseFilter('${f}')">${f}</button>`
+  ).join('')}
+                    </div>
+                </div>
+
+                <!-- Draggable Source List -->
+                <div id="library-source-list" class="scroll-area" style="flex:1; overflow-y:auto; padding:12px;">
+                    ${renderLibraryItemsHTML()}
+                </div>
+            </div>
+
+            <!-- RIGHT: Builder Target -->
+            <div class="builder-pane ${currentTab === 'builder' ? 'active-tab' : ''}" style="flex:1; background:var(--bg-primary); display:flex; flex-direction:column; overflow:hidden;">
+                 <div style="padding:16px; border-bottom:1px solid var(--bg-tertiary); display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="margin:0; font-size:16px;">Tu Rutina (${builderExercises.length})</h3>
+                    <span style="font-size:12px; color:var(--text-secondary);">Arrastra para ordenar</span>
+                 </div>
+
+                 <div id="routine-builder-dropzone" class="scroll-area" style="flex:1; overflow-y:auto; padding:12px; min-height:200px;">
+                    ${builderExercises.length === 0 ?
+      `<div class="empty-state no-sort" style="padding:40px 20px;">
+                            <div style="font-size:40px; margin-bottom:10px; opacity:0.5;">📋</div>
+                            <p>Arrastra ejercicios aquí<br>o selecciónalos de la biblioteca</p>
+                        </div>` :
+      builderExercises.map(ex => `
+                            <div class="builder-item" data-id="${ex.id}" style="background:var(--bg-secondary); border:1px solid var(--bg-tertiary); border-radius:12px; margin-bottom:8px; padding:16px;">
+                                <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
+                                    <div style="display:flex; gap:12px; align-items:center;">
+                                        <div class="drag-handle" style="cursor:move; color:var(--text-secondary); touch-action:none; padding:10px;">☰</div> 
+                                        <div>
+                                            <h4 style="margin:0; font-size:15px; color:white;">${ex.name}</h4>
+                                            <span style="font-size:11px; color:var(--text-secondary);">${ex.muscle}</span>
+                                        </div>
+                                    </div>
+                                    <button class="icon-btn" onclick="removeFromBuilder(${ex.index})" style="color:var(--danger); padding:10px;">✕</button>
+                                </div>
+                                
+                                <div class="builder-config" onclick="editBuilderExercise(${ex.index})" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; background:var(--bg-tertiary); padding:10px; border-radius:8px; text-align:center; cursor:pointer;">
+                                    <div><div style="font-size:10px;color:var(--text-secondary);">SERIES</div><div style="font-weight:700; color:var(--accent-color);">${state.builderConfig && state.builderConfig[ex.id] ? state.builderConfig[ex.id].sets : 3}</div></div>
+                                    <div><div style="font-size:10px;color:var(--text-secondary);">REPS</div><div style="font-weight:700;">${state.builderConfig && state.builderConfig[ex.id] ? state.builderConfig[ex.id].reps : 10}</div></div>
+                                    <div><div style="font-size:10px;color:var(--text-secondary);">REST</div><div style="font-weight:700;">${state.builderConfig && state.builderConfig[ex.id] ? state.builderConfig[ex.id].rest : 60}s</div></div>
+                                     <div><div style="font-size:10px;color:var(--text-secondary);">INT</div><div style="font-weight:700; color:#f59e0b;">${state.builderConfig && state.builderConfig[ex.id] ? (state.builderConfig[ex.id].intensity || 75) : 75}%</div></div>
+                                </div>
+                            </div>
+                        `).join('')
     }
+                 </div>
+            </div>
+        </div>
+    </section>
+  `;
 
-    // Always render if empty, otherwise just update active states
-    chipContainer.innerHTML = categories.map(cat => {
-      const val = cat === 'Todos' ? 'all' : cat;
-      const isActive = state.exerciseFilter === val;
-      return `<div class="filter-chip ${isActive ? 'active' : ''}" data-id="${cat}" onclick="setExerciseFilter('${val}')">${cat}</div>`;
-    }).join('');
+  container.innerHTML = content;
+  initSortables();
+  renderSavedRoutines();
+
+  // Re-focus search
+  const searchInput = document.getElementById('lib-search-input');
+  if (searchInput && state.exerciseFilter !== 'all' && !['Pecho', 'Espalda', 'Piernas', 'Hombros', 'Brazos'].includes(state.exerciseFilter)) {
+    searchInput.value = state.exerciseFilter;
+    searchInput.focus();
   }
+}
 
-  // 1. Render Source List (Left Pane)
-  const filterText = ($('#lib-search')?.value || '').toLowerCase();
+// Extract item rendering to helper to keep clean
+function renderLibraryItemsHTML() {
+  const filterText = ($('#lib-search-input')?.value || '').toLowerCase();
   const filterCat = state.exerciseFilter || 'all';
 
+  // Use state.exerciseFilter if it's not a standard category, it might be text search
+  let effectiveFilterText = filterText;
+  let effectiveFilterCat = filterCat;
+
+  // If filter is text (not in known categories), count it as search
+  if (effectiveFilterCat !== 'all' && !['Pecho', 'Espalda', 'Piernas', 'Hombros', 'Brazos', 'Core', 'Cardio', 'Deka'].includes(effectiveFilterCat)) {
+    effectiveFilterText = effectiveFilterCat.toLowerCase();
+    effectiveFilterCat = 'all';
+  }
+
   const filtered = state.library.filter(ex => {
-    const matchesText = ex.name.toLowerCase().includes(filterText) || ex.muscle.toLowerCase().includes(filterText);
-    const matchesCat = filterCat === 'all' || ex.muscle === filterCat || ex.type === filterCat;
+    const matchesText = ex.name.toLowerCase().includes(effectiveFilterText) || ex.muscle.toLowerCase().includes(effectiveFilterText);
+    const matchesCat = effectiveFilterCat === 'all' || ex.muscle === effectiveFilterCat || ex.type === effectiveFilterCat;
     return matchesText && matchesCat;
   });
 
-  sourceList.innerHTML = filtered.map(ex => {
-    return `
-        <div class="exercise-item" data-id="${ex.id}" draggable="true" 
-             ondragstart="handleDragStart(event, ${ex.id})" 
-             ondragend="handleDragEnd(event)">
+  return filtered.map(ex => `
+        <div class="exercise-item" data-id="${ex.id}" draggable="true" style="padding:16px;">
             <div class="exercise-info" style="flex:1;" onclick="addToBuilder(${ex.id})">
-                <h4>${ex.name}</h4>
+                <h4 style="font-size:15px; margin-bottom:4px;">${ex.name}</h4>
                 <div class="exercise-tags">
                    <span class="tag">${ex.muscle}</span>
                 </div>
             </div>
-            <div style="display:flex; gap:8px;">
-                <button class="icon-btn-large" onclick="event.stopPropagation(); editExercise(${ex.id})" title="Editar" style="width:36px; height:36px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--bg-tertiary); border-radius:50%;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            <div style="display:flex; gap:12px;">
+                 <button class="icon-btn-large" onclick="event.stopPropagation(); editExercise(${ex.id})" style="padding:8px; background:var(--bg-tertiary); border-radius:50%;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                 </button>
-                <button class="icon-btn-large" onclick="event.stopPropagation(); openVideo(${ex.id})" title="Ver vídeo" style="width:36px; height:36px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--bg-tertiary); border-radius:50%;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <button class="icon-btn-large" onclick="event.stopPropagation(); openVideo(${ex.id})" style="padding:8px; background:var(--bg-tertiary); border-radius:50%;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                 </button>
             </div>
         </div>
-    `;
-  }).join('');
+    `).join('');
+}
 
-  // 2. Render Builder List (Right Pane)
-  if (state.builder.length === 0) {
-    builderList.innerHTML = `
-           <div class="drop-zone no-sort">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px; opacity:0.5"><path d="M12 5v14M5 12h14"/></svg>
-              <p>Arrastra ejercicios o haz clic para añadir.</p>
-           </div>
-        `;
-  } else {
-    builderList.innerHTML = state.builder.map((exId, idx) => {
-      const ex = state.library.find(e => e.id === exId);
-      if (!ex) return '';
-
-      // Get exercise config (sets, reps, rest, intensity)
-      const config = state.builderConfig && state.builderConfig[exId] ? state.builderConfig[exId] : { sets: 3, reps: 10, rest: 60, intensity: 75 };
-
-      return `
-         <div class="builder-item" data-id="${ex.id}" style="cursor:move;">
-            <div class="drag-handle" style="cursor:grab; padding:0 8px; color:var(--text-secondary);">☰</div>
-            <div style="flex:1; margin-left:8px;">
-               <h4 style="margin:0; font-size:14px;">${ex.name}</h4>
-               <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
-                  ${config.sets} series × ${config.reps} reps | ${config.rest}s${config.intensity && config.intensity !== 75 ? ` | ${config.intensity}% intensidad` : ''}
-               </div>
-            </div>
-            <div style="display:flex; gap:4px;">
-               <button class="icon-btn" onclick="editBuilderExercise(${idx})" title="Configurar">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v6m0 6v6m-6-6h6m6 0h6"></path></svg>
-               </button>
-               <button class="icon-btn" onclick="removeFromBuilder(${idx})" title="Eliminar">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-               </button>
-            </div>
-         </div>
-      `;
-    }).join('');
-  }
-
-  // 3. Initialize/Update SortableJS
-  initSortables();
-
-  // 4. Render Saved Routines (New feature)
-  renderSavedRoutines();
+window.switchMobileTab = function (tabName) {
+  state.mobileTab = tabName;
+  renderLibrarySplit();
 }
 
 window.renderSavedRoutines = function () {
@@ -717,6 +757,9 @@ function initSortables() {
     new Sortable(chipContainer, {
       animation: 150,
       ghostClass: 'sortable-ghost',
+      delay: 200, // Touch delay
+      delayOnTouchOnly: true,
+      touchStartThreshold: 5,
       onEnd: function (evt) {
         const newOrder = [];
         chipContainer.querySelectorAll('.filter-chip').forEach(chip => {
@@ -742,6 +785,9 @@ function initSortables() {
       sort: false,
       animation: 150,
       draggable: '.exercise-item',
+      delay: 200, // Crucial for mobile scrolling
+      delayOnTouchOnly: true,
+      touchStartThreshold: 5,
       onEnd: function (evt) {
         // After drag ends, sync the builder
         setTimeout(() => syncBuilderFromDOM(), 50);
@@ -758,6 +804,9 @@ function initSortables() {
     draggable: '.builder-item',
     filter: '.no-sort',
     handle: '.drag-handle',
+    delay: 100, // Shorter delay for reordering
+    delayOnTouchOnly: true,
+    touchStartThreshold: 5,
     onAdd: function (evt) {
       syncBuilderFromDOM();
     },
