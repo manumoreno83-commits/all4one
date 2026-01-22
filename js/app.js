@@ -1643,6 +1643,8 @@ function renderCalendar() {
   // Get current week (7 days from today)
   const days = [];
   const today = new Date();
+  // Start from today for the "Real Weekly" view requested 5 days? Or 7?
+  // Let's do 7 days starting today.
   for (let i = 0; i < 7; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
@@ -1650,45 +1652,40 @@ function renderCalendar() {
   }
 
   const sessions = state.scheduledSessions || [];
-  const agenda = state.agenda || [];
 
   grid.innerHTML = days.map(day => {
     const dateStr = day.toISOString().split('T')[0];
-    const dayName = day.toLocaleDateString('es-ES', { weekday: 'short' });
+    const dayName = day.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase();
     const dayNum = day.getDate();
+    const isToday = new Date().toISOString().split('T')[0] === dateStr;
 
     // Filter events for this day
     const daySessions = sessions.filter(s => s.date === dateStr && s.trainerId === state.currentTrainerId);
-    // Agenda events don't have dates in current simple state, let's assume they are for "today"
-    const dayAgenda = agenda.filter(a => a.date.split('T')[0] === dateStr && a.trainerId === state.currentTrainerId);
 
     return `
-            <div class="calendar-day-col">
-                <div class="calendar-day-header">
-                    <span class="day-name">${dayName}</span>
-                    <span class="day-date">${dayNum}</span>
+            <div class="calendar-day-col ${isToday ? 'today' : ''}" style="min-width: 120px; background:var(--bg-secondary); border-radius:12px; margin-right:10px; padding:10px; display:flex; flex-direction:column;">
+                <div class="calendar-day-header" style="text-align:center; padding-bottom:8px; border-bottom:1px solid var(--bg-tertiary); margin-bottom:8px;">
+                    <span class="day-name" style="font-size:11px; color:var(--text-secondary); display:block;">${dayName}</span>
+                    <span class="day-date" style="font-size:18px; font-weight:700; color:${isToday ? 'var(--accent-color)' : 'white'};">${dayNum}</span>
                 </div>
-                <div class="calendar-events">
+                <div class="calendar-events" style="flex:1; display:flex; flex-direction:column; gap:8px;">
                     ${daySessions.map(s => `
-                        <div class="cal-event-card routine">
-                            <div class="time">${s.time}</div>
-                            <span class="title">${s.clientName}</span>
-                            <span class="sub">${s.routineName}</span>
+                        <div class="cal-event-card" onclick="alert('Cliente: ${s.clientName}\\nRutina: ${s.routineName}\\nHora: ${s.time}')" style="background:var(--bg-primary); padding:8px; border-radius:8px; border-left:3px solid var(--accent-color); cursor:pointer;">
+                            <div class="time" style="font-size:11px; color:var(--text-secondary);">${s.time}</div>
+                            <span class="title" style="display:block; font-size:12px; font-weight:600;">${s.clientName}</span>
+                            <span class="sub" style="display:block; font-size:10px; color:var(--text-secondary);">${s.routineName}</span>
                         </div>
                     `).join('')}
-                    ${dayAgenda.map(a => `
-                        <div class="cal-event-card">
-                            <div class="time">${a.time}</div>
-                            <span class="title">${a.title}</span>
-                            <span class="sub">${a.type}</span>
-                        </div>
-                    `).join('')}
-                    ${daySessions.length === 0 && dayAgenda.length === 0 ? '<div style="opacity:0.2; font-size:10px; text-align:center; margin-top:20px;">Sin eventos</div>' : ''}
+                    
+                    <button onclick="openAssignModal(null, '${dateStr}')" style="margin-top:auto; width:100%; padding:8px; background:transparent; border:1px dashed var(--bg-tertiary); color:var(--text-secondary); border-radius:8px; font-size:12px; cursor:pointer; margin-top:10px;">
+                        + Evento
+                    </button>
                 </div>
             </div>
         `;
   }).join('');
 }
+
 
 
 // Helpers
