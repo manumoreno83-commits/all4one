@@ -311,97 +311,8 @@ window.$$ = $$;
 // Navigation
 
 // --- SORTABLE LOGIC ---
-function initSortables() {
-  const sourceEl = $('#library-source-list');
-  const builderEl = $('#routine-builder-dropzone');
-  const chipContainer = $('#lib-filter-chips');
+// Duplicate initSortables removed
 
-  // Filter Chips Sortable
-  if (chipContainer && !chipContainer.sortable) {
-    new Sortable(chipContainer, {
-      animation: 150,
-      ghostClass: 'sortable-ghost',
-      delay: 100, // Reduced delay for better feel
-      delayOnTouchOnly: true,
-      touchStartThreshold: 5,
-      direction: 'horizontal',
-      onEnd: function (evt) {
-        const newOrder = [];
-        chipContainer.querySelectorAll('.filter-chip').forEach(chip => {
-          newOrder.push(chip.innerText);
-        });
-        state.filterOrder = newOrder;
-        saveState();
-      }
-    });
-    chipContainer.sortable = true;
-  }
-
-  if (!sourceEl || !builderEl) return;
-
-  // Source List (Draggable Source)
-  if (!sourceEl.sortable) {
-    sourceEl.sortable = new Sortable(sourceEl, {
-      group: {
-        name: 'shared',
-        pull: 'clone', // To clone items to builder
-        put: false // Do not allow drops here
-      },
-      sort: false, // Do not allow sorting inside library
-      animation: 150,
-      ghostClass: 'sortable-ghost',
-      delay: 200,
-      delayOnTouchOnly: true,
-      touchStartThreshold: 5,
-      forceFallback: true, // IMPORTANT for Mobile
-      fallbackClass: 'sortable-fallback',
-      onStart: function (evt) {
-        // Vibration feedback if supported
-        if (navigator.vibrate) navigator.vibrate(50);
-      }
-    });
-  }
-
-  // Builder List (Drop Target)
-  if (!builderEl.sortable) {
-    builderEl.sortable = new Sortable(builderEl, {
-      group: 'shared',
-      animation: 150,
-      ghostClass: 'sortable-ghost',
-      delay: 200,
-      delayOnTouchOnly: true,
-      touchStartThreshold: 5,
-      forceFallback: true, // IMPORTANT for Mobile
-      fallbackClass: 'sortable-fallback',
-      onAdd: function (evt) {
-        const itemEl = evt.item; // The dragged element
-        const id = parseInt(itemEl.dataset.id);
-        // Remove the dragged DOM element because renderLibrarySplit will re-render everything cleanly
-        itemEl.remove(); // Clean up the clone
-
-        addToBuilder(id); // Update state and re-render
-      },
-      onUpdate: function (evt) {
-        // Handle Reordering
-        const exerciseIds = [];
-        builderEl.querySelectorAll('.builder-item').forEach(el => {
-          exerciseIds.push(parseInt(el.dataset.id));
-        });
-
-        // Reconstruct builder state based on new order
-        // We need to preserve duplicates if any, but our map above just takes IDs.
-        // Wait, builder state is [id, id, id]. 
-        // But if we have duplicates in builder, querySelectorAll might be tricky if we don't have unique IDs per instance.
-        // The current builder-item implementation uses `data-id="${ex.id}"` which is the EXERCISE ID.
-        // If I have 2 Squats, they have same ID. 
-        // This sorting logic works if we just grab IDs in order.
-        state.builder = exerciseIds;
-        saveState();
-        // renderLibrarySplit(); // Optional: re-render to ensure indices are correct
-      }
-    });
-  }
-}
 
 // Navigation
 // Navigation
@@ -663,6 +574,11 @@ window.renderLibrarySplit = function () {
   // --- MOBILE TABS LOGIC ---
   const currentTab = state.mobileTab || (builderExercises.length > 0 ? 'builder' : 'library');
 
+  // Validate Filters (Ensure Deka is present)
+  const defaultFilters = ['Pecho', 'Espalda', 'Piernas', 'Hombros', 'Brazos', 'Core', 'Cardio', 'Deka'];
+  const activeFilters = state.filterOrder || defaultFilters;
+  if (!activeFilters.includes('Deka')) activeFilters.push('Deka');
+
   const content = `
     <section id="view-library" class="view active" style="overflow:hidden; display:flex; flex-direction:column; height:calc(100vh - 80px);">
         <!-- Header -->
@@ -698,7 +614,7 @@ window.renderLibrarySplit = function () {
                     </div>
                     
                     <div class="filter-chips" id="lib-filter-chips" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;">
-                        ${(state.filterOrder || ['Pecho', 'Espalda', 'Piernas', 'Hombros', 'Brazos', 'Core', 'Cardio', 'Deka']).map(f =>
+                        ${activeFilters.map(f =>
     `<button class="filter-chip ${state.exerciseFilter === f ? 'active' : ''}" onclick="setExerciseFilter('${f}')">${f}</button>`
   ).join('')}
                     </div>
@@ -905,6 +821,8 @@ function initSortables() {
       delay: 200, // Crucial for mobile scrolling
       delayOnTouchOnly: true,
       touchStartThreshold: 5,
+      forceFallback: true,
+      fallbackOnBody: true,
       onEnd: function (evt) {
         // After drag ends, sync the builder
         setTimeout(() => syncBuilderFromDOM(), 50);
@@ -924,6 +842,8 @@ function initSortables() {
     delay: 100, // Shorter delay for reordering
     delayOnTouchOnly: true,
     touchStartThreshold: 5,
+    forceFallback: true,
+    fallbackOnBody: true,
     onAdd: function (evt) {
       syncBuilderFromDOM();
     },
