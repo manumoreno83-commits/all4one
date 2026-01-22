@@ -302,6 +302,20 @@ if (!currentMiguel || (defaultMiguel && currentMiguel.password !== defaultMiguel
   saveState();
 }
 
+// INIT SYNC
+if (window.SyncManager) {
+  window.SyncManager.listenForUpdates((cloudState) => {
+    console.log("🔥 State updated from Cloud");
+    state = cloudState;
+    localStorage.setItem('directorAppState_v4', JSON.stringify(state)); // Also save locally
+    // Trigger re-render of current view
+    if (state.currentView === 'view-dashboard') renderDashboard();
+    if (state.currentView === 'view-clients') renderClients();
+    if (state.currentView === 'view-trainings') renderTrainings();
+    if (state.currentView === 'view-calendar') renderCalendar();
+  });
+}
+
 // Sync Routines (Merge new ones)
 if (!state.routines) state.routines = [];
 const existingIds = new Set(state.routines.map(r => r.id));
@@ -319,6 +333,12 @@ if (!state.objectives) state.objectives = defaultState.objectives;
 
 function saveState() {
   localStorage.setItem('directorAppState_v4', JSON.stringify(state));
+
+  // Cloud Sync
+  if (window.SyncManager) {
+    window.SyncManager.pushState(state);
+  }
+
   // Reactive updates
   if (state.currentView === 'view-dashboard') renderDashboard();
   if (state.currentView === 'view-trainings') renderTrainings();
