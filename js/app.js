@@ -302,7 +302,7 @@ if (!currentMiguel || (defaultMiguel && currentMiguel.password !== defaultMiguel
   saveState();
 }
 
-// Sync Routines (Merge new ones) - ALWAYS CHECK to ensure all default routines exist
+// Sync Routines (Merge new ones)
 if (!state.routines) state.routines = [];
 const existingIds = new Set(state.routines.map(r => r.id));
 const newRoutines = defaultState.routines.filter(r => !existingIds.has(r.id));
@@ -313,28 +313,26 @@ if (newRoutines.length > 0) {
   saveState();
 }
 
+// Ensure objectives exist
+if (!state.objectives) state.objectives = defaultState.objectives;
+
+
 function saveState() {
   localStorage.setItem('directorAppState_v4', JSON.stringify(state));
-  // Render updates if we are in a view that needs it
-  if (state.currentView === 'view-dashboard') updateDashboardStats();
+  // Reactive updates
+  if (state.currentView === 'view-dashboard') renderDashboard();
+  if (state.currentView === 'view-trainings') renderTrainings();
 }
 
 // Selectors
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
-// EXPOSE TO WINDOW FOR INLINE HANDLERS
+// EXPOSE TO WINDOW
 window.$ = $;
 window.$$ = $$;
 
-// Navigation
-
-// --- SORTABLE LOGIC ---
-// Duplicate initSortables removed
-
-
-// Navigation
-// Navigation
+// --- NAVIGATION ---
 function switchView(targetId) {
   state.currentView = targetId;
 
@@ -348,13 +346,14 @@ function switchView(targetId) {
     view.classList.toggle('active', view.id === targetId);
   });
 
+  // Render Logic
   try {
-    if (targetId === 'view-dashboard' && typeof updateDashboardStats === 'function') updateDashboardStats();
-    if (targetId === 'view-calendar' && typeof renderCalendar === 'function') renderCalendar();
-    if (targetId === 'view-checkins' && typeof renderCheckins === 'function') renderCheckins();
-    if (targetId === 'view-clients' && typeof renderClients === 'function') renderClients();
-    if (targetId === 'view-library' && typeof renderLibrarySplit === 'function') renderLibrarySplit();
-    if (targetId === 'view-settings' && typeof _initSettings === 'function') _initSettings();
+    if (targetId === 'view-dashboard') renderDashboard();
+    if (targetId === 'view-calendar') renderCalendar(); // Agenda
+    if (targetId === 'view-clients') renderClients();
+    if (targetId === 'view-trainings') renderTrainings();
+    if (targetId === 'view-library') renderLibraryDB(); // Updated name
+    if (targetId === 'view-admin') renderAdmin();       // New Admin logic
   } catch (err) {
     console.error('View render error:', err);
   }
@@ -364,7 +363,229 @@ function switchView(targetId) {
   if (content) content.scrollTop = 0;
 }
 
-// --- AUTH LOGIC ---
+// --- DASHBOARD ---
+window.renderDashboard = function () {
+  // Stats
+  const activeStudents = (state.clients || []).filter(c => c.status === 'active').length;
+  const weeklySessions = 42; // Mock for now or calculate from calendar
+  const income = (state.clients || []).reduce((sum, c) => sum + (c.fee || 0), 0);
+
+  setText('#dash-active-students', activeStudents);
+  setText('#dash-sessions', weeklySessions);
+  setText('#dash-income', `€${income}`);
+}
+
+function setText(selector, text) {
+  const el = $(selector);
+  if (el) el.textContent = text;
+}
+
+
+// --- ENTRENOS (Trainings) ---
+window.switchTrainingTab = function (tabName) {
+  $$('.mobile-tab-btn').forEach(b => b.classList.toggle('active', false));
+  // Find button by text content roughly or order... simplified approach:
+  // Actually we passed logic in HTML: switchTrainingTab('builder')
+  // We need to target buttons.
+  const buttons = $$('.mobile-tab-btn');
+  if (tabName === 'builder') buttons[0].classList.add('active');
+  else buttons[1].classList.add('active');
+
+  $('#pane-builder').classList.toggle('active', tabName === 'builder');
+  $('#pane-routines').classList.toggle('active', tabName === 'routines');
+}
+
+window.renderTrainings = function () {
+  renderRoutineBuilder();
+  renderSavedRoutines();
+}
+
+function renderRoutineBuilder() {
+  const dropzone = $('#routine-builder-dropzone');
+  if (!dropzone) return;
+
+  // Clear current content except placeholder if empty
+  // But we need to render items in state.builder
+  if (!state.builder || state.builder.length === 0) {
+    dropzone.innerHTML = `
+            <div class="drop-zone-placeholder" style="text-align:center; padding:40px; color:var(--text-secondary); border: 2px dashed var(--bg-tertiary); border-radius:12px;">
+                <p>Arrastra ejercicios aquí desde la biblioteca<br>o usa el botón "+ Añadir"</p>
+            </div>
+        `;
+    return;
+  }
+
+  dropzone.innerHTML = state.builder.map((exId, idx) => {
+    const ex = state.library.find(e => e.id === exId);
+    if (!ex) return '';
+    return `
+            <div class="builder-item">
+                <span>${ex.name}</span>
+                <button class="icon-btn" onclick="removeFromBuilder(${idx})" style="color:var(--danger)">
+                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+        `;
+  }).join('');
+}
+
+window.removeFromBuilder = function (index) {
+  state.builder.splice(index, 1);
+  saveState();
+  renderRoutineBuilder();
+}
+
+window.openExerciseSelector = function () {
+  // Reuse existing modal logic but adapted
+  // For simplicity, switch to Library view with a specific mode? 
+  // Or just alert for now as requested "Drag and Drop" is main.
+  // Let's make it alert for this iteration or switch view.
+  const keep = confirm("Para añadir ejercicios de forma visual, ve a 'Biblio', busca el ejercicio y selecciona 'Añadir a Rutina'. ¿Ir ahora?");
+  if (keep) switchView('view-library');
+}
+
+window.saveBuiltRoutine = function () {
+  if (!state.builder || state.builder.length === 0) {
+    alert("Añade ejercicios primero");
+    return;
+  }
+  const name = prompt("Nombre de la rutina:");
+  if (!name) return;
+
+  const newRoutine = {
+    id: Date.now().toString(),
+    name,
+    exercises: [...state.builder],
+    tags: ['Nueva']
+  };
+
+  state.routines.push(newRoutine);
+  state.builder = []; // Clear builder
+  saveState();
+  alert("Rutina guardada");
+  renderTrainings(); // Refresh list
+}
+
+window.renderSavedRoutines = function () {
+  const container = $('#saved-routines-list');
+  if (!container) return;
+
+  const filter = $('#routines-filter') ? $('#routines-filter').value : 'all';
+  // Logic to filter routines... 
+  // Assuming routines have tags.
+
+  const list = state.routines || [];
+
+  container.innerHTML = list.map(r => `
+        <div class="routine-card">
+            <div>
+                <h4>${r.name}</h4>
+                <p>${r.exercises.length} ejercicios</p>
+            </div>
+            <button class="icon-btn" onclick="loadRoutineToBuilder('${r.id}')">✏️</button>
+        </div>
+    `).join('');
+}
+
+window.loadRoutineToBuilder = function (id) {
+  const r = state.routines.find(x => x.id === id);
+  if (r) {
+    if (confirm("¿Cargar esta rutina en el constructor? (Reemplazará la actual)")) {
+      state.builder = [...r.exercises];
+      saveState();
+      switchTrainingTab('builder');
+      renderRoutineBuilder();
+    }
+  }
+}
+
+
+// --- LIBRARY DB (Reference Only) ---
+window.renderLibraryDB = function () {
+  // Simplified render for just viewing
+  filterLibraryDB();
+}
+
+window.filterLibraryDB = function () {
+  const query = $('#lib-search') ? $('#lib-search').value.toLowerCase() : '';
+  // Use existing library source
+  const filtered = state.library.filter(ex => ex.name.toLowerCase().includes(query));
+
+  const container = $('#library-db-list');
+  if (container) {
+    container.innerHTML = filtered.map(ex => `
+            <div class="exercise-item">
+                <div class="exercise-thumb"></div>
+                <div class="exercise-info">
+                    <h4>${ex.name}</h4>
+                    <span class="tag">${ex.muscle || 'General'}</span>
+                </div>
+                <!-- Action to add to simple builder if needed from here -->
+                <button class="icon-btn" onclick="addToBuilder('${ex.id}')">+</button>
+            </div>
+        `).join('');
+  }
+}
+
+window.addToBuilder = function (id) {
+  if (!state.builder) state.builder = [];
+  state.builder.push(id);
+  saveState();
+  if (confirm("Ejercicio añadido. ¿Ir al constructor?")) {
+    switchView('view-trainings');
+  }
+}
+
+// --- ADMIN ---
+window.renderAdmin = function () {
+  // Populate profile data
+  // Stub
+}
+
+// --- AI TOOL ---
+window.handleAIPrompt = function () {
+  const input = $('#ai-prompt-input');
+  const prompt = input.value.toLowerCase();
+
+  if (!prompt) return;
+
+  input.value = "Generando...";
+
+  setTimeout(() => {
+    // Simple mock logic
+    let routineName = "Rutina AI";
+    let exercises = [];
+
+    if (prompt.includes("pierna")) {
+      routineName = "Pierna Destructora (AI)";
+      exercises = state.library.filter(e => e.muscle === 'Piernas').map(e => e.id).slice(0, 5);
+    } else if (prompt.includes("fuerza")) {
+      routineName = "Fuerza Base (AI)";
+      exercises = state.library.filter(e => e.tags.includes('Fuerza')).map(e => e.id).slice(0, 5);
+    } else {
+      routineName = "Full Body (AI)";
+      exercises = state.library.slice(0, 6).map(e => e.id);
+    }
+
+    const newRoutine = {
+      id: Date.now().toString(),
+      name: routineName,
+      exercises: exercises,
+      tags: ['AI Generated']
+    };
+
+    state.routines.push(newRoutine);
+    saveState();
+
+    input.value = "";
+    alert(`¡Listo! He creado la rutina "${routineName}" y la he guardado en tus entrenos.`);
+    switchView('view-trainings');
+
+  }, 1500);
+}
+
+
+// --- AUTH LOGIC (Original Kept Lower) ---
 window.toggleTrainerSelect = function () {
   // Directly trigger admin login when button is clicked
   loginSimulation('admin');
@@ -1128,196 +1349,157 @@ $('#exercise-form').addEventListener('submit', (e) => {
 
 // Update `openClientDetail` to show Target Date
 
-// --- Clients & Detail View ---
-window.openClientDetail = function (id) {
-  const client = state.clients.find(c => c.id === id);
+// --- CLIENTS ---
+window.renderClients = function () {
+  const list = $('.client-list');
+  if (!list) return;
+
+  const clients = state.clients || [];
+
+  list.innerHTML = clients.map(client => `
+    <div class="client-card" onclick="openClientDetail('${client.id}')">
+        <div class="avatar">${client.name.substring(0, 2).toUpperCase()}</div>
+        <div class="client-info" style="flex:1;">
+            <div style="display:flex; justify-content:space-between;">
+                <h4 style="margin:0; font-size:16px;">${client.name}</h4>
+                <span class="client-status status-${client.status}">${client.status === 'active' ? 'Activo' : 'Pendiente'}</span>
+            </div>
+            <p style="margin:4px 0 0; font-size:12px; color:var(--text-secondary);">
+               ${client.objective || 'Sin objetivo'} • <span style="color:var(--accent-color);">€${client.fee || 0}/mes</span>
+            </p>
+             <p style="margin:2px 0 0; font-size:11px; color:var(--text-secondary); opacity:0.7;">
+               Desde: ${client.joined || '2023'}
+            </p>
+        </div>
+        ${client.reviewDue ? '<span style="width:10px; height:10px; background:var(--danger); border-radius:50%; display:block;"></span>' : ''}
+    </div>
+  `).join('');
+}
+
+window.openClientDetail = function (clientId) {
+  const client = state.clients.find(c => c.id === clientId);
   if (!client) return;
-
-  const detailContent = $('#client-detail-content');
-
-  // 1. Calculate Real Weekly Progress (Last 7 days)
-  const today = new Date();
-  const progressBarsHtml = [];
-  const sessions = state.scheduledSessions || [];
-
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(today.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
-    const dayLabel = d.toLocaleDateString('es-ES', { weekday: 'narrow' }).toUpperCase();
-
-    const completedCount = sessions.filter(s =>
-      s.clientId === client.id &&
-      s.date === dateStr &&
-      s.status === 'completed'
-    ).length;
-
-    // partial bar logic: 1 session = 100%. 
-    // If we want more granularity, we could say (completed / scheduled) * 100
-    const val = completedCount > 0 ? 100 : 0;
-
-    progressBarsHtml.push(`
-         <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1;">
-            <div style="width:8px; height:60px; background:rgba(255,255,255,0.1); border-radius:4px; position:relative; overflow:hidden;">
-                <div style="position:absolute; bottom:0; left:0; right:0; height:${val}%; background:var(--accent-color);"></div>
-            </div>
-            <span style="font-size:9px; color:var(--text-secondary);">${dayLabel}</span>
-         </div>
-      `);
-  }
-
-  // 2. Real Weekly Schedule (Next 7 Days starting today or this week?)
-  // User said "empezando desde semana actual". Let's show this week's schedule.
-  // We'll iterate from Monday of this week to Sunday.
-  const currentDay = new Date();
-  const dayOfWeek = currentDay.getDay();
-  const diff = currentDay.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-  const monday = new Date(currentDay.setDate(diff));
-
-  let scheduleHtml = '';
-
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i); // Correctly increment from Monday copy
-    const dateStr = d.toISOString().split('T')[0];
-    const dayName = d.toLocaleDateString('es-ES', { weekday: 'long' });
-    const dayNum = d.getDate();
-
-    // Find session
-    const sess = sessions.find(s => s.clientId === client.id && s.date === dateStr);
-
-    scheduleHtml += `
-      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid var(--bg-tertiary);">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-weight:600; font-size:13px; color:var(--text-secondary); width:20px;">${dayNum}</span>
-            <span style="font-weight:500; font-size:13px; color:white; text-transform:capitalize;">${dayName}</span>
-        </div>
-        <div style="flex:1; text-align:right;">
-          ${sess ? `<span style="color:var(--accent-color); font-weight:500; cursor:pointer;" onclick="alert('Detalle: ${sess.routineName}')">${sess.routineName} ${sess.status === 'completed' ? '✅' : ''}</span>` :
-        `<span style="color:var(--text-secondary); opacity:0.3; font-size:12px;">Descanso</span>`}
-        </div>
-      </div>`;
-  }
-
-  // General Routines (Templates)
-  const routinesHtml = client.routines.map(rid => {
-    const r = state.routines.find(rt => rt.id === rid);
-    if (!r) return '';
-    return `
-            <div class="routine-card">
-               <div><h4>${r.name}</h4><p>${r.exercises.length} Ejercicios</p></div>
-               <span class="routine-badge">General</span>
-            </div>
-        `;
-  }).join('');
-
-  detailContent.innerHTML = `
-        <div class="client-hero">
-           <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px;">
-              <button class="icon-btn" onclick="editClient(${client.id})">✏️ Editar</button>
-           </div>
-           <div class="avatar-large">${client.name.charAt(0)}</div>
-           <h2>${client.name}</h2>
-           
-           <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px;">
-             <p style="color:var(--accent-color); margin:0;">${client.plan}</p>
-             <button class="icon-btn" style="width:24px; height:24px; padding:4px;" onclick="quickEditStudentPlan(${client.id})" title="Editar Plan">✏️</button>
-           </div>
-           
-           <div class="mini-stats-row" style="display:flex; justify-content:center; gap:20px; margin-top:12px;">
-              <div style="text-align:center;">
-                  <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase;">Socio desde</div>
-                  <div style="font-weight:600; font-size:13px;">${new Date(client.joinedDate).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}</div>
-              </div>
-              <div style="text-align:center;">
-                  <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase;">Progreso</div>
-                  <div style="font-weight:600; font-size:13px; color:var(--success);">${client.progress || 0}%</div>
-              </div>
-           </div>
-
-           <!-- Goal Bar -->
-           <div style="padding:0 20px; margin-top:20px;">
-              <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
-                  <div style="display:flex; align-items:center; gap:6px;">
-                      <span style="color:var(--text-secondary)">OBJETIVO: ${client.goal || 'No definido'}</span>
-                      <button class="icon-btn" style="width:20px; height:20px; padding:2px;" onclick="quickEditStudentGoal(${client.id})" title="Editar Objetivo">✏️</button>
-                  </div>
-                  <span style="color:var(--text-secondary)">${client.targetDate ? `📅 ${new Date(client.targetDate).toLocaleDateString()}` : ''}</span>
-              </div>
-              <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
-                  <div style="width:${client.progress || 0}%; height:100%; background:var(--success);"></div>
-              </div>
-           </div>
-
-           <!-- Progress Chart -->
-           <div style="background:rgba(0,0,0,0.2); border-radius:12px; padding:12px; margin:16px 20px 0 20px;">
-              <h4 style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; margin-bottom:8px; text-align:left;">Actividad (7 días)</h4>
-              <div style="display:flex; justify-content:space-between; align-items:flex-end; height:60px;">
-                  ${progressBarsHtml.join('')}
-              </div>
-           </div>
-        </div>
-
-        <div class="section-header" style="padding:0 20px; margin-top:20px;">
-           <h3 style="margin:0;">Agenda Semanal</h3>
-           <button class="icon-btn text-link" onclick="openAssignModal(${client.id})">+ Asignar</button>
-        </div>
-        <div style="padding:0 20px; background:var(--bg-secondary); border-radius:12px; margin:0 20px;">
-           ${scheduleHtml}
-        </div>
-
-        <div class="section-header" style="padding:0 20px; margin-top:20px;">
-           <h3 style="margin:0;">Rutinas Asignadas</h3>
-        </div>
-        <div style="padding:0 20px;">
-           ${routinesHtml || '<p style="color:var(--text-secondary); font-size:13px;">No hay rutinas generales.</p>'}
-        </div>
-    `;
 
   switchView('view-client-detail');
+
+  // Updated Detail Render with Tabs
+  const container = $('#client-detail-content');
+  container.innerHTML = `
+        <div class="client-hero" style="text-align:center; padding-bottom:20px;">
+             <div class="profile-avatar-large" style="margin:0 auto 10px;">${client.name.substring(0, 2).toUpperCase()}</div>
+             <h2>${client.name}</h2>
+             <p>${client.email}</p>
+             <div style="margin-top:10px; display:flex; gap:10px; justify-content:center;">
+                <span class="tag">€${client.fee}/mes</span>
+                <span class="tag">${client.objective || 'General'}</span>
+             </div>
+        </div>
+
+        <div class="db-tabs" style="margin-top:20px; justify-content:center;">
+             <button class="db-tab active" onclick="switchClientTab('overview', '${client.id}')">Visión Gral</button>
+             <button class="db-tab" onclick="switchClientTab('planning', '${client.id}')">Planificación</button>
+             <button class="db-tab" onclick="switchClientTab('objectives', '${client.id}')">Objetivos</button>
+        </div>
+
+        <div id="c-tab-overview" class="c-tab-content" style="display:block;">
+             <div class="settings-group">
+                <h3>Datos Personales <span style="float:right; cursor:pointer;">✏️</span></h3>
+                <div class="form-grid">
+                    <div class="form-group"><label>Teléfono</label><input disabled value="${client.phone}"></div>
+                    <div class="form-group"><label>Email</label><input disabled value="${client.email}"></div>
+                    <div class="form-group"><label>Fecha Alta</label><input disabled value="${client.joined}"></div>
+                    <div class="form-group"><label>Cuota</label><input disabled value="€${client.fee}"></div>
+                </div>
+            </div>
+             <div class="settings-group">
+                <h3>Progreso Reciente</h3>
+                <div class="chart-placeholder" style="height:150px; background:rgba(255,255,255,0.05); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                    Gráfico de Peso/Marcas
+                </div>
+            </div>
+        </div>
+
+        <div id="c-tab-planning" class="c-tab-content" style="display:none;">
+            <div class="section-header">
+                <h3>Plan 12 Semanas</h3>
+                <button class="btn-primary" style="font-size:12px; padding:6px 12px; height:auto;" onclick="generateClientPlan('${client.id}')">Generar Nuevo</button>
+            </div>
+            <div id="client-planning-container">
+                 ${client.currentPlan ? renderActivePlan(client.currentPlan) : '<p style="text-align:center; opacity:0.5; padding:20px;">No hay plan activo. Genera uno nuevo.</p>'}
+            </div>
+        </div>
+        
+         <div id="c-tab-objectives" class="c-tab-content" style="display:none;">
+             <div class="settings-group">
+                <h3>Objetivo Principal</h3>
+                <select id="client-obj-select" class="form-group" onchange="updateClientObjective('${client.id}', this.value)" style="width:100%; padding:10px; border-radius:8px;">
+                     ${state.objectives.map(o => `<option value="${o.name}" ${client.objective === o.name ? 'selected' : ''}>${o.name}</option>`).join('')}
+                </select>
+                <p style="font-size:12px; margin-top:10px;">Cambiar el objetivo sugerirá nuevos planes de entrenamiento.</p>
+             </div>
+        </div>
+    `;
 }
 
-// Edit Client (Admin) - Fix Logic
-window.editClient = function (id) {
-  const client = state.clients.find(c => c.id === id);
+window.switchClientTab = function (tab, clientId) {
+  // UI Toggle
+  $$('.c-tab-content').forEach(el => el.style.display = 'none');
+  $(`#c-tab-${tab}`).style.display = 'block';
+
+  $$('.db-tab').forEach(b => b.classList.remove('active'));
+
+  // Find active tab button by text or simple logic - quick hack for now
+  const labels = { 'overview': 'Visión Gral', 'planning': 'Planificación', 'objectives': 'Objetivos' };
+  const buttons = Array.from($$('.db-tab'));
+  buttons.forEach(b => {
+    if (b.innerText === labels[tab]) b.classList.add('active');
+  });
+}
+
+window.generateClientPlan = function (clientId) {
+  const client = state.clients.find(c => c.id === clientId);
   if (!client) return;
 
-  const form = $('#new-student-form');
-  if (!form) return;
-
-  form.reset();
-
-  // Populate fields using form field names
-  const setField = (name, value) => {
-    const input = form.querySelector(`[name="${name}"]`);
-    if (input && value !== undefined && value !== null) input.value = value;
-  };
-
-  setField('name', client.name);
-  setField('email', client.email);
-  setField('phone', client.phone || '');
-  setField('plan', client.plan);
-  setField('monthlyFee', client.monthlyFee);
-  setField('goal', client.goal);
-  setField('weight', client.weight);
-  setField('height', client.height);
-  setField('status', client.status);
-  setField('dob', client.age);
-  setField('targetDate', client.targetDate);
-
-  // Set hidden ID field
-  setField('id', client.id);
-
-  // Change modal title
-  const title = $('#new-student-modal .section-header h2');
-  if (title) title.innerText = 'Editar Alumno';
-
-  // Change submit button text
-  const btn = $('#new-student-form button[type="submit"]');
-  if (btn) btn.innerText = 'Guardar Cambios';
-
-  $('#new-student-modal').classList.add('open');
+  if (confirm(`¿Generar plan de 12 semanas para: ${client.objective}?`)) {
+    // Mock generation
+    const plan = {
+      id: Date.now(),
+      name: `Bloque ${client.objective} - Fase 1`,
+      weeks: 12,
+      focus: client.objective,
+      startDate: new Date().toISOString().split('T')[0]
+    };
+    client.currentPlan = plan;
+    saveState();
+    // Refresh tab
+    const container = $('#client-planning-container');
+    if (container) container.innerHTML = renderActivePlan(plan);
+  }
 }
+
+function renderActivePlan(plan) {
+  return `
+        <div class="dash-card">
+            <h4>${plan.name}</h4>
+            <p>Enfoque: ${plan.focus}</p>
+            <p>Inicio: ${plan.startDate}</p>
+            <div style="margin-top:10px; background:var(--bg-primary); height:8px; border-radius:4px; overflow:hidden;">
+                <div style="width:15%; background:var(--success); height:100%;"></div>
+            </div>
+            <p style="font-size:10px; text-align:right;">Semana 2 de ${plan.weeks}</p>
+        </div>
+    `;
+}
+
+window.updateClientObjective = function (clientId, newObj) {
+  const client = state.clients.find(c => c.id === clientId);
+  if (client) {
+    client.objective = newObj;
+    saveState();
+    alert("Objetivo actualizado");
+  }
+}
+
 
 // --- ASSIGNMENT ---
 

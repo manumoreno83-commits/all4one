@@ -86,10 +86,10 @@
 
         <!-- Main Content Area -->
         <main id="main-content">
-            <!-- Dashboard View (Overview) -->
+            <!-- Dashboard View (Overview) - Grid Layout -->
             <section id="view-dashboard" class="view active">
                 <div class="section-header">
-                    <h2>Panel de Coach</h2>
+                    <h2>Panel de Control</h2>
                     <button class="icon-btn" onclick="logout()" title="Cerrar Sesión" style="color:var(--danger);">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -100,226 +100,147 @@
                     </button>
                 </div>
 
-                <!-- Business Stats -->
-                <div class="stats-row mb-4">
-                    <div class="stat-box highlight">
-                        <span class="num" id="stat-active-students">--</span>
-                        <span class="lbl">Alumnos Activos</span>
-                    </div>
-                    <div class="stat-box" onclick="switchView('view-checkins')" style="cursor:pointer;">
-                        <span class="num" id="stat-reviews">--</span>
-                        <span class="lbl">Check-ins Pendientes</span>
-                    </div>
-                    <div class="stat-box"
-                        onclick="$('#accounting-modal').classList.add('open'); window.renderAccountingTable && renderAccountingTable()"
-                        style="cursor:pointer;">
-                        <span class="num" id="stat-income">--</span>
-                        <span class="lbl">Ingresos Mes</span>
-                    </div>
-                </div>
-
-                <div class="stats-row mb-4">
-                    <div class="stat-box">
-                        <span class="num" id="stat-sessions">--</span>
-                        <span class="lbl">Sesiones Semana</span>
-                    </div>
-                </div>
-
-                <div class="section-header">
-                    <h2>Agenda de Hoy</h2>
-                    <a href="#" class="text-link" onclick="switchView('view-calendar')">Ver Calendario</a>
-                </div>
-                <div class="card schedule-card">
-                    <div id="agenda-list">
-                        <div class="schedule-item">
-                            <div class="time">09:00</div>
-                            <div class="event-info">
-                                <span class="event-title">Sesión EP: Mario Garcia</span>
-                                <span class="event-type">Fuerza Funcional</span>
+                <div class="dashboard-grid">
+                    <!-- Weekly Summary Widget -->
+                    <div class="dash-card summary-card">
+                        <h3>Resumen Semanal</h3>
+                        <div class="summary-stats">
+                            <div class="stat-item">
+                                <span class="val" id="dash-active-students">--</span>
+                                <span class="label">Alumnos Activos</span>
                             </div>
-                        </div>
-                        <div class="schedule-item">
-                            <div class="time">11:30</div>
-                            <div class="event-info">
-                                <span class="event-title">Revisión: Ana L.</span>
-                                <span class="event-type">Bloque Pérdida Peso</span>
+                            <div class="stat-item">
+                                <span class="val" id="dash-sessions">--</span>
+                                <span class="label">Sesiones/Semana</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="val" id="dash-income">--</span>
+                                <span class="label">Ingresos</span>
                             </div>
                         </div>
                     </div>
-                    <div class="agenda-actions">
-                        <button class="text-link" style="background:none; border:none; cursor:pointer;"
-                            onclick="openAddAgendaModal()">+ Añadir Evento</button>
+
+                    <!-- Categories / Quick Access -->
+                    <div class="dash-card categories-card">
+                        <h3>Accesos Rápidos</h3>
+                        <div class="quick-actions">
+                            <button onclick="switchView('view-clients')">
+                                <span class="icon">👥</span> Alumnos
+                            </button>
+                            <button onclick="switchView('view-calendar')">
+                                <span class="icon">📅</span> Agenda
+                            </button>
+                            <button onclick="switchView('view-trainings')">
+                                <span class="icon">💪</span> Entrenos
+                            </button>
+                            <button onclick="switchView('view-admin')">
+                                <span class="icon">⚙️</span> Admin
+                            </button>
+                        </div>
                     </div>
                 </div>
 
+                <!-- AI Tools Section -->
+                <div class="dash-card ai-card" style="margin-top:20px;">
+                    <h3>✨ AI Assistant</h3>
+                    <div class="ai-input-wrapper">
+                        <input type="text" id="ai-prompt-input" placeholder="Ej: Rutina de pierna 45min intensa...">
+                        <button class="btn-primary" onclick="handleAIPrompt()">Generar</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Entrenos View (Builder + Saved Routines) -->
+            <section id="view-trainings" class="view">
                 <div class="section-header">
-                    <h2>Actividad Reciente</h2>
-                </div>
-                <div class="card activity-feed">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-
-            <!-- Clients View -->
-            <section id="view-clients" class="view">
-                <div class="search-bar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <input type="text" placeholder="Buscar alumnos..." />
+                    <h2>Mis Entrenos</h2>
                 </div>
 
-                <div class="tabs-header" style="margin-bottom:16px;">
-                    <!-- Status filters could go here if needed -->
-                </div>
-
-                <div class="client-list">
-                    <!-- Populated by JS -->
-                </div>
-
-                <button class="floating-fab" aria-label="Añadir Alumno">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="8.5" cy="7" r="4"></circle>
-                        <line x1="20" y1="8" x2="20" y2="14"></line>
-                        <line x1="23" y1="11" x2="17" y2="11"></line>
-                    </svg>
-                </button>
-            </section>
-
-            <!-- Client Detail View (Hidden by default) -->
-            <section id="view-client-detail" class="view">
-                <div class="section-header">
-                    <button class="icon-btn" onclick="switchView('view-clients')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 12H5M12 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <h2>Perfil Alumno</h2>
-                    <button class="icon-btn" style="color:var(--accent-color)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <div id="client-detail-content">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-
-            <!-- Library View (Split Layout) -->
-            <section id="view-library" class="view">
-                <div class="library-filters-container">
-                    <div class="search-bar-integrated">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                        <input type="text" id="lib-search" placeholder="Busca por nombre o músculo..."
-                            onkeyup="filterLibrary()">
-                    </div>
-
-                    <div class="filter-chips-wrapper" id="lib-filter-chips">
-                        <!-- Populated by JS -->
-                    </div>
+                <!-- Tab Switcher for Mobile -->
+                <div class="mobile-tab-header">
+                    <button class="mobile-tab-btn active" onclick="switchTrainingTab('builder')">Constructor</button>
+                    <button class="mobile-tab-btn" onclick="switchTrainingTab('routines')">Rutinas</button>
                 </div>
 
                 <div class="split-layout">
-                    <!-- Left Pane: Exercises -->
-                    <div class="library-pane">
-                        <div class="library-pane-header">
-                            <span>Biblioteca de Ejercicios</span>
-                            <button class="text-link" style="background:none; border:none; cursor:pointer;"
-                                onclick="openExerciseModal()">+ Nuevo</button>
+                    <!-- Builder Pane -->
+                    <div class="training-pane builder-pane active" id="pane-builder">
+                        <div class="pane-header">
+                            <span>Constructor de Rutina</span>
+                            <button class="btn-save-routine" onclick="saveBuiltRoutine()">Guardar</button>
                         </div>
-                        <div class="scroll-area" id="library-source-list">
+                        <div class="builder-controls">
+                            <button class="btn-add-exercise" onclick="openExerciseSelector()">+ Añadir
+                                Ejercicio</button>
+                        </div>
+                        <div class="scroll-area" id="routine-builder-dropzone">
+                            <div class="drop-zone-placeholder">
+                                <p>Añade ejercicios aquí</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Saved Routines Pane -->
+                    <div class="training-pane routines-pane" id="pane-routines">
+                        <div class="pane-header">
+                            <span>Mis Rutinas Guardadas</span>
+                            <select id="routines-filter" onchange="filterRoutines()">
+                                <option value="all">Todas</option>
+                                <option value="Fuerza">Fuerza</option>
+                                <option value="Hipertrofia">Hipertrofia</option>
+                                <option value="Cardio">Cardio</option>
+                            </select>
+                        </div>
+                        <div class="scroll-area" id="saved-routines-list">
                             <!-- Populated by JS -->
                         </div>
                     </div>
+                </div>
+            </section>
 
-                    <!-- Right Pane: Routine Builder & List -->
-                    <div class="library-pane builder-pane"
-                        style="display:flex; flex-direction:column; overflow:hidden; background:transparent; border:none;">
-
-                        <!-- Top: New Routine Builder -->
-                        <div
-                            style="flex:1; display:flex; flex-direction:column; min-height:0; background:rgba(245, 158, 11, 0.05); border:1px dashed var(--accent-color); border-radius:12px; margin-bottom:10px;">
-                            <div class="library-pane-header"
-                                style="background:transparent; border-bottom:1px dashed var(--accent-color);">
-                                <span>Nueva Rutina</span>
-                                <button class="btn-save-routine" onclick="saveBuiltRoutine()">Guardar</button>
-                            </div>
-                            <div class="scroll-area" id="routine-builder-dropzone" ondragover="allowDrop(event)"
-                                ondrop="drop(event)">
-                                <div class="drop-zone">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" style="margin-bottom:8px; opacity:0.5">
-                                        <path d="M12 5v14M5 12h14" />
-                                    </svg>
-                                    <p>Arrastra ejercicios aquí o haz clic para añadir.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Bottom: Saved Routines List -->
-                        <div
-                            style="flex:1; display:flex; flex-direction:column; min-height:0; background:var(--bg-secondary); border:1px solid var(--bg-tertiary); border-radius:12px;">
-                            <div class="library-pane-header">
-                                <span>Mis Rutinas</span>
-                                <div style="display:flex; gap:5px;">
-                                    <select id="saved-routines-filter" onchange="renderSavedRoutines()"
-                                        style="background:var(--bg-primary); color:white; border:none; border-radius:4px; padding:2px 6px; font-size:11px;">
-                                        <option value="all">Todas</option>
-                                        <option value="fuerza">Fuerza</option>
-                                        <option value="hipertrofia">Hipertrofia</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="scroll-area" id="saved-routines-list">
-                                <!-- Populated by JS -->
-                            </div>
-                        </div>
-
+            <!-- Library View (Reference Only) -->
+            <section id="view-library" class="view">
+                <div class="section-header">
+                    <h2>Biblioteca de Ejercicios</h2>
+                    <button class="icon-btn" onclick="openExerciseModal()">+ Nuevo</button>
+                </div>
+                <div class="library-filters-container">
+                    <input type="text" id="lib-search" placeholder="Buscar ejercicio..." onkeyup="filterLibraryDB()">
+                    <div class="filter-chips-wrapper" id="lib-db-filters">
+                        <!-- Chips populated by JS -->
                     </div>
                 </div>
-            </section>
-
-            <!-- Detail View -->
-            <section id="view-client-detail" class="view">
-                <button class="btn-back-floating" onclick="switchView('view-clients')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 12H5M12 19l-7-7 7-7" />
-                    </svg>
-                    <span>Volver</span>
-                </button>
-                <div class="detail-spacer" style="height:20px;"></div>
-                <div id="client-detail-content"></div>
-            </section>
-
-            <!-- Settings View -->
-            <section id="view-settings" class="view">
-                <div class="profile-header">
-                    <div class="profile-avatar-large">M</div>
-                    <h2>Ent. Miguel</h2>
-                    <p>Coach Deportivo</p>
+                <div class="scroll-area" id="library-db-list">
+                    <!-- Populated by JS -->
                 </div>
+            </section>
+
+            <!-- Admin View -->
+            <section id="view-admin" class="view">
+                <div class="section-header">
+                    <h2>Administración</h2>
+                </div>
+                <div class="admin-profile-card">
+                    <div class="profile-image-wrapper">
+                        <img src="./assets/miguel.png" class="profile-img" id="admin-profile-img">
+                        <button class="edit-icon" onclick="editAdminProfile()">✏️</button>
+                    </div>
+                    <h3 id="admin-name-display">Miguel Angel Díaz</h3>
+                    <p class="role-badge">Head Coach</p>
+                </div>
+
                 <div class="settings-list">
-                    <div class="setting-item" onclick="openAccountingModal()" style="cursor:pointer;">
-                        <span>Contabilidad</span>
-                        <svg style="color:var(--text-secondary)" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
+                    <div class="setting-item" onclick="openAccountSettings()">
+                        <span>Datos Personales</span>
+                        <span class="icon">✏️</span>
+                    </div>
+                    <div class="setting-item" onclick="openAccountingModal()">
+                        <span>Contabilidad & Finanzas</span>
+                        <span class="icon">💰</span>
+                    </div>
+                    <div class="setting-item" onclick="openNewCoachModal()">
+                        <span>Alta Nuevo Coach</span>
+                        <span class="icon">➕</span>
                     </div>
                 </div>
             </section>
@@ -773,45 +694,9 @@
 
         </main>
 
-        <!-- Bottom Navigation (Shared) -->
+        <!-- Bottom Navigation (Admin) -->
         <nav class="bottom-nav">
-            <!-- Student Navigation -->
-            <a href="#" class="nav-item student-nav active" data-target="view-student-home">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-                Inicio
-            </a>
-            <a href="#" class="nav-item student-nav" data-target="view-dashboard">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                </svg>
-                Entreno
-            </a>
-            <a href="#" class="nav-item student-nav" data-target="view-client-detail">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                Perfil
-            </a>
-            <a href="#" class="nav-item student-nav" data-target="view-student-menu">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-                Menú
-            </a>
-
-            <!-- Admin Navigation (Hidden for students in JS) -->
-            <a href="#" class="nav-item admin-nav" data-target="view-dashboard">
+            <a href="#" class="nav-item" data-target="view-dashboard">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="7" height="7"></rect>
@@ -821,7 +706,17 @@
                 </svg>
                 Inicio
             </a>
-            <a href="#" class="nav-item admin-nav" data-target="view-clients">
+            <a href="#" class="nav-item" data-target="view-calendar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Agenda
+            </a>
+            <a href="#" class="nav-item" data-target="view-clients">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -831,25 +726,25 @@
                 </svg>
                 Alumnos
             </a>
-            <a href="#" class="nav-item admin-nav" data-target="view-calendar">
+            <a href="#" class="nav-item" data-target="view-trainings">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                    <path d="M6 14l1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H3">
+                    </path>
+                    <path d="M11 14h5"></path>
+                    <rect x="3" y="10" width="4" height="11"></rect>
                 </svg>
-                Calendario
+                Entrenos
             </a>
-            <a href="#" class="nav-item admin-nav" data-target="view-library">
+            <a href="#" class="nav-item" data-target="view-library">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                 </svg>
-                Biblioteca
+                Biblio
             </a>
-            <a href="#" class="nav-item admin-nav" data-target="view-settings">
+            <a href="#" class="nav-item" data-target="view-admin">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>
@@ -859,6 +754,68 @@
                 </svg>
                 Admin
             </a>
+        </nav>
+        Perfil
+        </a>
+        <a href="#" class="nav-item student-nav" data-target="view-student-menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            Menú
+        </a>
+
+        <!-- Admin Navigation (Hidden for students in JS) -->
+        <a href="#" class="nav-item admin-nav" data-target="view-dashboard">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            Inicio
+        </a>
+        <a href="#" class="nav-item admin-nav" data-target="view-clients">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Alumnos
+        </a>
+        <a href="#" class="nav-item admin-nav" data-target="view-calendar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            Calendario
+        </a>
+        <a href="#" class="nav-item admin-nav" data-target="view-library">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            Biblioteca
+        </a>
+        <a href="#" class="nav-item admin-nav" data-target="view-settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                </path>
+            </svg>
+            Admin
+        </a>
         </nav>
 
         <!-- Client Modal -->
