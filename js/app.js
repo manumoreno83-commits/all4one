@@ -5,8 +5,8 @@ const defaultState = {
   libMode: 'exercises', // 'exercises' or 'routines'
   exerciseFilter: 'all',
   trainers: [
-    { id: 'Miguel', name: 'Miguel Angel Díaz', role: 'Coach Deportivo', avatar: 'MAD', photo: './assets/miguel.png' },
-    { id: 'Marta', name: 'Marta Caparrós', role: 'Coach Deportiva', avatar: 'MC', photo: './assets/marta.png' }
+    { id: 'Miguel', name: 'Miguel Angel Díaz', role: 'Coach Deportivo', avatar: 'MAD', photo: './assets/miguel.png', password: '197373' },
+    { id: 'Marta', name: 'Marta Caparrós', role: 'Coach Deportiva', avatar: 'MC', photo: './assets/marta.png', password: '1111' }
   ],
   currentTrainerId: 'Miguel',
   clients: [
@@ -452,15 +452,16 @@ window.loginSimulation = function (role) {
     if (!state.trainers) state.trainers = defaultState.trainers;
 
     if (role === 'admin') {
-      const pwd = prompt('Introduce contraseña de Coach:\n\nMiguel = 197373\nMarta = 1111');
+      const pwd = prompt('Introduce contraseña de Coach:\n(Miguel: 197373, Marta: 1111)');
       if (!pwd) return;
 
-      let trainer = null;
-      if (pwd === '197373') trainer = state.trainers.find(t => t.id === 'Miguel');
-      else if (pwd === '1111') trainer = state.trainers.find(t => t.id === 'Marta');
-      else { alert('Contraseña incorrecta'); return; }
+      // Find trainer with matching password
+      const trainer = state.trainers.find(t => t.password === pwd);
 
-      if (!trainer) { alert('Error: Entrenador no encontrado'); return; }
+      if (!trainer) {
+        alert('Contraseña incorrecta');
+        return;
+      }
 
       state.userRole = 'admin';
       state.currentTrainerId = trainer.id;
