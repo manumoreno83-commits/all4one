@@ -236,6 +236,13 @@
 
 ## 🚀 **Cómo Usar**
 
+> [!IMPORTANT]
+> Si no ves los cambios recientes (como el selector de tabs en desktop), asegúrate de refrescar la caché del navegador.
+> Si estás usando la versión construida (`dist`), ejecuta el siguiente comando para actualizarla:
+> ```bash
+> npm run build
+> ```
+
 ### Login Director
 1. Click en "Entrar como Director"
 2. Introduce contraseña:
