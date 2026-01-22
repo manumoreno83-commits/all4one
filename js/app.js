@@ -282,6 +282,26 @@ if (!state.availableGoals || state.availableGoals.length < 10) {
   saveState();
 }
 
+// FORCE SYNC of Trainers (Ensure Admin Password is correct)
+// This fixes issues where old localStorage data has different/missing credentials
+const defaultMiguel = defaultState.trainers.find(t => t.id === 'Miguel');
+const currentMiguel = state.trainers ? state.trainers.find(t => t.id === 'Miguel') : null;
+
+if (!currentMiguel || (defaultMiguel && currentMiguel.password !== defaultMiguel.password)) {
+  console.log('🔄 Syncing Trainer Credentials...');
+  // If we have no trainers or Miguel is missing, reset all
+  if (!state.trainers || state.trainers.length === 0) {
+    state.trainers = defaultState.trainers;
+  } else if (currentMiguel) {
+    // Just update Miguel's password
+    currentMiguel.password = defaultMiguel.password;
+  } else {
+    // Add Miguel if missing
+    state.trainers.push(defaultMiguel);
+  }
+  saveState();
+}
+
 // Sync Routines (Merge new ones) - ALWAYS CHECK to ensure all default routines exist
 if (!state.routines) state.routines = [];
 const existingIds = new Set(state.routines.map(r => r.id));
