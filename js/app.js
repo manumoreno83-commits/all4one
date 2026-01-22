@@ -5,13 +5,12 @@ const defaultState = {
   libMode: 'exercises', // 'exercises' or 'routines'
   exerciseFilter: 'all',
   trainers: [
-    { id: 'Miguel', name: 'Miguel Angel Díaz', role: 'Coach Deportivo', avatar: 'MAD', photo: './assets/miguel.png', password: '197373' },
-    { id: 'Marta', name: 'Marta Caparrós', role: 'Coach Deportiva', avatar: 'MC', photo: './assets/marta.png', password: '1111' }
+    { id: 'Miguel', name: 'Miguel Angel Díaz', role: 'Coach Deportivo', avatar: 'MAD', photo: './assets/miguel.png', password: '197373' }
   ],
   currentTrainerId: 'Miguel',
   clients: [
     { id: 101, name: 'Mario Garcia', email: 'mario@gmail.com', trainerId: 'Miguel', plan: 'Hipertrofia Pro', status: 'active', lastActive: 'hace 2h', routines: [1], weeklySchedule: { Monday: 1, Wednesday: 1, Friday: 1 }, joinedDate: '2023-05-12', progress: 75, goal: 'Subir 5kg músculo', monthlyFee: 60 },
-    { id: 102, name: 'Ana Lopez', email: 'ana@gmail.com', trainerId: 'Marta', plan: 'Pérdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], weeklySchedule: {}, joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa', monthlyFee: 50 },
+    { id: 102, name: 'Ana Lopez', email: 'ana@gmail.com', trainerId: 'Miguel', plan: 'Pérdida de Peso', status: 'active', lastActive: 'hace 5h', routines: [], weeklySchedule: {}, joinedDate: '2023-11-20', progress: 40, goal: 'Perder 10kg grasa', monthlyFee: 50 },
     { id: 200, name: 'Manuel Moreno', email: 'manuel.moreno@gmail.com', trainerId: 'Miguel', plan: 'Personalizado', status: 'active', lastActive: 'Ahora', routines: [], weeklySchedule: {}, joinedDate: '2024-01-19', progress: 0, goal: 'Definición', monthlyFee: 70 },
     { id: 103, name: 'Carlos Ruiz', email: 'carlos@gmail.com', trainerId: 'Miguel', plan: 'Fuerza Funcional', status: 'pending', lastActive: 'hace 1d', routines: [], weeklySchedule: {}, joinedDate: '2024-01-05', progress: 10, goal: 'Mejorar movilidad', monthlyFee: 45 },
   ],
@@ -363,7 +362,7 @@ window.loginSimulation = function (role) {
     if (!state.trainers) state.trainers = defaultState.trainers;
 
     if (role === 'admin') {
-      const pwd = prompt('Introduce contraseña de Coach:\n(Miguel: 197373, Marta: 1111)');
+      const pwd = prompt('Introduce contraseña de Coach (Miguel):');
       if (!pwd) return;
 
       // Find trainer with matching password
