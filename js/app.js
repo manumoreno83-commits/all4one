@@ -550,35 +550,77 @@ window.handleAIPrompt = function () {
   if (!prompt) return;
 
   input.value = "Generando...";
+  input.disabled = true;
 
   setTimeout(() => {
-    // Simple mock logic
+    // Mock Parsing Logic for "Session Creator" vs "Routine Generator"
+    // If prompt text implies a single session or specific duration, treat as Session
+    // e.g. "sesión de 30 min cardio" or "30 min" or "hoy"
+    const isSessionRequest = prompt.includes('sesión') || prompt.includes('min') || prompt.includes('hoy');
+
     let routineName = "Rutina AI";
     let exercises = [];
+    let tags = ['AI Generated'];
+    let focus = 'General';
 
+    // simple keyword matching
     if (prompt.includes("pierna")) {
-      routineName = "Pierna Destructora (AI)";
-      exercises = state.library.filter(e => e.muscle === 'Piernas').map(e => e.id).slice(0, 5);
+      exercises = state.library.filter(e => e.muscle === 'Piernas').map(e => e.id).slice(0, 6);
+      focus = 'Pierna';
     } else if (prompt.includes("fuerza")) {
-      routineName = "Fuerza Base (AI)";
       exercises = state.library.filter(e => e.tags.includes('Fuerza')).map(e => e.id).slice(0, 5);
+      focus = 'Fuerza';
+    } else if (prompt.includes("cardio") || prompt.includes("hiit")) {
+      exercises = state.library.filter(e => e.type === 'Cardio' || e.type === 'Deka' || e.tags.includes('Cardio')).map(e => e.id).slice(0, 8);
+      focus = 'Cardio/HIIT';
     } else {
-      routineName = "Full Body (AI)";
+      // Fallback
       exercises = state.library.slice(0, 6).map(e => e.id);
+    }
+
+    // Apply Duration Constraint (Mock: strict exercise count)
+    // e.g. if "30 min", maybe fewer exercises
+    if (prompt.includes("30 min") || prompt.includes("corta")) {
+      exercises = exercises.slice(0, 4);
+      tags.push('Express (30m)');
+    }
+
+    if (isSessionRequest) {
+      routineName = `Sesión ${focus} (${new Date().toLocaleDateString()})`;
+      tags.push('Sesión Única');
+    } else {
+      routineName = `${focus} - Plan AI`;
     }
 
     const newRoutine = {
       id: Date.now().toString(),
       name: routineName,
       exercises: exercises,
-      tags: ['AI Generated']
+      tags: tags,
+      createdAt: new Date().toISOString()
     };
 
     state.routines.push(newRoutine);
     saveState();
 
     input.value = "";
-    alert(`¡Listo! He creado la rutina "${routineName}" y la he guardado en tus entrenos.`);
+    input.disabled = false;
+
+    if (isSessionRequest) {
+      // If it's a session, maybe offer to schedule it immediately?
+      if (confirm(`¡Sesión creada!\n"${routineName}"\n\n¿Quieres agendarla para hoy en el calendario?`)) {
+        // Auto-schedule
+        const today = new Date().toISOString().split('T')[0];
+        // We need a client ID... default to first active or ask user
+        // For now, let's just create the routine object and alert
+        alert("Rutina guardada. Ve al Calendario para asignarla a un alumno.");
+      } else {
+        alert(`Rutina "${routineName}" guardada en Entrenos.`);
+      }
+    } else {
+      alert(`¡Listo! He creado la rutina "${routineName}" y la he guardado en tus entrenos.`);
+    }
+
     switchView('view-trainings');
 
   }, 1500);
