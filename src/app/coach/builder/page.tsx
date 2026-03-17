@@ -10,9 +10,11 @@ import Input from "@/components/ui/Input";
 import { BlockBadge } from "@/components/ui/Badge";
 import BottomNav from "@/components/ui/BottomNav";
 import QuickModeModal from "@/components/ui/QuickModeModal";
+import VideoModal from "@/components/ui/VideoModal";
 import { SearchInput } from "@/components/ui/Input";
 import { colors, gradients, blockColor } from "@/lib/colors";
 import { exercises, searchExercises } from "@/lib/exercises";
+import { getVideoUrl } from "@/lib/videos";
 import type {
   BlockType,
   BlockExercise,
@@ -93,6 +95,7 @@ export default function RoutineBuilder() {
   const [showQuickMode, setShowQuickMode] = useState(false);
   const [selectedBlockForExercise, setSelectedBlockForExercise] = useState<string | null>(null);
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
+  const [selectedVideoExercise, setSelectedVideoExercise] = useState<{ name: string; videoUrl: string } | null>(null);
 
   useEffect(() => {
     const mode = searchParams?.get("mode");
@@ -298,7 +301,7 @@ export default function RoutineBuilder() {
                   e.dataTransfer.effectAllowed = "copy";
                   e.dataTransfer.setData("exercise", JSON.stringify(ex));
                 }}
-                className="p-3 bg-white dark:bg-[#1C2128] rounded-lg cursor-move hover:shadow-md transition border border-gray-200 dark:border-gray-700"
+                className="p-3 bg-white dark:bg-[#1C2128] rounded-lg cursor-move hover:shadow-md transition border border-gray-200 dark:border-gray-700 flex items-start justify-between"
               >
                 <div>
                   <p className="font-medium text-sm text-[var(--color-brand-dark-blue)] dark:text-white">
@@ -308,6 +311,20 @@ export default function RoutineBuilder() {
                     {ex.category}
                   </p>
                 </div>
+                {getVideoUrl(ex.id) && (
+                  <button
+                    onClick={() => {
+                      const videoUrl = getVideoUrl(ex.id);
+                      if (videoUrl) {
+                        setSelectedVideoExercise({ name: ex.name, videoUrl });
+                      }
+                    }}
+                    className="ml-2 text-orange-500 hover:text-orange-600 text-lg flex-shrink-0"
+                    title="Ver video"
+                  >
+                    ▶️
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -428,12 +445,28 @@ export default function RoutineBuilder() {
                         {ex.load && ` @${ex.load}${ex.loadType}`}
                         {ex.restSeconds && ` / ${ex.restSeconds}s`}
                       </span>
-                      <button
-                        onClick={() => removeExercise(block.id, ex.id)}
-                        className="text-gray-400 hover:text-red-500"
-                      >
-                        ✕
-                      </button>
+                      <div className="flex gap-1 flex-shrink-0">
+                        {getVideoUrl(ex.exerciseId) && (
+                          <button
+                            onClick={() => {
+                              const videoUrl = getVideoUrl(ex.exerciseId);
+                              if (videoUrl) {
+                                setSelectedVideoExercise({ name: ex.exerciseName, videoUrl });
+                              }
+                            }}
+                            className="text-orange-500 hover:text-orange-600"
+                            title="Ver video"
+                          >
+                            ▶️
+                          </button>
+                        )}
+                        <button
+                          onClick={() => removeExercise(block.id, ex.id)}
+                          className="text-gray-400 hover:text-red-500"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -510,6 +543,20 @@ export default function RoutineBuilder() {
                         {ex.category}
                       </p>
                     </div>
+                    {getVideoUrl(ex.id) && (
+                      <button
+                        onClick={() => {
+                          const videoUrl = getVideoUrl(ex.id);
+                          if (videoUrl) {
+                            setSelectedVideoExercise({ name: ex.name, videoUrl });
+                          }
+                        }}
+                        className="ml-2 text-orange-500 hover:text-orange-600 text-lg flex-shrink-0"
+                        title="Ver video"
+                      >
+                        ▶️
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -662,6 +709,16 @@ export default function RoutineBuilder() {
         onSelectRoutine={loadRoutineForDuplication}
       />
 
+      {/* Video Modal */}
+      {selectedVideoExercise && (
+        <VideoModal
+          isOpen={!!selectedVideoExercise}
+          onClose={() => setSelectedVideoExercise(null)}
+          exerciseName={selectedVideoExercise.name}
+          videoUrl={selectedVideoExercise.videoUrl}
+        />
+      )}
+
       {/* Exercise Selector Modal for Mobile */}
       {showExerciseSelector && selectedBlockForExercise && (
         <div className="fixed inset-0 bg-black/50 z-50 lg:hidden">
@@ -684,18 +741,36 @@ export default function RoutineBuilder() {
             />
             <div className="flex-1 overflow-y-auto">
               {searchExercises(search).map((ex) => (
-                <button
+                <div
                   key={ex.id}
-                  onClick={() => {
-                    addExercise(ex, selectedBlockForExercise);
-                    setShowExerciseSelector(false);
-                    setSearch("");
-                  }}
-                  className="w-full text-left px-4 py-3 border-b border-gray-200 dark:border-gray-700 hover:bg-orange-50 dark:hover:bg-orange-900/10 transition"
+                  className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 hover:bg-orange-50 dark:hover:bg-orange-900/10 transition"
                 >
-                  <p className="font-medium text-sm text-gray-700 dark:text-gray-300">{ex.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{ex.category}</p>
-                </button>
+                  <button
+                    onClick={() => {
+                      addExercise(ex, selectedBlockForExercise);
+                      setShowExerciseSelector(false);
+                      setSearch("");
+                    }}
+                    className="flex-1 text-left"
+                  >
+                    <p className="font-medium text-sm text-gray-700 dark:text-gray-300">{ex.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{ex.category}</p>
+                  </button>
+                  {getVideoUrl(ex.id) && (
+                    <button
+                      onClick={() => {
+                        const videoUrl = getVideoUrl(ex.id);
+                        if (videoUrl) {
+                          setSelectedVideoExercise({ name: ex.name, videoUrl });
+                        }
+                      }}
+                      className="ml-2 text-orange-500 hover:text-orange-600 text-lg flex-shrink-0"
+                      title="Ver video"
+                    >
+                      ▶️
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
           </div>
