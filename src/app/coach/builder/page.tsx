@@ -91,6 +91,8 @@ export default function RoutineBuilder() {
   const [editingBlock, setEditingBlock] = useState<string | null>(null);
   const [tab, setTab] = useState<"exercises" | "routine">("routine");
   const [showQuickMode, setShowQuickMode] = useState(false);
+  const [selectedBlockForExercise, setSelectedBlockForExercise] = useState<string | null>(null);
+  const [showExerciseSelector, setShowExerciseSelector] = useState(false);
 
   useEffect(() => {
     const mode = searchParams?.get("mode");
@@ -421,16 +423,11 @@ export default function RoutineBuilder() {
                       }}
                       className="p-1.5 bg-white dark:bg-[#1C2128] rounded text-xs border border-gray-200 dark:border-gray-700 flex items-center justify-between cursor-move hover:bg-orange-50 dark:hover:bg-orange-900/10"
                     >
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-gray-700 dark:text-gray-300 truncate">
-                          {ex.exerciseName || 'Sin nombre'}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {ex.sets}×{ex.reps}
-                          {ex.load && ` @${ex.load}${ex.loadType}`}
-                          {ex.restSeconds && ` / ${ex.restSeconds}s`}
-                        </div>
-                      </div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300 flex-1 truncate">
+                        {ex.exerciseName || 'Sin nombre'} • {ex.sets}×{ex.reps}
+                        {ex.load && ` @${ex.load}${ex.loadType}`}
+                        {ex.restSeconds && ` / ${ex.restSeconds}s`}
+                      </span>
                       <button
                         onClick={() => removeExercise(block.id, ex.id)}
                         className="text-gray-400 hover:text-red-500"
@@ -582,6 +579,17 @@ export default function RoutineBuilder() {
                     className="w-full h-7 px-2 rounded mb-2 text-xs border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#161B22] text-gray-600 dark:text-gray-400"
                   />
 
+                  {/* Add Exercise Button for Mobile */}
+                  <button
+                    onClick={() => {
+                      setSelectedBlockForExercise(block.id);
+                      setShowExerciseSelector(true);
+                    }}
+                    className="w-full mb-2 py-2 px-2 text-xs font-medium bg-orange-500 hover:bg-orange-600 text-white rounded transition"
+                  >
+                    + Agregar Ejercicio
+                  </button>
+
                   <div className="bg-gray-50 dark:bg-[#161B22] rounded p-2 mb-2 space-y-1 max-h-32 overflow-y-auto"
                     onDragOver={(e) => {
                       e.preventDefault();
@@ -653,6 +661,46 @@ export default function RoutineBuilder() {
         onClose={() => setShowQuickMode(false)}
         onSelectRoutine={loadRoutineForDuplication}
       />
+
+      {/* Exercise Selector Modal for Mobile */}
+      {showExerciseSelector && selectedBlockForExercise && (
+        <div className="fixed inset-0 bg-black/50 z-50 lg:hidden">
+          <div className="bg-white dark:bg-[#0D1117] w-full h-full flex flex-col">
+            <div className="sticky top-0 bg-orange-500 text-white p-4 flex items-center justify-between z-10">
+              <h3 className="font-semibold">Agregar Ejercicio</h3>
+              <button
+                onClick={() => setShowExerciseSelector(false)}
+                className="text-white hover:text-gray-200"
+              >
+                ✕
+              </button>
+            </div>
+            <input
+              type="text"
+              placeholder="🔍 Buscar ejercicio..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="mx-3 mt-3 px-3 py-2 bg-gray-100 dark:bg-[#1C2128] border border-gray-300 dark:border-gray-700 rounded-lg text-sm"
+            />
+            <div className="flex-1 overflow-y-auto">
+              {searchExercises(search).map((ex) => (
+                <button
+                  key={ex.id}
+                  onClick={() => {
+                    addExercise(ex, selectedBlockForExercise);
+                    setShowExerciseSelector(false);
+                    setSearch("");
+                  }}
+                  className="w-full text-left px-4 py-3 border-b border-gray-200 dark:border-gray-700 hover:bg-orange-50 dark:hover:bg-orange-900/10 transition"
+                >
+                  <p className="font-medium text-sm text-gray-700 dark:text-gray-300">{ex.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{ex.category}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <BottomNav items={coachNav} />
     </div>
