@@ -5,8 +5,8 @@ import Card from "@/components/ui/Card";
 import BottomNav from "@/components/ui/BottomNav";
 
 const athleteNav = [
-  { href: "/athlete", label: "Hoy", icon: "🏠" },
-  { href: "/athlete/calendar", label: "Calendario", icon: "📅" },
+  { href: "/athlete", label: "Hoy", icon: "■" },
+  { href: "/athlete/calendar", label: "Calendario", icon: "●" },
   { href: "/athlete/progress", label: "Progreso", icon: "📊" },
   { href: "/athlete/profile", label: "Perfil", icon: "👤" },
 ];

@@ -44,7 +44,7 @@ export default function QuickModeModal({
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           <h2 className="text-xl font-bold text-[var(--color-brand-dark-blue)] dark:text-white">
-            ⚡ Modo Rápido: Duplicar Rutina
+            ▸ Modo Rápido: Duplicar Rutina
           </h2>
           <button
             onClick={onClose}
@@ -76,7 +76,7 @@ export default function QuickModeModal({
                     onSelectRoutine(routine);
                     onClose();
                   }}
-                  className="w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-orange-50 dark:hover:bg-orange-900/10 hover:border-[var(--color-brand-orange)] transition"
+                  className="w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-500 dark:hover:bg-gray-500/10 hover:border-[var(--color-brand-orange)] transition"
                 >
                   <div className="flex items-start justify-between mb-1">
                     <h3 className="font-bold text-[var(--color-brand-dark-blue)] dark:text-white">

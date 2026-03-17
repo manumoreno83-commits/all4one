@@ -11,17 +11,8 @@ const KEYS = {
 
 // ── USERS ──
 
-const DEFAULT_USERS: User[] = [
-  { id: "coach-1", name: "Miguel", email: "coach@all4one.es", role: "coach", goal: "general", injuries: [], level: "elite", daysPerWeek: 6, createdAt: "2025-01-01" },
-  { id: "a1", name: "María García", email: "maria@test.com", role: "athlete", goal: "hyrox", injuries: ["shoulder"], level: "intermediate", daysPerWeek: 4, createdAt: "2025-02-01" },
-  { id: "a2", name: "Carlos Rodríguez", email: "carlos@test.com", role: "athlete", goal: "general", injuries: ["knee"], level: "beginner", daysPerWeek: 3, createdAt: "2025-02-15" },
-  { id: "a3", name: "Ana López", email: "ana@test.com", role: "athlete", goal: "fat_loss", injuries: [], level: "intermediate", daysPerWeek: 5, createdAt: "2025-03-01" },
-  { id: "a4", name: "Pedro Martínez", email: "pedro@test.com", role: "athlete", goal: "hyrox", injuries: [], level: "advanced", daysPerWeek: 5, createdAt: "2025-03-01" },
-  { id: "a5", name: "Laura Sánchez", email: "laura@test.com", role: "athlete", goal: "deka", injuries: ["lower_back"], level: "intermediate", daysPerWeek: 4, createdAt: "2025-03-05" },
-  { id: "a6", name: "Miguel Torres", email: "miguel@test.com", role: "athlete", goal: "general", injuries: [], level: "beginner", daysPerWeek: 3, createdAt: "2025-03-10" },
-  { id: "a7", name: "Elena Ruiz", email: "elena@test.com", role: "athlete", goal: "rehab", injuries: ["hip"], level: "beginner", daysPerWeek: 2, createdAt: "2025-03-12" },
-  { id: "a8", name: "David Fernández", email: "david@test.com", role: "athlete", goal: "hyrox", injuries: [], level: "elite", daysPerWeek: 6, createdAt: "2025-03-14" },
-];
+// No default users — production starts empty. Add real users via the admin panel.
+const DEFAULT_USERS: User[] = [];
 
 export function getUsers(): User[] {
   if (typeof window === "undefined") return DEFAULT_USERS;

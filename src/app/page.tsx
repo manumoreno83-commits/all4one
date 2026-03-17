@@ -24,12 +24,12 @@ export default function Home() {
     <div
       className="min-h-dvh flex flex-col items-center justify-center"
       style={{
-        background: "linear-gradient(135deg, #1A2A42, #223754, #496D91)",
+        background: "linear-gradient(135deg, #F5F5F5, #FFFFFF)",
       }}
     >
       <Image
-        src="/logo.png"
-        alt="ALL4ONE Funcional Fitness Club"
+        src="/logo-nano-banana.svg"
+        alt="Pro Training Platform"
         width={200}
         height={200}
         className="drop-shadow-2xl"

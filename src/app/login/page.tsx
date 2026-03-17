@@ -152,12 +152,12 @@ export default function LoginPage() {
       <div
         className="flex flex-col items-center justify-center pt-16 pb-10 px-6"
         style={{
-          background: "linear-gradient(135deg, #1A2A42, #223754, #496D91)",
+          background: "linear-gradient(135deg, #F5F5F5, #FFFFFF)",
         }}
       >
         <Image
-          src="/logo.png"
-          alt="ALL4ONE Funcional Fitness Club"
+          src="/logo-nano-banana.svg"
+          alt="Pro Training Platform"
           width={160}
           height={160}
           className="drop-shadow-2xl"
@@ -236,7 +236,7 @@ export default function LoginPage() {
               Iniciar sesión {selectedRole === "coach" ? "(Coach)" : "(Atleta)"}
             </h2>
             {success && (
-              <p className="text-sm text-green-600 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-xl">
+              <p className="text-sm text-gray-600 bg-gray-400 dark:bg-gray-400/20 px-3 py-2 rounded-xl">
                 {success}
               </p>
             )}

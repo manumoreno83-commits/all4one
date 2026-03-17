@@ -10,8 +10,8 @@ import Badge from "@/components/ui/Badge";
 import BottomNav from "@/components/ui/BottomNav";
 
 const athleteNav = [
-  { href: "/athlete", label: "Hoy", icon: "🏠" },
-  { href: "/athlete/calendar", label: "Calendario", icon: "📅" },
+  { href: "/athlete", label: "Hoy", icon: "■" },
+  { href: "/athlete/calendar", label: "Calendario", icon: "●" },
   { href: "/athlete/progress", label: "Progreso", icon: "📊" },
   { href: "/athlete/profile", label: "Perfil", icon: "👤" },
 ];
@@ -80,7 +80,7 @@ export default function ProfilePage() {
                     <InjuryBadge key={inj} injury={inj} />
                   ))
                 ) : (
-                  <span className="text-green-600 text-xs font-medium">
+                  <span className="text-gray-600 text-xs font-medium">
                     Sin lesiones
                   </span>
                 )}

@@ -2,13 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
-import Input, { SearchInput } from "@/components/ui/Input";
-import Modal, { ConfirmDialog } from "@/components/ui/Modal";
-import Badge, { InjuryBadge, DifficultyBadge, BlockBadge } from "@/components/ui/Badge";
+import ProButton from "@/components/ui/Pro/ProButton";
+import ProCard from "@/components/ui/Pro/ProCard";
+import ProInput from "@/components/ui/Pro/ProInput";
+import ProModal from "@/components/ui/Pro/ProModal";
+import ProBadge from "@/components/ui/Pro/ProBadge";
 import BottomNav from "@/components/ui/BottomNav";
-import { gradients } from "@/lib/colors";
 import {
   getUsers, addUser, updateUser, deleteUser,
   getExercises, updateExercise, addExercise, deleteExercise,
@@ -17,10 +16,10 @@ import {
 import type { User, Exercise, Routine, UserRole, TrainingGoal, Difficulty, ExerciseCategory, InjuryType } from "@/types";
 
 const coachNav = [
-  { href: "/coach", label: "Inicio", icon: "🏠" },
-  { href: "/coach/builder", label: "Rutinas", icon: "📋" },
-  { href: "/coach/athletes", label: "Atletas", icon: "👥" },
-  { href: "/coach/admin", label: "Admin", icon: "⚙️" },
+  { href: "/coach", label: "Inicio", icon: "■" },
+  { href: "/coach/builder", label: "Rutinas", icon: "□" },
+  { href: "/coach/athletes", label: "Atletas", icon: "◆" },
+  { href: "/coach/admin", label: "Admin", icon: "≡" },
 ];
 
 type Tab = "users" | "exercises" | "routines";
@@ -59,12 +58,12 @@ export default function AdminPanel() {
   return (
     <div className="min-h-dvh pb-20 bg-[#F6F7F8] dark:bg-[#0D1117]">
       {/* Header */}
-      <div className="px-6 pt-12 pb-6 rounded-b-3xl" style={{ background: gradients.wave }}>
+      <div className="px-6 pt-12 pb-6 bg-white dark:bg-[#1C2128] border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-4">
-          <Image src="/logo-small.png" alt="ALL4ONE" width={48} height={48} className="drop-shadow-lg" />
+          <Image src="/logo-nano-banana.svg" alt="Pro Training" width={48} height={48} />
           <div>
-            <h1 className="text-2xl font-bold text-white">Panel de Admin</h1>
-            <p className="text-white/70 text-sm">Gestión completa</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Panel de Admin</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Gestión completa</p>
           </div>
         </div>
       </div>
@@ -72,16 +71,16 @@ export default function AdminPanel() {
       {/* Tabs */}
       <div className="flex gap-1 px-4 mt-4 mb-4">
         {([
-          { key: "users", label: "Usuarios", icon: "👥", count: 0 },
-          { key: "exercises", label: "Ejercicios", icon: "💪", count: 0 },
-          { key: "routines", label: "Rutinas", icon: "📋", count: 0 },
+          { key: "users", label: "Usuarios", icon: "◆", count: 0 },
+          { key: "exercises", label: "Ejercicios", icon: "▪", count: 0 },
+          { key: "routines", label: "Rutinas", icon: "□", count: 0 },
         ] as const).map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`flex-1 py-3 rounded-xl text-sm font-semibold transition ${
               tab === t.key
-                ? "bg-[var(--color-brand-orange)] text-white shadow-md"
+                ? "bg-[#FF1493] text-white shadow-md"
                 : "bg-white dark:bg-[#1C2128] text-gray-600 dark:text-gray-400"
             }`}
           >
@@ -125,13 +124,13 @@ function UsersTab() {
     <>
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm text-gray-500">{users.length} usuarios</p>
-        <Button variant="accent" size="sm" onClick={() => setShowAdd(true)}>+ Nuevo</Button>
+        <ProButton variant="primary" size="sm" onClick={() => setShowAdd(true)}>+ Nuevo</ProButton>
       </div>
-      <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar usuario..." />
+      <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="◉ Buscar usuario..." className="w-full px-4 py-2 border-2 border-black dark:border-white rounded-none bg-white dark:bg-slate-900 text-black dark:text-white font-semibold focus:ring-2 focus:ring-pink-600 focus:border-transparent transition-all" />
 
       <div className="space-y-2 mt-3">
         {filtered.map((u) => (
-          <Card key={u.id} className="bg-white dark:bg-[#1C2128]">
+          <ProCard key={u.id} className="bg-white dark:bg-[#1C2128]">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[var(--color-brand-dark-blue)] flex items-center justify-center text-white font-bold">
                 {u.name.charAt(0)}
@@ -140,17 +139,16 @@ function UsersTab() {
                 <p className="font-bold text-sm text-[var(--color-brand-dark-blue)] dark:text-white truncate">{u.name}</p>
                 <p className="text-xs text-gray-500 truncate">{u.email}</p>
                 <div className="flex gap-1 mt-1 flex-wrap">
-                  <Badge label={roleLabels[u.role] ?? u.role} color={u.role === "coach" ? "var(--color-brand-orange)" : "var(--color-brand-medium-blue)"} />
-                  <Badge label={goalLabels[u.goal] ?? u.goal} color="var(--color-brand-dark-blue)" />
-                  {u.injuries.filter(i => i !== "none").map((inj) => <InjuryBadge key={inj} injury={inj} />)}
+                  <ProBadge label={roleLabels[u.role] ?? u.role} variant={u.role === "coach" ? "primary" : "secondary"} size="sm" />
+                  <ProBadge label={goalLabels[u.goal] ?? u.goal} variant="info" size="sm" />
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <button onClick={() => setEditingUser(u)} className="text-xs px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 font-medium">Editar</button>
-                <button onClick={() => setDeleteId(u.id)} className="text-xs px-2 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 font-medium">Borrar</button>
+                <button onClick={() => setEditingUser(u)} className="text-xs px-2 py-1 rounded-lg bg-gray-300 dark:bg-gray-300/20 text-gray-600 font-medium">Editar</button>
+                <button onClick={() => setDeleteId(u.id)} className="text-xs px-2 py-1 rounded-lg bg-red-400 dark:bg-red-400/20 text-pink-600 font-medium">Borrar</button>
               </div>
             </div>
-          </Card>
+          </ProCard>
         ))}
       </div>
 
@@ -171,15 +169,26 @@ function UsersTab() {
       />
 
       {/* Delete Confirm */}
-      <ConfirmDialog
-        open={!!deleteId}
+      <ProModal
+        isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}
-        onConfirm={() => { if (deleteId) { deleteUser(deleteId); refresh(); } }}
         title="Eliminar usuario"
-        message="¿Estás seguro? Esta acción no se puede deshacer."
-        confirmLabel="Eliminar"
-        danger
-      />
+        subtitle="¿Estás seguro? Esta acción no se puede deshacer."
+        actions={[
+          {
+            label: "Cancelar",
+            onClick: () => setDeleteId(null),
+            variant: "secondary",
+          },
+          {
+            label: "Eliminar",
+            onClick: () => { if (deleteId) { deleteUser(deleteId); setDeleteId(null); } },
+            variant: "primary",
+          },
+        ]}
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-400">Esta acción es irreversible.</p>
+      </ProModal>
     </>
   );
 }
@@ -209,10 +218,10 @@ function UserFormModal({
   const set = (k: keyof User, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
 
   return (
-    <Modal open={open} onClose={onClose} title={user ? "Editar usuario" : "Nuevo usuario"} size="md">
+    <ProModal isOpen={open} onClose={onClose} title={user ? "Editar usuario" : "Nuevo usuario"} size="md">
       <div className="space-y-4">
-        <Input label="Nombre" value={form.name} onChange={(e) => set("name", e.target.value)} />
-        <Input label="Email" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
+        <ProInput label="Nombre" value={form.name} onChange={(e) => set("name", e.target.value)} />
+        <ProInput label="Email" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 block">Rol</label>
@@ -252,7 +261,7 @@ function UserFormModal({
                 <button key={inj} type="button"
                   onClick={() => set("injuries", active ? form.injuries.filter((i) => i !== inj) : [...form.injuries, inj])}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                    active ? "bg-[var(--color-brand-red)] text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                    active ? "bg-[#FF1493] text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                   }`}>
                   {injLabels[inj] ?? inj.replace("_", " ")}
                 </button>
@@ -260,11 +269,11 @@ function UserFormModal({
             })}
           </div>
         </div>
-        <Button variant="accent" fullWidth onClick={() => onSave(form)}>
+        <ProButton variant="primary" fullWidth onClick={() => onSave(form)}>
           {user ? "Guardar cambios" : "Crear usuario"}
-        </Button>
+        </ProButton>
       </div>
-    </Modal>
+    </ProModal>
   );
 }
 
@@ -292,17 +301,17 @@ function ExercisesTab() {
     <>
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm text-gray-500">{exercises.length} ejercicios</p>
-        <Button variant="accent" size="sm" onClick={() => setShowAdd(true)}>+ Nuevo</Button>
+        <ProButton variant="primary" size="sm" onClick={() => setShowAdd(true)}>+ Nuevo</ProButton>
       </div>
-      <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar ejercicio..." />
+      <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="◉ Buscar ejercicio..." className="w-full px-4 py-2 border-2 border-black dark:border-white rounded-none bg-white dark:bg-slate-900 text-black dark:text-white font-semibold focus:ring-2 focus:ring-pink-600 focus:border-transparent transition-all" />
       <div className="flex gap-1.5 overflow-x-auto py-2 -mx-4 px-4 scrollbar-hide">
         <button onClick={() => setCategory("all")}
-          className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${category === "all" ? "bg-[var(--color-brand-orange)] text-white" : "bg-white dark:bg-[#1C2128] text-gray-500"}`}>
+          className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${category === "all" ? "bg-[#FF1493] text-white" : "bg-white dark:bg-[#1C2128] text-gray-500"}`}>
           Todos
         </button>
         {CATEGORIES.map((c) => (
           <button key={c} onClick={() => setCategory(c)}
-            className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${category === c ? "bg-[var(--color-brand-orange)] text-white" : "bg-white dark:bg-[#1C2128] text-gray-500"}`}>
+            className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${category === c ? "bg-[#FF1493] text-white" : "bg-white dark:bg-[#1C2128] text-gray-500"}`}>
             {catLabels[c] ?? c}
           </button>
         ))}
@@ -314,12 +323,12 @@ function ExercisesTab() {
             <div className="flex-1 min-w-0">
               <p className="font-medium text-sm text-[var(--color-brand-dark-blue)] dark:text-white truncate">{ex.name}</p>
               <div className="flex gap-1 mt-0.5">
-                <BlockBadge type={ex.category} />
-                <DifficultyBadge level={ex.difficulty} />
+                <ProBadge label={catLabels[ex.category] ?? ex.category} variant="secondary" size="sm" />
+                <ProBadge label={levelLabels[ex.difficulty] ?? ex.difficulty} variant="info" size="sm" />
               </div>
             </div>
-            <button onClick={() => setEditingEx(ex)} className="text-xs px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 font-medium">Editar</button>
-            <button onClick={() => setDeleteId(ex.id)} className="text-xs px-2 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 font-medium">×</button>
+            <button onClick={() => setEditingEx(ex)} className="text-xs px-2 py-1 rounded-lg bg-gray-300 dark:bg-gray-300/20 text-gray-600 font-medium">Editar</button>
+            <button onClick={() => setDeleteId(ex.id)} className="text-xs px-2 py-1 rounded-lg bg-red-400 dark:bg-red-400/20 text-pink-600 font-medium">×</button>
           </div>
         ))}
         {filtered.length > 80 && <p className="text-center text-xs text-gray-400 py-2">Mostrando 80 de {filtered.length}</p>}
@@ -335,9 +344,17 @@ function ExercisesTab() {
         onClose={() => setShowAdd(false)}
         onSave={(ex) => { addExercise(ex); refresh(); setShowAdd(false); }} />
 
-      <ConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)}
-        onConfirm={() => { if (deleteId) { deleteExercise(deleteId); refresh(); } }}
-        title="Eliminar ejercicio" message="¿Eliminar este ejercicio?" confirmLabel="Eliminar" danger />
+      <ProModal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        title="Eliminar ejercicio"
+        actions={[
+          { label: "Cancelar", onClick: () => setDeleteId(null), variant: "secondary" },
+          { label: "Eliminar", onClick: () => { if (deleteId) { deleteExercise(deleteId); refresh(); } }, variant: "primary" }
+        ]}
+      >
+        <p className="text-gray-600 dark:text-gray-400">¿Está seguro que desea eliminar este ejercicio?</p>
+      </ProModal>
     </>
   );
 }
@@ -378,9 +395,9 @@ function ExerciseFormModal({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={exercise ? "Editar ejercicio" : "Nuevo ejercicio"} size="lg">
+    <ProModal isOpen={open} onClose={onClose} title={exercise ? "Editar ejercicio" : "Nuevo ejercicio"} size="lg">
       <div className="space-y-3">
-        <Input label="Nombre" value={form.name} onChange={(e) => set("name", e.target.value)} />
+        <ProInput label="Nombre" value={form.name} onChange={(e) => set("name", e.target.value)} />
         <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 block">Categoría</label>
@@ -406,9 +423,9 @@ function ExerciseFormModal({
             </select>
           </div>
         </div>
-        <Input label="Equipamiento (separado por comas)" value={equipStr} onChange={(e) => setEquipStr(e.target.value)} placeholder="barra, mancuernas, banco" />
-        <Input label="Músculos (separado por comas)" value={muscleStr} onChange={(e) => setMuscleStr(e.target.value)} placeholder="cuádriceps, glúteos, core" />
-        <Input label="Descripción" value={form.description} onChange={(e) => set("description", e.target.value)} />
+        <ProInput label="Equipamiento (separado por comas)" value={equipStr} onChange={(e) => setEquipStr(e.target.value)} placeholder="barra, mancuernas, banco" />
+        <ProInput label="Músculos (separado por comas)" value={muscleStr} onChange={(e) => setMuscleStr(e.target.value)} placeholder="cuádriceps, glúteos, core" />
+        <ProInput label="Descripción" value={form.description} onChange={(e) => set("description", e.target.value)} />
         <div>
           <label className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 block">Riesgo por lesión</label>
           <div className="flex flex-wrap gap-1.5">
@@ -418,7 +435,7 @@ function ExerciseFormModal({
                 <button key={inj} type="button"
                   onClick={() => set("riskyFor", active ? form.riskyFor.filter((i) => i !== inj) : [...form.riskyFor, inj])}
                   className={`px-2.5 py-1 rounded-full text-xs font-medium transition ${
-                    active ? "bg-[var(--color-brand-red)] text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-600"
+                    active ? "bg-[#FF1493] text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-600"
                   }`}>
                   {injLabels[inj] ?? inj.replace("_", " ")}
                 </button>
@@ -426,11 +443,11 @@ function ExerciseFormModal({
             })}
           </div>
         </div>
-        <Button variant="accent" fullWidth onClick={save}>
+        <ProButton variant="primary" fullWidth onClick={save}>
           {exercise ? "Guardar cambios" : "Crear ejercicio"}
-        </Button>
+        </ProButton>
       </div>
-    </Modal>
+    </ProModal>
   );
 }
 
@@ -449,20 +466,20 @@ function RoutinesTab() {
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm text-gray-500">{routines.length} rutinas</p>
         <a href="/coach/builder">
-          <Button variant="accent" size="sm">+ Nueva rutina</Button>
+          <ProButton variant="primary" size="sm">+ Nueva rutina</ProButton>
         </a>
       </div>
 
       {routines.length === 0 ? (
         <div className="text-center py-12 text-gray-400">
-          <p className="text-4xl mb-3">📋</p>
+          <p className="text-4xl mb-3">□</p>
           <p className="font-medium">No hay rutinas creadas</p>
           <p className="text-sm mt-1">Ve al Constructor de Rutinas para crear una</p>
         </div>
       ) : (
         <div className="space-y-2">
           {routines.map((r) => (
-            <Card key={r.id} className="bg-white dark:bg-[#1C2128]">
+            <ProCard key={r.id} className="bg-white dark:bg-[#1C2128]">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <p className="font-bold text-[var(--color-brand-dark-blue)] dark:text-white">{r.name}</p>
@@ -470,7 +487,7 @@ function RoutinesTab() {
                     {r.goal} &middot; {r.difficulty} &middot; ~{r.estimatedMinutes}min
                   </p>
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {r.blocks?.map((b, i) => <BlockBadge key={i} type={b.type} />)}
+                    {r.blocks?.map((b, i) => <ProBadge key={i} label={b.type} variant="secondary" size="sm" />)}
                   </div>
                   {r.blocks?.map((b) => (
                     <div key={b.id} className="mt-2 ml-2">
@@ -484,23 +501,31 @@ function RoutinesTab() {
                   ))}
                 </div>
                 <div className="flex flex-col gap-1 ml-2">
-                  <a href="/coach/builder" className="text-xs px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 font-medium text-center">
+                  <a href="/coach/builder" className="text-xs px-2 py-1 rounded-lg bg-gray-300 dark:bg-gray-300/20 text-gray-600 font-medium text-center">
                     Editar
                   </a>
                   <button onClick={() => setDeleteId(r.id)}
-                    className="text-xs px-2 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 font-medium">
+                    className="text-xs px-2 py-1 rounded-lg bg-red-400 dark:bg-red-400/20 text-pink-600 font-medium">
                     Borrar
                   </button>
                 </div>
               </div>
-            </Card>
+            </ProCard>
           ))}
         </div>
       )}
 
-      <ConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)}
-        onConfirm={() => { if (deleteId) { deleteRoutine(deleteId); refresh(); } }}
-        title="Eliminar rutina" message="¿Eliminar esta rutina?" confirmLabel="Eliminar" danger />
+      <ProModal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        title="Eliminar rutina"
+        actions={[
+          { label: "Cancelar", onClick: () => setDeleteId(null), variant: "secondary" },
+          { label: "Eliminar", onClick: () => { if (deleteId) { deleteRoutine(deleteId); refresh(); } }, variant: "primary" }
+        ]}
+      >
+        <p className="text-gray-600 dark:text-gray-400">¿Está seguro que desea eliminar esta rutina?</p>
+      </ProModal>
     </>
   );
 }

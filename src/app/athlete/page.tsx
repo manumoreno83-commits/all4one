@@ -10,8 +10,8 @@ import BottomNav from "@/components/ui/BottomNav";
 import { gradients } from "@/lib/colors";
 
 const athleteNav = [
-  { href: "/athlete", label: "Hoy", icon: "🏠" },
-  { href: "/athlete/calendar", label: "Calendario", icon: "📅" },
+  { href: "/athlete", label: "Hoy", icon: "■" },
+  { href: "/athlete/calendar", label: "Calendario", icon: "●" },
   { href: "/athlete/progress", label: "Progreso", icon: "📊" },
   { href: "/athlete/profile", label: "Perfil", icon: "👤" },
 ];
@@ -39,9 +39,9 @@ const TODAY_WORKOUT = {
 // Recent PRs
 const RECENT_PRS = [
   { exercise: "Back Squat", value: "105 kg", date: "17 Mar", icon: "🏋️" },
-  { exercise: "Deadlift", value: "120 kg", date: "14 Mar", icon: "💪" },
-  { exercise: "5K Run", value: "24:30", date: "10 Mar", icon: "🏃" },
-  { exercise: "Row 2K", value: "7:45", date: "7 Mar", icon: "🚣" },
+  { exercise: "Deadlift", value: "120 kg", date: "14 Mar", icon: "▪" },
+  { exercise: "5K Run", value: "24:30", date: "10 Mar", icon: "►" },
+  { exercise: "Row 2K", value: "7:45", date: "7 Mar", icon: "◀" },
 ];
 
 export default function AthleteHome() {
@@ -66,8 +66,8 @@ export default function AthleteHome() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Image
-              src="/logo-small.png"
-              alt="ALL4ONE"
+              src="/logo-nano-banana.svg"
+              alt="Pro Training"
               width={56}
               height={56}
               className="drop-shadow-lg"
@@ -97,8 +97,8 @@ export default function AthleteHome() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
           <StatCard label="Este mes" value={14} icon="🏋️" />
-          <StatCard label="Racha" value="12 días" icon="🔥" />
-          <StatCard label="PRs este mes" value={4} icon="🏆" />
+          <StatCard label="Racha" value="12 días" icon="◯" />
+          <StatCard label="PRs este mes" value={4} icon="★" />
         </div>
 
         {/* Today's Workout */}
@@ -191,7 +191,7 @@ export default function AthleteHome() {
                     {w.day} &middot; {w.dur} min
                   </p>
                 </div>
-                <span className="text-green-500 text-lg">✓</span>
+                <span className="text-gray-600 text-lg">✓</span>
               </div>
             </Card>
           ))}

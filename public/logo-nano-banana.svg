@@ -1,0 +1,14 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gray background (rounded square) -->
+  <rect width="200" height="200" fill="#E5E5E5" rx="50"/>
+
+  <!-- Pink checkmark -->
+  <g transform="translate(50, 50)">
+    <path d="M 20 60 L 45 90 L 110 20"
+          stroke="#FF1493"
+          stroke-width="20"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+  </g>
+</svg>

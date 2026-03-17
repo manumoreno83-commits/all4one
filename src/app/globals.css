@@ -1,62 +1,72 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand Colors from all4one.es */
-  --color-brand-dark-blue: #223754;
-  --color-brand-dark-blue-dark: #1A2A42;
-  --color-brand-dark-blue-light: #2C4568;
-  --color-brand-medium-blue: #496D91;
-  --color-brand-medium-blue-light: #5A82AB;
-  --color-brand-medium-blue-dark: #3B5A78;
-  --color-brand-orange: #EC7910;
-  --color-brand-orange-light: #F59340;
-  --color-brand-orange-dark: #D06A0C;
-  --color-brand-yellow: #FDC300;
-  --color-brand-yellow-light: #FFD340;
-  --color-brand-yellow-dark: #E0AD00;
-  --color-brand-red: #E30518;
-  --color-brand-red-light: #FF2D3F;
-  --color-brand-red-dark: #C00414;
+  /* Monochrome with Pink Accents */
+  --color-primary: #FF1493;
+  --color-primary-hover: #FF0080;
+  --color-secondary: #FF1493;
+  --color-secondary-hover: #FF0080;
 
-  /* Semantic */
-  --color-success: #2ECC71;
-  --color-warning: #FDC300;
-  --color-error: #E30518;
-  --color-info: #496D91;
+  /* Status Colors */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
 
-  /* Block Colors */
-  --color-block-warmup: #EC7910;
-  --color-block-strength: #E30518;
-  --color-block-skill: #9B59B6;
-  --color-block-conditioning: #2ECC71;
-  --color-block-mobility: #496D91;
-  --color-block-recovery: #1ABC9C;
-  --color-block-endurance: #FF8200;
+  /* Base Colors - Pure Monochrome */
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+  --color-gray-light: #F5F5F5;
+  --color-gray-dark: #1A1A1A;
+
+  /* Legacy Colors (monochrome + pink accents) */
+  --color-brand-dark-blue: #333333;
+  --color-brand-medium-blue: #666666;
+  --color-brand-orange: #FF1493;
+  --color-brand-red: #FF1493;
+  --color-brand-yellow: #FF1493;
+
+  /* Block Colors - Monochrome scale */
+  --color-block-warmup: #FF1493;
+  --color-block-strength: #FF1493;
+  --color-block-skill: #808080;
+  --color-block-conditioning: #FF1493;
+  --color-block-mobility: #666666;
+  --color-block-recovery: #999999;
+  --color-block-endurance: #FF1493;
 
   /* WhatsApp */
   --color-whatsapp: #25D366;
 
   /* Font */
-  --font-brand: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-brand: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Base styles */
 html {
   font-family: var(--font-brand);
   -webkit-tap-highlight-color: transparent;
+  font-weight: 600;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background: #f6f7f8;
-  color: #223754;
+  background: #ffffff;
+  color: #000000;
   min-height: 100dvh;
 }
 
 @media (prefers-color-scheme: dark) {
   body {
-    background: #0d1117;
+    background: #000000;
     color: #ffffff;
   }
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #FF1493;
 }
 
 /* PWA standalone mode */
@@ -84,9 +94,41 @@ body {
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
 }
 ::-webkit-scrollbar-thumb {
-  background: #496D91;
-  border-radius: 2px;
+  background: #FF1493;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF0080;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

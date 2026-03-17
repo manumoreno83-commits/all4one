@@ -6,8 +6,8 @@ import { StatCard } from "@/components/ui/Card";
 import BottomNav from "@/components/ui/BottomNav";
 
 const athleteNav = [
-  { href: "/athlete", label: "Hoy", icon: "🏠" },
-  { href: "/athlete/calendar", label: "Calendario", icon: "📅" },
+  { href: "/athlete", label: "Hoy", icon: "■" },
+  { href: "/athlete/calendar", label: "Calendario", icon: "●" },
   { href: "/athlete/progress", label: "Progreso", icon: "📊" },
   { href: "/athlete/profile", label: "Perfil", icon: "👤" },
 ];
@@ -20,9 +20,9 @@ const MONTHLY_DATA = [
 
 const PRS = [
   { exercise: "Back Squat", value: "105 kg", date: "17 Mar", prev: "100 kg", icon: "🏋️" },
-  { exercise: "Deadlift", value: "120 kg", date: "14 Mar", prev: "115 kg", icon: "💪" },
-  { exercise: "5K Run", value: "24:30", date: "10 Mar", prev: "25:10", icon: "🏃" },
-  { exercise: "Row 2K", value: "7:45", date: "7 Mar", prev: "8:02", icon: "🚣" },
+  { exercise: "Deadlift", value: "120 kg", date: "14 Mar", prev: "115 kg", icon: "▪" },
+  { exercise: "5K Run", value: "24:30", date: "10 Mar", prev: "25:10", icon: "►" },
+  { exercise: "Row 2K", value: "7:45", date: "7 Mar", prev: "8:02", icon: "◀" },
   { exercise: "Clean & Jerk", value: "75 kg", date: "5 Mar", prev: "72 kg", icon: "🏋️" },
   { exercise: "Sled Push 50m", value: "0:38", date: "3 Mar", prev: "0:42", icon: "🛷" },
 ];
@@ -43,8 +43,8 @@ export default function ProgressPage() {
         <div className="grid grid-cols-2 gap-3 mb-6">
           <StatCard label="Entrenos este mes" value={totalSessions} icon="🏋️" color="#2ECC71" />
           <StatCard label="Horas entrenadas" value={`${Math.round(totalMinutes / 60)}h`} icon="⏱️" color="#EC7910" />
-          <StatCard label="Records personales" value={PRS.length} icon="🏆" color="#FDC300" />
-          <StatCard label="Racha actual" value="12 días" icon="🔥" color="#E30518" />
+          <StatCard label="Records personales" value={PRS.length} icon="★" color="#FDC300" />
+          <StatCard label="Racha actual" value="12 días" icon="◯" color="#E30518" />
         </div>
 
         {/* Monthly Activity */}

@@ -9,10 +9,10 @@ import { exercises } from "@/lib/exercises";
 import type { ExerciseCategory, Exercise } from "@/types";
 
 const coachNav = [
-  { href: "/coach", label: "Inicio", icon: "🏠" },
-  { href: "/coach/builder", label: "Rutinas", icon: "📋" },
-  { href: "/coach/athletes", label: "Atletas", icon: "👥" },
-  { href: "/coach/admin", label: "Admin", icon: "⚙️" },
+  { href: "/coach", label: "Inicio", icon: "■" },
+  { href: "/coach/builder", label: "Rutinas", icon: "□" },
+  { href: "/coach/athletes", label: "Atletas", icon: "◆" },
+  { href: "/coach/admin", label: "Admin", icon: "≡" },
 ];
 
 const CATEGORIES: { key: ExerciseCategory | "all"; label: string }[] = [
@@ -111,7 +111,7 @@ export default function ExerciseLibraryPage() {
                 </div>
                 {ex.riskyFor.length > 0 && (
                   <div>
-                    <span className="text-gray-500">⚠️ Riesgo: </span>
+                    <span className="text-gray-500">▲ Riesgo: </span>
                     <span className="font-medium text-[var(--color-brand-red)]">
                       {ex.riskyFor.join(", ")}
                     </span>
