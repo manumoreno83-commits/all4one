@@ -421,14 +421,15 @@ export default function RoutineBuilder() {
                       }}
                       className="p-1.5 bg-white dark:bg-[#1C2128] rounded text-xs border border-gray-200 dark:border-gray-700 flex items-center justify-between cursor-move hover:bg-orange-50 dark:hover:bg-orange-900/10"
                     >
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-700 dark:text-gray-300">
-                          {ex.exerciseName}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-700 dark:text-gray-300 truncate">
+                          {ex.exerciseName || 'Sin nombre'}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                           {ex.sets}×{ex.reps}
                           {ex.load && ` @${ex.load}${ex.loadType}`}
-                        </p>
+                          {ex.restSeconds && ` / ${ex.restSeconds}s`}
+                        </div>
                       </div>
                       <button
                         onClick={() => removeExercise(block.id, ex.id)}
