@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Colors from all4one.es */
+  --color-brand-dark-blue: #223754;
+  --color-brand-dark-blue-dark: #1A2A42;
+  --color-brand-dark-blue-light: #2C4568;
+  --color-brand-medium-blue: #496D91;
+  --color-brand-medium-blue-light: #5A82AB;
+  --color-brand-medium-blue-dark: #3B5A78;
+  --color-brand-orange: #EC7910;
+  --color-brand-orange-light: #F59340;
+  --color-brand-orange-dark: #D06A0C;
+  --color-brand-yellow: #FDC300;
+  --color-brand-yellow-light: #FFD340;
+  --color-brand-yellow-dark: #E0AD00;
+  --color-brand-red: #E30518;
+  --color-brand-red-light: #FF2D3F;
+  --color-brand-red-dark: #C00414;
+
+  /* Semantic */
+  --color-success: #2ECC71;
+  --color-warning: #FDC300;
+  --color-error: #E30518;
+  --color-info: #496D91;
+
+  /* Block Colors */
+  --color-block-warmup: #EC7910;
+  --color-block-strength: #E30518;
+  --color-block-skill: #9B59B6;
+  --color-block-conditioning: #2ECC71;
+  --color-block-mobility: #496D91;
+  --color-block-recovery: #1ABC9C;
+  --color-block-endurance: #FF8200;
+
+  /* WhatsApp */
+  --color-whatsapp: #25D366;
+
+  /* Font */
+  --font-brand: "Poppins", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Base styles */
+html {
+  font-family: var(--font-brand);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: #f6f7f8;
+  color: #223754;
+  min-height: 100dvh;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #0d1117;
+    color: #ffffff;
+  }
+}
+
+/* PWA standalone mode */
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Coach mode - extra large text */
+.coach-mode {
+  font-size: 1.25rem;
+}
+.coach-mode button {
+  min-height: 56px;
+  font-size: 1.125rem;
+}
+.coach-mode input,
+.coach-mode select,
+.coach-mode textarea {
+  min-height: 52px;
+  font-size: 1.125rem;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: #496D91;
+  border-radius: 2px;
+}

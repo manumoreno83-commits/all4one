@@ -1,0 +1,22 @@
+{
+  "name": "ALL4ONE Functional Fitness Club",
+  "short_name": "ALL4ONE",
+  "description": "Training platform for ALL4ONE Functional Fitness Club — HYROX, DEKA, endurance, mobility & more",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#223754",
+  "theme_color": "#223754",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo-small.png",
+      "sizes": "150x150",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
