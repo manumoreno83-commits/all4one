@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { BlockCard } from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
-import { BlockBadge, DifficultyBadge } from "@/components/ui/Badge";
+import { BlockBadge } from "@/components/ui/Badge";
 import BottomNav from "@/components/ui/BottomNav";
 import QuickModeModal from "@/components/ui/QuickModeModal";
 import { SearchInput } from "@/components/ui/Input";
@@ -298,16 +298,13 @@ export default function RoutineBuilder() {
                 }}
                 className="p-3 bg-white dark:bg-[#1C2128] rounded-lg cursor-move hover:shadow-md transition border border-gray-200 dark:border-gray-700"
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-medium text-sm text-[var(--color-brand-dark-blue)] dark:text-white">
-                      {ex.name}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {ex.category}
-                    </p>
-                  </div>
-                  <DifficultyBadge level={ex.difficulty} />
+                <div>
+                  <p className="font-medium text-sm text-[var(--color-brand-dark-blue)] dark:text-white">
+                    {ex.name}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {ex.category}
+                  </p>
                 </div>
               </div>
             ))}
@@ -424,10 +421,15 @@ export default function RoutineBuilder() {
                       }}
                       className="p-1.5 bg-white dark:bg-[#1C2128] rounded text-xs border border-gray-200 dark:border-gray-700 flex items-center justify-between cursor-move hover:bg-orange-50 dark:hover:bg-orange-900/10"
                     >
-                      <span className="font-medium text-gray-700 dark:text-gray-300">
-                        {ex.sets}×{ex.reps}
-                        {ex.load && ` @${ex.load}${ex.loadType}`}
-                      </span>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-700 dark:text-gray-300">
+                          {ex.exerciseName}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {ex.sets}×{ex.reps}
+                          {ex.load && ` @${ex.load}${ex.loadType}`}
+                        </p>
+                      </div>
                       <button
                         onClick={() => removeExercise(block.id, ex.id)}
                         className="text-gray-400 hover:text-red-500"
@@ -510,7 +512,6 @@ export default function RoutineBuilder() {
                         {ex.category}
                       </p>
                     </div>
-                    <DifficultyBadge level={ex.difficulty} />
                   </div>
                 </div>
               ))}
