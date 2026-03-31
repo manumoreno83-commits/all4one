@@ -1,0 +1,17 @@
+# Secrets — NEVER commit
+config/credentials.json
+config/token.json
+
+# Backups (local only)
+backups/
+
+# Logs
+logs/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.venv/

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "google-drive-sheets": {
+      "command": "python",
+      "args": ["-m", "src.server"],
+      "cwd": "/ruta/absoluta/a/mcp-google-drive-sheets",
+      "env": {}
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "allowed_folder_ids": [],
+  "max_rows_per_write": 10000,
+  "max_cells_per_batch": 50000,
+  "backup_enabled": true,
+  "backup_retention_days": 30,
+  "dry_run_default": false,
+  "log_level": "INFO"
+}
