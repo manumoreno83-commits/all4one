@@ -1,0 +1,581 @@
+<title>ALL4ONE Calendario</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap">
+
+<style>
+/* Layout: mobile-first fitness calendar with month grid + day detail panel */
+:root {
+  --bg: #F6F7F8;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F0F0F0;
+  --fg: #1A1A1A;
+  --fg-muted: #666666;
+  --fg-faint: #999999;
+  --accent: #FF1493;
+  --accent-soft: rgba(255, 20, 147, 0.1);
+  --accent-glow: rgba(255, 20, 147, 0.25);
+  --dot-completed: #10B981;
+  --dot-scheduled: #3B82F6;
+  --dot-inprogress: #F59E0B;
+  --dot-skipped: #9CA3AF;
+  --ring: rgba(0,0,0,0.06);
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1117;
+    --bg-card: #161B22;
+    --bg-card-hover: #1C2128;
+    --fg: #E6EDF3;
+    --fg-muted: #8B949E;
+    --fg-faint: #484F58;
+    --ring: rgba(255,255,255,0.06);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1117;
+  --bg-card: #161B22;
+  --bg-card-hover: #1C2128;
+  --fg: #E6EDF3;
+  --fg-muted: #8B949E;
+  --fg-faint: #484F58;
+  --ring: rgba(255,255,255,0.06);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 0 0.75rem;
+}
+.header h1 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.header h1 span { color: var(--accent); }
+.header .subtitle {
+  font-size: 0.7rem;
+  color: var(--fg-faint);
+  margin-top: 2px;
+  text-align: center;
+}
+.nav-btn {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--ring);
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--fg-muted);
+}
+.nav-btn:active { transform: scale(0.93); background: var(--bg-card-hover); }
+.nav-btn svg { width: 18px; height: 18px; }
+
+/* Stats strip */
+.stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 0.5rem 0 0.75rem;
+}
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+}
+.stat-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Day headers */
+.day-headers {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.day-headers span {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+/* Calendar grid */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  background: transparent;
+  color: var(--fg);
+  -webkit-tap-highlight-color: transparent;
+  font-family: var(--font-body);
+}
+.cal-cell:hover:not(.empty):not(.selected):not(.today) {
+  background: var(--bg-card-hover);
+}
+.cal-cell:active:not(.empty) { transform: scale(0.9); }
+.cal-cell.empty { cursor: default; }
+.cal-cell.today {
+  background: var(--fg);
+  color: var(--bg);
+  font-weight: 800;
+  box-shadow: 0 0 0 2.5px var(--accent), 0 0 0 4px var(--bg);
+}
+.cal-cell.selected {
+  background: var(--accent);
+  color: white;
+  font-weight: 800;
+  box-shadow: 0 4px 16px var(--accent-glow);
+  transform: scale(1.08);
+}
+.cal-cell.selected.today {
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+.cal-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 5px;
+  transition: background 0.15s;
+}
+
+/* Detail panel */
+.detail {
+  margin-top: 1.25rem;
+  animation: slideUp 0.25s ease-out;
+  padding-bottom: 2rem;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.detail-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.badge-today {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--accent);
+  color: white;
+}
+
+/* Workout card */
+.workout-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 0.6rem;
+  border: 1px solid var(--ring);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.workout-card:hover { border-color: var(--accent-glow); }
+.workout-card:active { transform: scale(0.985); }
+.wc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.wc-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+.wc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.wc-pill {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--bg-card-hover);
+  color: var(--fg-muted);
+}
+.wc-pill.time { color: var(--fg); }
+.wc-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.status-scheduled { background: rgba(59,130,246,0.1); color: #3B82F6; }
+.status-in_progress { background: rgba(245,158,11,0.1); color: #F59E0B; }
+.status-completed { background: rgba(16,185,113,0.1); color: #10B981; }
+.status-skipped { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+.empty-icon {
+  width: 56px; height: 56px;
+  margin: 0 auto 0.75rem;
+  border-radius: 50%;
+  background: var(--bg-card-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.empty-state p { font-size: 0.85rem; color: var(--fg-muted); font-weight: 600; }
+.empty-state .sub { font-size: 0.75rem; color: var(--fg-faint); font-weight: 400; margin-top: 4px; }
+
+/* Prompt */
+.prompt {
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 0.8rem;
+  color: var(--fg-faint);
+}
+
+/* Week summary strip */
+.week-summary {
+  display: flex;
+  gap: 4px;
+  margin: 1rem 0 0.25rem;
+  padding: 0.5rem 0;
+}
+.week-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--ring);
+  position: relative;
+  overflow: hidden;
+}
+.week-bar .fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail, .cal-cell { animation: none; transition: none; }
+}
+</style>
+
+<div id="app"></div>
+
+<script>
+(function() {
+  const DAYS = ['L','M','X','J','V','S','D'];
+  const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const MONTHS_SHORT = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+  const GOAL_LABELS = { hyrox:'HYROX', deka:'DEKA FIT', fat_loss:'Quema grasa', general:'General', rehab:'Rehabilitación' };
+  const DIFF_LABELS = { beginner:'Principiante', intermediate:'Intermedio', advanced:'Avanzado', elite:'Elite' };
+  const STATUS_CFG = {
+    scheduled:   { label:'Programado', icon:'⏳' },
+    in_progress: { label:'En curso',   icon:'▶' },
+    completed:   { label:'Completado', icon:'✓' },
+    skipped:     { label:'Omitido',    icon:'✕' }
+  };
+
+  function generateDemoWorkouts(year, month) {
+    const days = [1,3,5,7,8,10,12,14,15,17,19,22,24,26,28,29];
+    const routines = [
+      { name:'Fuerza + Umbral', goal:'hyrox', diff:'advanced', min:55 },
+      { name:'HYROX Prep', goal:'hyrox', diff:'intermediate', min:50 },
+      { name:'MetCon + Core', goal:'general', diff:'advanced', min:45 },
+      { name:'Movilidad + Recuperación', goal:'rehab', diff:'beginner', min:30 },
+      { name:'DEKA FIT Circuit', goal:'deka', diff:'intermediate', min:40 },
+      { name:'Endurance Base', goal:'hyrox', diff:'intermediate', min:60 },
+    ];
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    const maxDay = new Date(year, month+1, 0).getDate();
+
+    return days.filter(d => d <= maxDay).map((d,i) => {
+      const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const r = routines[i % routines.length];
+      let status = 'scheduled';
+      if (dateStr < todayStr) status = (d % 7 !== 0) ? 'completed' : 'skipped';
+      else if (dateStr === todayStr) status = 'in_progress';
+      return { id:`w-${dateStr}`, date:dateStr, status, routineName:`${r.name} — Sesión ${(i%5)+1}`, goal:r.goal, difficulty:r.diff, estimatedMinutes:r.min };
+    });
+  }
+
+  let currentMonth, currentYear, selectedDay, workouts;
+  const now = new Date();
+  currentMonth = now.getMonth();
+  currentYear = now.getFullYear();
+  selectedDay = null;
+  workouts = generateDemoWorkouts(currentYear, currentMonth);
+
+  function getWorkoutsByDay() {
+    const map = {};
+    const prefix = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}`;
+    workouts.forEach(w => {
+      if (!w.date.startsWith(prefix)) return;
+      const day = parseInt(w.date.split('-')[2], 10);
+      if (!map[day]) map[day] = [];
+      map[day].push(w);
+    });
+    return map;
+  }
+
+  function getMonthStats() {
+    const prefix = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}`;
+    let completed=0, scheduled=0, skipped=0;
+    workouts.forEach(w => {
+      if (!w.date.startsWith(prefix)) return;
+      if (w.status==='completed') completed++;
+      else if (w.status==='scheduled'||w.status==='in_progress') scheduled++;
+      else if (w.status==='skipped') skipped++;
+    });
+    return { completed, scheduled, skipped, total:completed+scheduled+skipped };
+  }
+
+  function getWeekCompletionData() {
+    const prefix = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}`;
+    const maxDay = new Date(currentYear, currentMonth+1, 0).getDate();
+    const weeks = [];
+    let weekStart = 1;
+    while (weekStart <= maxDay) {
+      const d = new Date(currentYear, currentMonth, weekStart);
+      let dayOfWeek = d.getDay();
+      if (dayOfWeek === 0) dayOfWeek = 7;
+      const weekEnd = Math.min(weekStart + (7 - dayOfWeek), maxDay);
+      weeks.push({ start: weekStart, end: weekEnd });
+      weekStart = weekEnd + 1;
+    }
+    return weeks.map(wk => {
+      let total=0, done=0;
+      workouts.forEach(w => {
+        if (!w.date.startsWith(prefix)) return;
+        const day = parseInt(w.date.split('-')[2],10);
+        if (day >= wk.start && day <= wk.end) {
+          total++;
+          if (w.status === 'completed') done++;
+        }
+      });
+      return { total, done, pct: total > 0 ? Math.round(done/total*100) : 0 };
+    });
+  }
+
+  function dotColor(status) {
+    switch(status) {
+      case 'completed': return 'var(--dot-completed)';
+      case 'in_progress': return 'var(--dot-inprogress)';
+      case 'skipped': return 'var(--dot-skipped)';
+      default: return 'var(--dot-scheduled)';
+    }
+  }
+
+  function isToday(day) {
+    return day === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear();
+  }
+
+  function render() {
+    const byDay = getWorkoutsByDay();
+    const stats = getMonthStats();
+    const weekData = getWeekCompletionData();
+    const firstDow = new Date(currentYear, currentMonth, 1).getDay();
+    const offset = firstDow === 0 ? 6 : firstDow - 1;
+    const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
+
+    let cells = '';
+    for (let i = 0; i < offset; i++) cells += '<button class="cal-cell empty" disabled></button>';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dw = byDay[d];
+      const hasDot = dw && dw.length > 0;
+      const primary = dw ? dw[0].status : null;
+      const sel = d === selectedDay;
+      const tod = isToday(d);
+      let cls = 'cal-cell';
+      if (sel) cls += ' selected';
+      if (tod && !sel) cls += ' today';
+      let dot = '';
+      if (hasDot) {
+        const c = (sel || tod) ? 'white' : dotColor(primary);
+        dot = `<span class="cal-dot" style="background:${c}"></span>`;
+      }
+      cells += `<button class="${cls}" data-day="${d}">${d}${dot}</button>`;
+    }
+
+    let weekBars = '';
+    weekData.forEach((w, i) => {
+      const color = w.pct >= 80 ? 'var(--dot-completed)' : w.pct >= 40 ? 'var(--dot-inprogress)' : 'var(--ring)';
+      weekBars += `<div class="week-bar"><div class="fill" style="width:${w.pct}%;background:${color}"></div></div>`;
+    });
+
+    let detail = '';
+    if (selectedDay !== null) {
+      const dw = byDay[selectedDay] || [];
+      const tod = isToday(selectedDay);
+      let cards = '';
+      if (dw.length > 0) {
+        dw.forEach(w => {
+          const sc = STATUS_CFG[w.status] || STATUS_CFG.scheduled;
+          cards += `
+            <div class="workout-card">
+              <div class="wc-top">
+                <div style="flex:1;min-width:0">
+                  <div class="wc-name">${w.routineName}</div>
+                  <div class="wc-meta">
+                    ${w.estimatedMinutes ? `<span class="wc-pill time">${w.estimatedMinutes} min</span>` : ''}
+                    <span class="wc-pill">${GOAL_LABELS[w.goal]||w.goal}</span>
+                    <span class="wc-pill">${DIFF_LABELS[w.difficulty]||w.difficulty}</span>
+                  </div>
+                </div>
+                <div class="wc-status status-${w.status}">${sc.icon} ${sc.label}</div>
+              </div>
+            </div>`;
+        });
+      } else {
+        cards = `
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--fg-faint)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/>
+                <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/>
+                <line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/>
+                <line x1="23" y1="22" x2="1" y2="22"/><polyline points="16 5 12 9 8 5"/>
+              </svg>
+            </div>
+            <p>Día de descanso</p>
+            <p class="sub">No hay entrenamientos programados</p>
+          </div>`;
+      }
+      detail = `
+        <div class="detail">
+          <div class="detail-header">
+            <h2>${selectedDay} de ${MONTHS[currentMonth]}</h2>
+            ${tod ? '<span class="badge-today">HOY</span>' : ''}
+          </div>
+          ${cards}
+        </div>`;
+    } else {
+      detail = '<div class="prompt">Selecciona un día para ver los detalles</div>';
+    }
+
+    document.getElementById('app').innerHTML = `
+      <div class="header">
+        <button class="nav-btn" id="prev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div style="text-align:center" id="goToday">
+          <h1>${MONTHS[currentMonth]} <span>${currentYear}</span></h1>
+          <div class="subtitle">Pulsa para ir a hoy</div>
+        </div>
+        <button class="nav-btn" id="next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      ${stats.total > 0 ? `
+      <div class="stats">
+        <div class="stat"><span class="stat-dot" style="background:var(--dot-completed)"></span>${stats.completed} completados</div>
+        <div class="stat"><span class="stat-dot" style="background:var(--dot-scheduled)"></span>${stats.scheduled} pendientes</div>
+        ${stats.skipped > 0 ? `<div class="stat"><span class="stat-dot" style="background:var(--dot-skipped)"></span>${stats.skipped} omitidos</div>` : ''}
+      </div>` : ''}
+
+      <div class="week-summary">${weekBars}</div>
+
+      <div class="day-headers">${DAYS.map(d => `<span>${d}</span>`).join('')}</div>
+      <div class="cal-grid">${cells}</div>
+      ${detail}
+    `;
+
+    document.getElementById('prev').addEventListener('click', () => {
+      if (currentMonth === 0) { currentMonth = 11; currentYear--; }
+      else currentMonth--;
+      selectedDay = null;
+      workouts = generateDemoWorkouts(currentYear, currentMonth);
+      render();
+    });
+    document.getElementById('next').addEventListener('click', () => {
+      if (currentMonth === 11) { currentMonth = 0; currentYear++; }
+      else currentMonth++;
+      selectedDay = null;
+      workouts = generateDemoWorkouts(currentYear, currentMonth);
+      render();
+    });
+    document.getElementById('goToday').addEventListener('click', () => {
+      currentMonth = now.getMonth();
+      currentYear = now.getFullYear();
+      selectedDay = now.getDate();
+      workouts = generateDemoWorkouts(currentYear, currentMonth);
+      render();
+    });
+    document.querySelectorAll('.cal-cell:not(.empty)').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const day = parseInt(btn.dataset.day, 10);
+        selectedDay = selectedDay === day ? null : day;
+        render();
+      });
+    });
+  }
+
+  render();
+})();
+</script>
